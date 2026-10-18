@@ -12,14 +12,14 @@
 body{font-family:Inter,system-ui;background:#07080c;color:#f4efe4;margin:0;min-height:100vh}
 .serif{font-family:"Cormorant Garamond",serif}
 .gold{color:#d4b483}
-.card{background:linear-gradient(180deg,#141414,#0c0c0c);border:1px solid rgba(212,180,131,.45);border-radius:22px;box-shadow:0 20px 50px rgba(0,0,0,.55)}
-.btn{background:linear-gradient(180deg,#e8c98a,#c9a15a);color:#1a1408;border:0;border-radius:14px;font-weight:700;padding:14px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(212,180,131,.3)}
+.card{background:linear-gradient(180deg,#12141c,#0d0f15);border:1px solid rgba(212,180,131,.16);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.btn{background:linear-gradient(180deg,#f0d7a0,#c9a15a);color:#1a1408;border:0;border-radius:16px;font-weight:700;padding:14px 18px;cursor:pointer;box-shadow:0 10px 24px rgba(201,161,90,.22)}
 .ghost{background:#141720;color:#f4efe4;border:1px solid rgba(212,180,131,.28);border-radius:16px;padding:14px 18px;cursor:pointer}
 input{width:100%;background:#0c0e14;border:1px solid rgba(212,180,131,.2);color:#f4efe4;border-radius:14px;padding:13px;outline:none}
 input:focus{border-color:#d4b483}
 .hidden{display:none!important}
 .stat{background:#0f1118;border:1px solid rgba(212,180,131,.12);border-radius:18px;padding:16px}
-  #scratch{width:100%;height:160px;border-radius:16px;border:1px solid rgba(212,180,131,.3);background:#1a1a1a}
+#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
 .menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
 .menu.open{display:block}
 .drawer{position:fixed;top:0;left:0;height:100%;width:290px;background:#141414;border-right:1px solid #2a2a2a;z-index:50;padding:18px 0 16px;transform:translateX(-100%);transition:.28s ease;display:flex;flex-direction:column}
@@ -46,21 +46,16 @@ input:focus{border-color:#d4b483}
 </head>
 <body>
 <div id="auth" class="max-w-md mx-auto px-5 py-16">
-  <div class="text-center mb-10">
-    <div class="serif text-6xl gold">Mintora</div>
-    <div class="text-xs tracking-widest text-[#b7ad98] mt-2">EARN · GROW · ELEVATE</div>
-  </div>
+  <div class="text-center mb-10"><div class="serif text-5xl gold">Mintora</div></div>
   <div id="box-login" class="card p-6">
-    <div class="serif text-2xl gold mb-5">Sign in</div>
-    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">USERNAME</div>
-    <input id="li-user" class="mb-4" placeholder="Enter your username"/>
-    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">PASSWORD</div>
-    <div class="rel mb-5"><input id="li-pass" type="password" placeholder="Enter your password"/><span class="eye" onclick="toggleEye('li-pass',this)">👁</span></div>
-    <button class="btn w-full" onclick="doLogin()">Continue →</button>
+    <div class="serif text-2xl mb-4">Sign in</div>
+    <input id="li-user" class="mb-3" placeholder="Username"/>
+    <div class="rel mb-4"><input id="li-pass" type="password" placeholder="Password"/><span class="eye" onclick="toggleEye('li-pass',this)">👁</span></div>
+    <button class="btn w-full" onclick="doLogin()">Continue</button>
     <button class="ghost w-full mt-3" onclick="show('box-signup')">Create account</button>
   </div>
   <div id="box-signup" class="card p-6 hidden">
-    <div class="serif text-2xl gold mb-4">Create account</div>
+    <div class="serif text-2xl mb-4">Create account</div>
     <input id="su-user" class="mb-3" placeholder="Username"/>
     <input id="su-email" class="mb-3" placeholder="Email"/>
     <input id="su-phone" class="mb-3" placeholder="Phone number"/>
@@ -70,7 +65,7 @@ input:focus{border-color:#d4b483}
     <button class="ghost w-full mt-3" onclick="show('box-login')">Login</button>
   </div>
   <div id="box-otp" class="card p-6 hidden">
-    <div class="serif text-2xl gold mb-4">Enter OTP</div>
+    <div class="serif text-2xl mb-4">Enter OTP</div>
     <input id="otp" class="mb-4" placeholder="6 digit OTP"/>
     <button class="btn w-full" onclick="verifyOtp()">Verify & Create</button>
   </div>
@@ -86,35 +81,28 @@ input:focus{border-color:#d4b483}
   </div>
 
   <div id="home">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <div class="serif text-4xl gold">Mintora</div>
-      <div class="text-sm mt-1" id="hello">Daler</div>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
     </div>
-    <button class="navbtn" onclick="openNav()">☰</button>
-  </div>
-  <div class="grid grid-cols-3 gap-3 mb-5">
-    <div class="card p-4 text-center">
-      <div class="text-xs text-[#b7ad98] mb-1">BALANCE</div>
-      <div class="serif text-xl gold" id="bal">$0</div>
+    <div class="card p-4 mb-4">
+      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
+        <button class="btn px-4" onclick="copyRef()">Copy</button>
+      </div>
+      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
+      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
     </div>
-    <div class="card p-4 text-center">
-      <div class="text-xs text-[#b7ad98] mb-1">EARN</div>
-      <div class="serif text-xl gold" id="earn">$0</div>
+    <div class="card p-5">
+      <div class="serif text-2xl mb-1">Daily earn</div>
+      <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
+      <canvas id="scratch"></canvas>
+      <div class="prog"><div id="prog"></div></div>
+      <div id="timer" class="text-xs text-[#b7ad98]">0s / 10s</div>
+      <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
     </div>
-    <div class="card p-4 text-center">
-      <div class="text-xs text-[#b7ad98] mb-1">TEAM</div>
-      <div class="serif text-xl" id="team">0 / 0</div>
-    </div>
-  </div>
-  <div class="card p-4 mb-5">
-    <div class="text-xs text-[#b7ad98] mb-1">REFERRAL</div>
-    <div class="flex items-center justify-between">
-      <div class="serif text-2xl gold" id="refcode">----</div>
-      <button class="btn px-4 py-2" onclick="copyRef()">Copy</button>
-    </div>
-    <div class="text-xs break-all mt-3 text-[#b7ad98]" id="reflink"></div>
-    <button class="ghost w-full mt-3" onclick="copyLink()">Copy link</button>
   </div>
 
   <div id="deposit" class="card p-5 hidden">
@@ -181,20 +169,6 @@ function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
 function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden")}
-  function showHome(){
-  el("hello").textContent=u.user;
-  el("bal").textContent="$"+money(u.bal);
-  el("earn").textContent="$"+money(u.profit||0);
-  el("team").textContent=(u.act||0)+" / "+(u.tot||0);
-  el("refcode").textContent=u.ref||(u.ref=code(),save(u),u.ref);
-  el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
-
-}
-
-  
-
-  
-  
 function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
 function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
 function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
@@ -269,9 +243,6 @@ function doLogin(){
   if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}
   var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
   u=p; salary(u); ambCards(u); showSpin(function(){enter()});
-  if(!u.ref) u.ref=code();
-  if(!u.ref) u.ref=code();
-save(u);
 }
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
