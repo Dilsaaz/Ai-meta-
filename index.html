@@ -19,7 +19,7 @@ input{width:100%;background:#0c0e14;border:1px solid rgba(212,180,131,.2);color:
 input:focus{border-color:#d4b483}
 .hidden{display:none!important}
 .stat{background:#0f1118;border:1px solid rgba(212,180,131,.12);border-radius:18px;padding:16px}
-#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
+  #scratch{width:100%;height:160px;border-radius:16px;border:1px solid rgba(212,180,131,.3);background:#1a1a1a}
 .menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
 .menu.open{display:block}
 .drawer{position:fixed;top:0;left:0;height:100%;width:290px;background:#141414;border-right:1px solid #2a2a2a;z-index:50;padding:18px 0 16px;transform:translateX(-100%);transition:.28s ease;display:flex;flex-direction:column}
@@ -190,6 +190,15 @@ function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
 function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden")}
+  function showHome(){
+  el("hello").textContent=u.user;
+  el("bal").textContent="$"+money(u.bal);
+  el("earn").textContent="$"+money(u.profit||0);
+  el("team").textContent=(u.act||0)+" / "+(u.tot||0);
+  el("refcode").textContent=u.ref||"----";
+  el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
+  initScratch();
+}
 function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
 function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
 function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
