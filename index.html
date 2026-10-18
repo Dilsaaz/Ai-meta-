@@ -117,13 +117,14 @@ input:focus{border-color:#d4b483}
     <button class="ghost w-full mt-3" onclick="copyLink()">Copy link</button>
   </div>
   <div class="card p-5">
-    <div class="serif text-2xl mb-1">Daily earn</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
-    <canvas id="scratch"></canvas>
-    <div class="prog mt-3"><div id="prog"></div></div>
-    <div id="timer" class="text-xs text-[#b7ad98] mt-1">0s / 10s</div>
-    <button class="btn w-full mt-4" onclick="reinvest()">Reinvest</button>
+  <div class="serif text-2xl mb-1">Daily earn</div>
+  <div class="text-sm text-[#b7ad98] mb-3" id="earn-msg">Swipe to unlock today's earn.</div>
+  <div id="swipe-area" class="h-16 rounded-2xl border border-white/10 relative overflow-hidden bg-white/5">
+    <div id="swipe-btn" class="absolute left-0 top-0 h-full w-16 bg-[#d4b483] rounded-2xl flex items-center justify-center cursor-pointer select-none">
+      <span class="text-black font-bold text-xl">→</span>
+    </div>
   </div>
+  <div id="stars" class="hidden mt-4 flex justify-center gap-3"></div>
 </div>
 
   <div id="deposit" class="card p-5 hidden">
@@ -199,13 +200,37 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
   initScratch();
 }
-  function initScratch(){
-  var c=el("scratch"); if(!c) return;
-  var ctx=c.getContext("2d");
-  c.width=c.offsetWidth||300; c.height=160;
-  ctx.fillStyle="#1a1a1a"; ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle="#d4b483"; ctx.font="20px serif"; ctx.textAlign="center";
-  ctx.fillText("Scratch 10 seconds", c.width/2, c.height/2);
+function initEarn(){
+  var area=el("swipe-area"), btn=el("swipe-btn"), stars=el("stars"), msg=el("earn-msg");
+  if(!area||!btn) return;
+  var startX=0, dragging=false, unlocked=false;
+  btn.onpointerdown=function(e){if(unlocked)return; dragging=true; startX=e.clientX; btn.setPointerCapture(e.pointerId);};
+  btn.onpointermove=function(e){
+    if(!dragging||unlocked)return;
+    var x=Math.max(0, Math.min(e.clientX-startX, area.offsetWidth-64));
+    btn.style.left=x+"px";
+    if(x>area.offsetWidth-100){
+      unlocked=true; dragging=false;
+      btn.style.left=(area.offsetWidth-64)+"px";
+      msg.textContent="Rate your experience";
+      showStars();
+    }
+  };
+  btn.onpointerup=function(){if(!unlocked){dragging=false; btn.style.left="0";}};
+  function showStars(){
+    stars.classList.remove("hidden");
+    stars.innerHTML="";
+    for(var i=1;i<=5;i++){
+      var s=document.createElement("button");
+      s.className="text-3xl text-white/30";
+      s.textContent="★";
+      s.onclick=(function(n){return function(){
+        for(var j=1;j<=5;j++) stars.children[j-1].className=j<=n?"text-3xl text-gold":"text-3xl text-white/30";
+        if(n>=5){msg.textContent="Earn unlocked!"; setTimeout(function(){/* claim logic yahan */},500);}
+      };})(i);
+      stars.appendChild(s);
+    }
+  }
 }
 function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
 function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
