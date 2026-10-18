@@ -22,9 +22,16 @@ input:focus{border-color:#d4b483}
 #scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
 .menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
 .menu.open{display:block}
-.drawer{position:fixed;top:0;right:0;height:100%;width:280px;background:#0e1016;border-left:1px solid rgba(212,180,131,.2);z-index:50;padding:24px 18px;transform:translateX(100%);transition:.28s ease}
+.drawer{position:fixed;top:0;left:0;height:100%;width:290px;background:#141414;border-right:1px solid #2a2a2a;z-index:50;padding:18px 0 16px;transform:translateX(-100%);transition:.28s ease;display:flex;flex-direction:column}
 .drawer.open{transform:translateX(0)}
-.drawer button{width:100%;text-align:left;margin-bottom:8px}
+.dtop{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 16px}
+.dx{background:none;border:0;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px}
+.navitem{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;color:#e8e4dc;text-align:left;padding:14px 18px;cursor:pointer;font-size:15px}
+.navitem.on{background:linear-gradient(90deg,rgba(212,180,131,.16),transparent);color:#d4b483;border-left:3px solid #d4b483}
+.navitem .ic{width:22px;text-align:center;opacity:.9}
+.uid{margin:auto 14px 10px;background:#1c1c1c;border:1px solid #333;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px}
+.uidb{width:36px;height:36px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
+.out{margin:0 14px;background:#2a1515;color:#ff6b6b;border:0;border-radius:12px;padding:12px;cursor:pointer;font-weight:600}
 .pop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
 .pop .box{background:#12141c;border:1px solid rgba(212,180,131,.3);border-radius:22px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:pop .25s ease}
 @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
@@ -32,6 +39,9 @@ input:focus{border-color:#d4b483}
 .rel{position:relative}
 .prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
 .prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .15s}
+.spinwrap{position:fixed;inset:0;background:#07080c;z-index:70;display:flex;align-items:center;justify-content:center}
+.spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(212,180,131,.25);border-top-color:#d4b483;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -98,7 +108,7 @@ input:focus{border-color:#d4b483}
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
-    <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0x59552E67B1a30Ee520C8B0701dA22bf398d0D0AE</div>
+    <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
     <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
     <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
@@ -125,17 +135,22 @@ input:focus{border-color:#d4b483}
 
 <div id="menu" class="menu" onclick="closeMenu()">
   <div class="drawer" id="drawer" onclick="event.stopPropagation()">
-    <div class="serif text-2xl gold mb-5">Menu</div>
-    <button class="ghost" onclick="tab('home')">Home</button>
-    <button class="ghost" onclick="tab('deposit')">Deposit</button>
-    <button class="ghost" onclick="tab('withdraw')">Withdraw</button>
-    <button class="ghost" onclick="tab('ref')">Referral</button>
-    <button class="ghost" onclick="tab('teamview')">Team</button>
-    <button class="ghost" onclick="tab('settings')">Settings</button>
-    <button class="ghost" id="admin-btn" onclick="tab('admin')">Admin</button>
-    <button class="ghost" onclick="logout()">Logout</button>
+    <div class="dtop">
+      <div class="serif text-3xl gold">Mintora</div>
+      <button class="dx" onclick="closeMenu()">×</button>
+    </div>
+    <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
+    <button class="navitem" onclick="tab('deposit',this)"><span class="ic">↓</span> Deposit</button>
+    <button class="navitem" onclick="tab('withdraw',this)"><span class="ic">↑</span> Withdraw</button>
+    <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
+    <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
+    <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
+    <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
+    <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
+    <button class="out" onclick="logout()">← Logout</button>
   </div>
 </div>
+<div id="spinwrap" class="spinwrap hidden"><div class="spin"></div></div>
 <div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm text-[#d8d0c2] mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
 
 <script>
@@ -181,6 +196,7 @@ function rankOf(p){
 }
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
+function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
 function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
 function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
 function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
@@ -220,20 +236,22 @@ function verifyOtp(){
   if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}
   var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
   var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};
-  save(p); u=p; enter(); pop("Welcome","Account created");
+  save(p); u=p; showSpin(function(){enter()});
 }
 function doLogin(){
   var name=el("li-user").value.trim(), pass=el("li-pass").value;
-  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};enter();tab("admin");pop("Admin","Signed in");return}
+  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}
   var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
-  u=p; salary(u); ambCards(u); enter(); pop("Welcome",u.user);
+  u=p; salary(u); ambCards(u); showSpin(function(){enter()});
 }
-function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
+function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
-function tab(id){
+function tab(id,btn){
   ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
   el(id).classList.remove("hidden");
   closeMenu();
+  document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
+  if(btn)btn.classList.add("on");
   if(id==="home")setupScratch();
   paint();
 }
@@ -253,7 +271,7 @@ function paint(){
   if(el("set-addr"))el("set-addr").value=u.wdAddr||"";
   var mine=all().filter(function(x){return x.sponsor===u.ref});
   el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn <b class="gold">15%</b> of each direct deposit.</div>';
-  el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div><div class="text-xs text-[#b7ad98] mt-3">Active = deposited</div>';
+  el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div>';
   var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
   el("hist").innerHTML=hist.join("<br>")||"No history";
   if(u.user==="admin"){
@@ -325,36 +343,48 @@ function tickSound(){
 function setupScratch(){
   var c=el("scratch"); if(!c)return;
   var ctx=c.getContext("2d");
-  var w=c.clientWidth||320, h=220;
+  var w=Math.max(c.clientWidth||0,280), h=220;
   c.width=w*2; c.height=h*2;
   ctx.setTransform(2,0,0,2,0,0);
-  var g=ctx.createLinearGradient(0,0,w,h);
-  g.addColorStop(0,"#3a2f1a"); g.addColorStop(.5,"#6b5428"); g.addColorStop(1,"#2a2214");
-  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-  ctx.fillStyle="#f0d7a0"; ctx.font="600 26px Cormorant Garamond, serif"; ctx.textAlign="center";
-  ctx.fillText(u&&u.ambCard?"Ambassador $"+u.ambCard:"Scratch 10 seconds", w/2, h/2);
+  function cover(){
+    ctx.setTransform(2,0,0,2,0,0);
+    var g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,"#4a3b1e"); g.addColorStop(.5,"#7a5c2e"); g.addColorStop(1,"#2e2414");
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle="#f0d7a0"; ctx.font="600 24px Cormorant Garamond, serif"; ctx.textAlign="center";
+    ctx.fillText("Scratch 10 seconds", w/2, h/2);
+  }
+  cover();
   done=false; scratchMs=0; lastTick=0;
   el("prog").style.width="0%"; el("timer").textContent="0s / 10s";
-  var down=false, lastSound=0;
+  var down=false, lastSound=0, raf=null;
   function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}
-  function go(e){
-    if(!down||done)return;
+  function tick(){
+    if(!down||done){raf=null;return}
     var now=Date.now();
-    if(lastTick)scratchMs+=Math.min(now-lastTick,180);
+    if(lastTick)scratchMs+=Math.min(now-lastTick,200);
     lastTick=now;
     var sec=Math.min(10,scratchMs/1000);
     el("prog").style.width=(sec/10*100)+"%";
     el("timer").textContent=Math.floor(sec)+"s / 10s";
-    if(now-lastSound>350){tickSound();lastSound=now}
-    var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,26,0,7);ctx.fill();
-    if(scratchMs>=10000){done=true;claim()}
+    if(now-lastSound>400){tickSound();lastSound=now}
+    if(scratchMs>=10000){done=true;claim();return}
+    raf=requestAnimationFrame(tick);
   }
-  c.onpointerdown=function(){down=true;lastTick=Date.now()};
-  c.onpointerup=function(){down=false;lastTick=0};
-  c.onpointerleave=function(){down=false;lastTick=0};
+  function go(e){
+    if(!down||done)return;
+    var p=pos(e);
+    ctx.globalCompositeOperation="destination-out";
+    ctx.beginPath();ctx.arc(p.x,p.y,28,0,7);ctx.fill();
+  }
+  function start(e){down=true;lastTick=Date.now();if(!raf)raf=requestAnimationFrame(tick);go(e)}
+  function stop(){down=false;lastTick=0}
+  c.onpointerdown=start;
+  c.onpointerup=stop;
+  c.onpointerleave=stop;
   c.onpointermove=go;
-  c.ontouchstart=function(){down=true;lastTick=Date.now()};
-  c.ontouchend=function(){down=false;lastTick=0};
+  c.ontouchstart=function(e){e.preventDefault();start(e)};
+  c.ontouchend=stop;
   c.ontouchmove=function(e){e.preventDefault();go(e)};
 }
 function claim(){
