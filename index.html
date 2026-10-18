@@ -198,24 +198,62 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("team").textContent=(u.act||0)+" / "+(u.tot||0);
   el("refcode").textContent=u.ref||(u.ref=code(),save(u),u.ref);
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
-  initScratch();
+  initEarn();
 }
 function initEarn(){
   var area=el("swipe-area"), btn=el("swipe-btn"), stars=el("stars"), msg=el("earn-msg");
   if(!area||!btn) return;
   var startX=0, dragging=false, unlocked=false;
-  btn.onpointerdown=function(e){if(unlocked)return; dragging=true; startX=e.clientX; btn.setPointerCapture(e.pointerId);};
-  btn.onpointermove=function(e){
-    if(!dragging||unlocked)return;
+  btn.addEventListener("pointerdown", function(e){
+    if(unlocked) return;
+    dragging=true;
+    startX=e.clientX;
+    btn.setPointerCapture(e.pointerId);
+  });
+  btn.addEventListener("pointermove", function(e){
+    if(!dragging||unlocked) return;
     var x=Math.max(0, Math.min(e.clientX-startX, area.offsetWidth-64));
     btn.style.left=x+"px";
-    if(x>area.offsetWidth-100){
-      unlocked=true; dragging=false;
+    if(x > area.offsetWidth-90){
+      unlocked=true;
+      dragging=false;
       btn.style.left=(area.offsetWidth-64)+"px";
-      msg.textContent="Rate your experience";
+      if(msg) msg.textContent="Rate your experience";
       showStars();
     }
-  };
+  });
+  btn.addEventListener("pointerup", function(){
+    if(!unlocked){
+      dragging=false;
+      btn.style.left="0px";
+    }
+  });
+  function showStars(){
+    if(!stars) return;
+    stars.classList.remove("hidden");
+    stars.innerHTML="";
+    for(var i=1;i<=5;i++){
+      var s=document.createElement("button");
+      s.className="text-4xl text-white/30";
+      s.textContent="★";
+      s.onclick=(function(n){
+        return function(){
+          for(var j=1;j<=5;j++){
+            stars.children[j-1].className = j<=n ? "text-4xl text-[#d4b483]" : "text-4xl text-white/30";
+          }
+          if(n>=5){
+            if(msg) msg.textContent="Earn unlocked!";
+            setTimeout(function(){
+              // yahan claim / earn add karne ka logic daal dena
+              pop("Daily earn unlocked","");
+            },400);
+          }
+        };
+      })(i);
+      stars.appendChild(s);
+    }
+  }
+}
   btn.onpointerup=function(){if(!unlocked){dragging=false; btn.style.left="0";}};
   function showStars(){
     stars.classList.remove("hidden");
