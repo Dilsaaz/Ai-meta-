@@ -12,41 +12,38 @@
 body{font-family:Inter,system-ui;background:#07080c;color:#f4efe4;margin:0;min-height:100vh}
 .serif{font-family:"Cormorant Garamond",serif}
 .gold{color:#d4b483}
-.card{background:linear-gradient(180deg,#141414,#0e0e0e);border:1px solid rgba(212,180,131,.28);border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
-.btn{background:linear-gradient(180deg,#e8c98a,#c9a15a);color:#1a1408;border:0;border-radius:14px;font-weight:700;padding:14px 18px;cursor:pointer;box-shadow:0 8px 20px rgba(201,161,90,.25)}
-.ghost{background:#141720;color:#f4efe4;border:1px solid rgba(212,180,131,.28);border-radius:16px;padding:14px 18px;cursor:pointer}
-input{width:100%;background:#0c0e14;border:1px solid rgba(212,180,131,.2);color:#f4efe4;border-radius:14px;padding:13px;outline:none}
+.card{background:linear-gradient(180deg,#161616,#101010);border:1px solid rgba(212,180,131,.3);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.btn{background:linear-gradient(180deg,#e8c98a,#c9a15a);color:#1a1408;border:0;border-radius:12px;font-weight:700;padding:13px 16px;cursor:pointer}
+.ghost{background:#111;color:#f4efe4;border:1px solid rgba(212,180,131,.3);border-radius:12px;padding:13px 16px;cursor:pointer}
+input{width:100%;background:#0a0a0a;border:1px solid rgba(212,180,131,.25);color:#f4efe4;border-radius:12px;padding:13px;outline:none}
 input:focus{border-color:#d4b483}
 .hidden{display:none!important}
-.stat{background:#111;border:1px solid rgba(212,180,131,.35);border-radius:16px;padding:16px}
-#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
-.menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
+.stat{background:#111;border:1px solid rgba(212,180,131,.32);border-radius:16px;padding:14px}
+#scratch{width:100%;height:200px;border-radius:16px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.35);display:block}
+.menu{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;display:none}
 .menu.open{display:block}
-.drawer{position:fixed;top:0;left:0;height:100%;width:290px;background:#141414;border-right:1px solid #2a2a2a;z-index:50;padding:18px 0 16px;transform:translateX(-100%);transition:.28s ease;display:flex;flex-direction:column}
+.drawer{position:fixed;top:0;left:0;height:100%;width:280px;background:#121212;border-right:1px solid #2a2a2a;z-index:50;padding:20px 0 16px;transform:translateX(-100%);transition:.25s;display:flex;flex-direction:column}
 .drawer.open{transform:translateX(0)}
-.dtop{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 16px}
-.dx{background:none;border:0;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px}
-.navitem{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;color:#e8e4dc;text-align:left;padding:14px 18px;cursor:pointer;font-size:15px}
-.navitem.on{background:linear-gradient(90deg,rgba(212,180,131,.16),transparent);color:#d4b483;border-left:3px solid #d4b483}
-.navitem .ic{width:22px;text-align:center;opacity:.9}
-.uid{margin:auto 14px 10px;background:#1c1c1c;border:1px solid #333;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px}
-.uidb{width:36px;height:36px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
+.navitem{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;color:#ddd;text-align:left;padding:13px 18px;cursor:pointer;font-size:15px}
+.navitem.on{background:linear-gradient(90deg,rgba(212,180,131,.2),transparent);color:#d4b483;border-left:3px solid #d4b483}
+.uid{margin:auto 14px 12px;background:#1a1a1a;border:1px solid #333;border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px}
+.uidb{width:34px;height:34px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center}
 .out{margin:0 14px;background:#2a1515;color:#ff6b6b;border:0;border-radius:12px;padding:12px;cursor:pointer;font-weight:600}
-.pop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
-.pop .box{background:#12141c;border:1px solid rgba(212,180,131,.3);border-radius:22px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:pop .25s ease}
-@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
-.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+.pop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.pop .box{background:#141414;border:1px solid rgba(212,180,131,.35);border-radius:20px;padding:26px 20px;max-width:320px;width:100%;text-align:center}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer}
 .rel{position:relative}
-.prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
-.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .15s}
+.prog{height:5px;background:#222;border-radius:99px;overflow:hidden;margin:8px 0}
+.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a)}
 .spinwrap{position:fixed;inset:0;background:#07080c;z-index:70;display:flex;align-items:center;justify-content:center}
-.spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(212,180,131,.25);border-top-color:#d4b483;animation:spin .8s linear infinite}
+.spin{width:48px;height:48px;border-radius:50%;border:3px solid rgba(212,180,131,.2);border-top-color:#d4b483;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.ico{width:28px;height:28px;border:1px solid rgba(212,180,131,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#d4b483;font-size:14px}
 </style>
 </head>
 <body>
-<div id="auth" class="max-w-md mx-auto px-5 py-16">
-  <div class="text-center mb-10"><div class="serif text-5xl gold">Mintora</div></div>
+<div id="auth" class="max-w-md mx-auto px-5 py-20">
+  <div class="text-center mb-10"><div class="serif text-5xl gold">Mintora</div><div class="text-xs tracking-widest text-[#b7ad98] mt-1">EARN · GROW · ELEVATE</div></div>
   <div id="box-login" class="card p-6">
     <div class="serif text-2xl mb-4">Sign in</div>
     <input id="li-user" class="mb-3" placeholder="Username"/>
@@ -71,56 +68,54 @@ input:focus{border-color:#d4b483}
   </div>
 </div>
 
-<div id="app" class="hidden max-w-5xl mx-auto px-5 py-6">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <div class="serif text-5xl gold">Mintora</div>
-      <div id="hello" class="text-lg mt-1"></div>
-    </div>
-    <button class="ghost px-3" onclick="openMenu()" aria-label="menu"><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div></button>
+<div id="app" class="hidden max-w-lg mx-auto px-4 py-5">
+  <div class="flex items-center justify-between mb-5">
+    <div class="serif text-4xl gold">Mintora</div>
+    <button class="ghost px-3 py-2" onclick="openMenu()">☰</button>
   </div>
+  <div id="hello" class="text-sm text-[#b7ad98] -mt-3 mb-4"></div>
 
   <div id="home">
-    <div class="grid grid-cols-3 gap-3 mb-4">
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <div class="stat text-center"><div class="ico mx-auto mb-1">$</div><div class="text-[10px] text-[#b7ad98]">BALANCE</div><div id="bal" class="text-lg gold font-semibold">$0</div></div>
+      <div class="stat text-center"><div class="ico mx-auto mb-1">↑</div><div class="text-[10px] text-[#b7ad98]">EARN</div><div id="profit" class="text-lg font-semibold">$0</div></div>
+      <div class="stat text-center"><div class="ico mx-auto mb-1">◎</div><div class="text-[10px] text-[#b7ad98]">TEAM</div><div id="team" class="text-lg font-semibold">0/0</div></div>
     </div>
     <div class="card p-4 mb-4">
-      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
-        <button class="btn px-4" onclick="copyRef()">Copy</button>
+      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-2">REFERRAL CODE</div>
+      <div class="flex items-center justify-between gap-2">
+        <div id="home-ref" class="text-xl font-bold gold"></div>
+        <button class="btn px-4 py-2" onclick="copyRef()">Copy</button>
       </div>
-      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
-      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
+      <div id="home-link" class="text-xs text-[#b7ad98] break-all mt-2"></div>
+      <button class="ghost w-full mt-2" onclick="copyLink()">Copy link</button>
     </div>
-    <div class="card p-5">
-      <div class="serif text-2xl mb-1">Daily earn</div>
-      <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
+    <div class="card p-4">
+      <div class="serif text-xl mb-1">Daily Scratch</div>
+      <div class="text-sm text-[#b7ad98] mb-3">Scratch 10 seconds to unlock today's earn.</div>
       <canvas id="scratch"></canvas>
       <div class="prog"><div id="prog"></div></div>
       <div id="timer" class="text-xs text-[#b7ad98]">0s / 10s</div>
-      <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
+      <button class="btn mt-3" onclick="reinvest()">Reinvest</button>
     </div>
   </div>
 
   <div id="deposit" class="card p-5 hidden">
-    <div class="serif text-2xl mb-3">Deposit</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
+    <div class="serif text-2xl mb-2">Deposit</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15 · USDT BEP20</div>
     <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
-    <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
+    <button class="ghost w-full mb-4" onclick="copyAddr()">Copy address</button>
     <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
-    <button class="btn" onclick="deposit()">Submit deposit</button>
+    <button class="btn w-full" onclick="deposit()">Submit deposit</button>
   </div>
   <div id="withdraw" class="card p-5 hidden">
     <div class="serif text-2xl mb-2">Withdraw</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $1. Paid after admin approval.</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $1 · Admin approval</div>
     <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
     <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
-    <button class="btn" onclick="withdraw()">Request withdraw</button>
-    <div class="mt-5 text-sm" id="hist"></div>
+    <button class="btn w-full" onclick="withdraw()">Request withdraw</button>
+    <div class="mt-4 text-sm" id="hist"></div>
   </div>
   <div id="ref" class="card p-5 hidden"></div>
   <div id="teamview" class="card p-5 hidden"></div>
@@ -134,29 +129,26 @@ input:focus{border-color:#d4b483}
 </div>
 
 <div id="menu" class="menu" onclick="closeMenu()">
-  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
-    <div class="dtop">
-      <div class="serif text-3xl gold">Mintora</div>
-      <button class="dx" onclick="closeMenu()">×</button>
-    </div>
-    <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
-    <button class="navitem" onclick="tab('deposit',this)"><span class="ic">↓</span> Deposit</button>
-    <button class="navitem" onclick="tab('withdraw',this)"><span class="ic">↑</span> Withdraw</button>
-    <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
-    <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
-    <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
-    <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
-    <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
-    <button class="out" onclick="logout()">← Logout</button>
+  <div class="drawer" onclick="event.stopPropagation()">
+    <div class="px-5 mb-4"><div class="serif text-3xl gold">Mintora</div><div class="text-[10px] tracking-widest text-[#b7ad98]">EARN · GROW</div></div>
+    <button class="navitem on" onclick="tab('home',this)">▦ Dashboard</button>
+    <button class="navitem" onclick="tab('deposit',this)">↓ Deposit</button>
+    <button class="navitem" onclick="tab('withdraw',this)">↑ Withdraw</button>
+    <button class="navitem" onclick="tab('ref',this)">◎ Referral</button>
+    <button class="navitem" onclick="tab('teamview',this)">☰ Team</button>
+    <button class="navitem" onclick="tab('settings',this)">⚙ Settings</button>
+    <button class="navitem" id="admin-btn" onclick="tab('admin',this)">◆ Admin</button>
+    <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold text-sm"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
+    <button class="out" onclick="logout()">Logout</button>
   </div>
 </div>
 <div id="spinwrap" class="spinwrap hidden"><div class="spin"></div></div>
-<div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm text-[#d8d0c2] mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
+<div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
 
 <script>
 var EJ_PUB="YOUR_PUBLIC_KEY", EJ_SVC="YOUR_SERVICE_ID", EJ_TPL="YOUR_TEMPLATE_ID";
 var ADMIN={user:"admin",pass:"Mint@2026"};
-var RANKS=[{n:1,name:"Analyst",need:"10 levels deep",pay:30},{n:2,name:"Strategist",need:"30 active team",pay:70},{n:3,name:"Manager",need:"90 active team",pay:180},{n:4,name:"Director",need:"170 active team",pay:420},{n:5,name:"Partner",need:"320 active team",pay:880}];
+var RANKS=[{n:1,name:"Analyst",pay:30},{n:2,name:"Strategist",pay:70},{n:3,name:"Manager",pay:180},{n:4,name:"Director",pay:420},{n:5,name:"Partner",pay:880}];
 var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
 var u=null, otp="", pending=null, otpAt=0, done=false, scratchMs=0, lastTick=0;
 function el(id){return document.getElementById(id)}
@@ -174,32 +166,31 @@ function depth(ref){var ks=kids(ref);if(!ks.length)return 0;return 1+Math.max.ap
 function rankOf(p){var team=downAll(p.ref).filter(active);var d=depth(p.ref), n=team.length, r=0;if(d>=10)r=1;if(n>=30)r=2;if(n>=90)r=3;if(n>=170)r=4;if(n>=320)r=5;return r}
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
-function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
+function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},800)}
 function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
 function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
-function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
-function salary(p){var r=rankOf(p);if(!r)return;var now=Date.now();if(p.lastSalary&&now-p.lastSalary<15*86400000)return;var pay=RANKS[r-1].pay;p.bal=+((+p.bal||0)+pay).toFixed(2);p.profit=+((+p.profit||0)+pay).toFixed(2);p.lastSalary=now;p.rank=r;save(p);if(u&&u.user===p.user)pop("Rank achieved",RANKS[r-1].name+" · $"+pay+" added")}
-function ambCards(p){var n=downAll(p.ref).filter(active).length;p.amb=p.amb||[];AMB.forEach(function(a){if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay;if(u&&u.user===p.user)pop("Ambassador",a.n+" team · $"+a.pay+" reward ready")}});save(p)}
-function sendOtp(){var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;if(!name||!email||!phone||pass.length<4){pop("Missing","Fill all fields");return}if(load(name)){pop("Taken","Username already used");return}otp=String(Math.floor(100000+Math.random()*900000));otpAt=Date.now();pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){emailjs.init(EJ_PUB);emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"Mintora OTP "+otp}).then(function(){pop("OTP sent","Check your email")}).catch(function(){pop("OTP",otp)})}else pop("OTP",otp);show("box-otp")}
-function verifyOtp(){if(Date.now()-otpAt>600000){pop("Expired","Request a new OTP");return}if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};save(p);u=p;showSpin(function(){enter()})}
-function doLogin(){var name=el("li-user").value.trim(), pass=el("li-pass").value;if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}var p=load(name);if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}u=p;salary(u);ambCards(u);showSpin(function(){enter()})}
+function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password"}
+function salary(p){var r=rankOf(p);if(!r)return;var now=Date.now();if(p.lastSalary&&now-p.lastSalary<15*86400000)return;var pay=RANKS[r-1].pay;p.bal=+((+p.bal||0)+pay).toFixed(2);p.profit=+((+p.profit||0)+pay).toFixed(2);p.lastSalary=now;p.rank=r;save(p);if(u&&u.user===p.user)pop("Rank",RANKS[r-1].name+" · $"+pay)}
+function ambCards(p){var n=downAll(p.ref).filter(active).length;p.amb=p.amb||[];AMB.forEach(function(a){if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay;if(u&&u.user===p.user)pop("Ambassador","$"+a.pay)}});save(p)}
+function sendOtp(){var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;if(!name||!email||!phone||pass.length<4){pop("Missing","Fill all fields");return}if(load(name)){pop("Taken","Username used");return}otp=String(Math.floor(100000+Math.random()*900000));otpAt=Date.now();pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};pop("OTP",otp);show("box-otp")}
+function verifyOtp(){if(Date.now()-otpAt>600000){pop("Expired","New OTP");return}if(el("otp").value.trim()!==otp){pop("Wrong","OTP mismatch");return}var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",amb:[],scratchDay:""};save(p);u=p;showSpin(function(){enter()})}
+function doLogin(){var name=el("li-user").value.trim(), pass=el("li-pass").value;if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}var p=load(name);if(!p||p.pass!==pass){pop("Failed","Wrong login");return}u=p;salary(u);ambCards(u);showSpin(function(){enter()})}
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
-function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
+function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login")}
 function tab(id,btn){["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden");closeMenu();document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});if(btn)btn.classList.add("on");if(id==="home")setupScratch();paint()}
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
-function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
+function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Code copied")})}
 function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname+"?ref="+u.ref).then(function(){pop("Copied","Link copied")})}
-function paint(){if(!u)return;var allTeam=u.user==="admin"?[]:downAll(u.ref);var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});el("bal").textContent="$"+money(u.bal);el("profit").textContent="$"+money(u.profit);el("team").textContent=act.length+" / "+ina.length;el("home-ref").textContent=u.ref||"";el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");if(el("set-email"))el("set-email").value=u.email||"";if(el("set-addr"))el("set-addr").value=u.wdAddr||"";var mine=all().filter(function(x){return x.sponsor===u.ref});el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn <b class="gold">15%</b> of each direct deposit.</div>';el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div>';var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));el("hist").innerHTML=hist.join("<br>")||"No history";if(u.user==="admin"){var pendD=[], pendW=[];all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});el("admin").innerHTML='<div class="serif text-2xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div><button class="btn mt-2" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-2xl mt-5 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div><button class="btn mt-2" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None")}}
-function saveSettings(){u.email=el("set-email").value.trim();u.wdAddr=el("set-addr").value.trim();save(u);pop("Saved","Email and withdraw address updated")}
-function deposit(){var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();if(amt<15){pop("Minimum","Deposit at least $15");return}if(hash.length<10){pop("Hash","Enter transaction hash");return}u.deps=u.deps||[];if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});save(u);paint();pop("Submitted","Deposit pending admin approval")}
-function approveDep(user,hash){var p=load(user);if(!p)return;var d=(p.deps||[]).filter(function(x){return x.hash===hash})[0];if(!d||d.st!=="PENDING")return;d.st="SUCCESSFUL";p.base=+((+p.base||0)+Number(d.amt)).toFixed(2);p.bal=+((+p.bal||0)+Number(d.amt)).toFixed(2);save(p);if(p.sponsor){var up=all().filter(function(x){return x.ref===p.sponsor})[0];if(up){var cut=+(d.amt*0.15).toFixed(2);up.bal=+((+up.bal||0)+cut).toFixed(2);up.profit=+((+up.profit||0)+cut).toFixed(2);save(up)}}if(u&&u.user===p.user)u=p;paint();pop("Approved","Deposit approved")}
-function withdraw(){var amt=+el("wd-amt").value, addr=(el("wd-addr").value||u.wdAddr||"").trim();if(amt<1){pop("Minimum","Withdraw at least $1");return}if(u.bal<amt){pop("Low balance","Not enough balance");return}if(addr.length<10){pop("Address","Enter your BEP20 address");return}u.bal=+(u.bal-amt).toFixed(2);u.wdAddr=addr;u.wds=u.wds||[];u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});save(u);paint();pop("Requested","Withdraw pending admin approval")}
-function approveWd(user,id){var p=load(user);if(!p)return;var w=(p.wds||[]).filter(function(x){return x.id===id})[0];if(!w||w.st!=="PENDING")return;w.st="PAID";save(p);if(u&&u.user===p.user)u=p;paint();pop("Paid","Withdraw marked paid")}
-function reinvest(){if(!(u.profit>0)){pop("Nothing","No earn to reinvest");return}var n=+u.profit;u.base=+((+u.base||0)+n).toFixed(2);u.profit=0;save(u);paint();pop("Reinvested","Total reinvested $"+money(n))}
-function coin(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}}
-function tickSound(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.06);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.06)}catch(e){}}
-function setupScratch(){var c=el("scratch");if(!c)return;var ctx=c.getContext("2d");var w=Math.max(c.clientWidth||0,280), h=220;c.width=w*2;c.height=h*2;ctx.setTransform(2,0,0,2,0,0);function cover(){ctx.setTransform(2,0,0,2,0,0);var g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"#4a3b1e");g.addColorStop(.5,"#7a5c2e");g.addColorStop(1,"#2e2414");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle="#f0d7a0";ctx.font="600 24px Cormorant Garamond, serif";ctx.textAlign="center";ctx.fillText("Scratch 10 seconds", w/2, h/2)}cover();done=false;scratchMs=0;lastTick=0;el("prog").style.width="0%";el("timer").textContent="0s / 10s";var down=false, lastSound=0, raf=null;function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}function tick(){if(!down||done){raf=null;return}var now=Date.now();if(lastTick)scratchMs+=Math.min(now-lastTick,200);lastTick=now;var sec=Math.min(10,scratchMs/1000);el("prog").style.width=(sec/10*100)+"%";el("timer").textContent=Math.floor(sec)+"s / 10s";if(now-lastSound>400){tickSound();lastSound=now}if(scratchMs>=10000){done=true;claim();return}raf=requestAnimationFrame(tick)}function go(e){if(!down||done)return;var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,28,0,7);ctx.fill()}function start(e){down=true;lastTick=Date.now();if(!raf)raf=requestAnimationFrame(tick);go(e)}function stop(){down=false;lastTick=0}c.onpointerdown=start;c.onpointerup=stop;c.onpointerleave=stop;c.onpointermove=go;c.ontouchstart=function(e){e.preventDefault();start(e)};c.ontouchend=stop;c.ontouchmove=function(e){e.preventDefault();go(e)}}
-function claim(){if(!active(u)&&!u.ambCard){pop("Deposit first","Earn opens after a successful deposit");setupScratch();return}if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();pop("Ambassador","$"+money(a)+" added");paint();return}if(u.scratchDay===day()){pop("Done","Today's earn already used");return}var add=+(u.base*0.025).toFixed(2);u.bal=+(u.bal+add).toFixed(2);u.profit=+(u.profit+add).toFixed(2);u.scratchDay=day();save(u);coin();pop("Earned","$"+money(add)+" · 2.5% of $"+money(u.base));paint()}
+function paint(){if(!u)return;var allTeam=u.user==="admin"?[]:downAll(u.ref);var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});el("bal").textContent="$"+money(u.bal);el("profit").textContent="$"+money(u.profit);el("team").textContent=act.length+"/"+ina.length;el("home-ref").textContent=u.ref||"";el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");if(el("set-email"))el("set-email").value=u.email||"";if(el("set-addr"))el("set-addr").value=u.wdAddr||"";var mine=all().filter(function(x){return x.sponsor===u.ref});el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="text-2xl gold font-bold mb-2">'+u.ref+'</div><button class="btn mr-2" onclick="copyRef()">Copy code</button><button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-4">Direct: <b class="gold">'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">15% on each direct deposit</div>';el("teamview").innerHTML='<div class="serif text-2xl mb-4">Team</div><div class="grid grid-cols-1 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-4xl gold font-bold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-4xl font-bold mt-1">'+ina.length+'</div></div></div>';var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}),(u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));el("hist").innerHTML=hist.join("<br>")||"No history";if(u.user==="admin"){var pendD=[],pendW=[];all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});el("admin").innerHTML='<div class="serif text-xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-2 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all">'+x.d.hash+'</div><button class="btn mt-1 text-sm" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-xl mt-4 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-2 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all">'+x.w.addr+'</div><button class="btn mt-1 text-sm" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None")}}
+function saveSettings(){u.email=el("set-email").value.trim();u.wdAddr=el("set-addr").value.trim();save(u);pop("Saved","Updated")}
+function deposit(){var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();if(amt<15){pop("Minimum","$15");return}if(hash.length<10){pop("Hash","Enter hash");return}u.deps=u.deps||[];if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash used");return}u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});save(u);paint();pop("Submitted","Pending")}
+function approveDep(user,hash){var p=load(user);if(!p)return;var d=(p.deps||[]).filter(function(x){return x.hash===hash})[0];if(!d||d.st!=="PENDING")return;d.st="SUCCESSFUL";p.base=+((+p.base||0)+Number(d.amt)).toFixed(2);p.bal=+((+p.bal||0)+Number(d.amt)).toFixed(2);save(p);if(p.sponsor){var up=all().filter(function(x){return x.ref===p.sponsor})[0];if(up){var cut=+(d.amt*0.15).toFixed(2);up.bal=+((+up.bal||0)+cut).toFixed(2);up.profit=+((+up.profit||0)+cut).toFixed(2);save(up)}}if(u&&u.user===p.user)u=p;paint();pop("Approved","Done")}
+function withdraw(){var amt=+el("wd-amt").value, addr=(el("wd-addr").value||u.wdAddr||"").trim();if(amt<1){pop("Minimum","$1");return}if(u.bal<amt){pop("Low","Not enough");return}if(addr.length<10){pop("Address","Enter address");return}u.bal=+(u.bal-amt).toFixed(2);u.wdAddr=addr;u.wds=u.wds||[];u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});save(u);paint();pop("Requested","Pending")}
+function approveWd(user,id){var p=load(user);if(!p)return;var w=(p.wds||[]).filter(function(x){return x.id===id})[0];if(!w||w.st!=="PENDING")return;w.st="PAID";save(p);if(u&&u.user===p.user)u=p;paint();pop("Paid","Done")}
+function reinvest(){if(!(u.profit>0)){pop("Nothing","No earn");return}var n=+u.profit;u.base=+((+u.base||0)+n).toFixed(2);u.profit=0;save(u);paint();pop("Reinvested","$"+money(n))}
+function coin(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.25);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.25)}catch(e){}}
+function setupScratch(){var c=el("scratch");if(!c)return;var ctx=c.getContext("2d");var w=Math.max(c.clientWidth||0,260), h=200;c.width=w*2;c.height=h*2;ctx.setTransform(2,0,0,2,0,0);function cover(){var g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,"#5a4620");g.addColorStop(.5,"#8a6828");g.addColorStop(1,"#3a2c14");ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle="#f0d7a0";ctx.font="600 20px Cormorant Garamond, serif";ctx.textAlign="center";ctx.fillText("SCRATCH 10 SECONDS", w/2, h/2)}cover();done=false;scratchMs=0;lastTick=0;el("prog").style.width="0%";el("timer").textContent="0s / 10s";var down=false, raf=null;function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}function tick(){if(!down||done){raf=null;return}var now=Date.now();if(lastTick)scratchMs+=Math.min(now-lastTick,180);lastTick=now;var sec=Math.min(10,scratchMs/1000);el("prog").style.width=(sec/10*100)+"%";el("timer").textContent=Math.floor(sec)+"s / 10s";if(scratchMs>=10000){done=true;claim();return}raf=requestAnimationFrame(tick)}function go(e){if(!down||done)return;var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,26,0,7);ctx.fill()}function start(e){down=true;lastTick=Date.now();if(!raf)raf=requestAnimationFrame(tick);go(e)}function stop(){down=false;lastTick=0}c.onpointerdown=start;c.onpointerup=stop;c.onpointerleave=stop;c.onpointermove=go;c.ontouchstart=function(e){e.preventDefault();start(e)};c.ontouchend=stop;c.ontouchmove=function(e){e.preventDefault();go(e)}}
+function claim(){if(!active(u)&&!u.ambCard){pop("Deposit first","Earn after deposit");setupScratch();return}if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();pop("Ambassador","$"+money(a));paint();return}if(u.scratchDay===day()){pop("Done","Already used today");return}var add=+(u.base*0.025).toFixed(2);u.bal=+(u.bal+add).toFixed(2);u.profit=+(u.profit+add).toFixed(2);u.scratchDay=day();save(u);coin();pop("Earned","$"+money(add));paint()}
 (function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
 </script>
 </body>
