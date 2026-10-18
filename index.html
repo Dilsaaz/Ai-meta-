@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Meta Trade</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+*{box-sizing:border-box}
+body{font-family:Outfit,system-ui;background:#0c1210;color:#f3f7f4;margin:0}
+.mint{color:#6ee7b7}
+.card{background:#141c18;border:1px solid #24312b;border-radius:18px}
+.btn{background:linear-gradient(180deg,#34d399,#059669);color:#052117;border:0;border-radius:12px;font-weight:800;padding:12px 16px;cursor:pointer}
+.ghost{background:#101714;color:#f3f7f4;border:1px solid #24312b;border-radius:12px;padding:12px 16px;cursor:pointer}
+input{width:100%;background:#0e1512;border:1px solid #24312b;color:#fff;border-radius:12px;padding:12px}
+.hidden{display:none!important}
+.nav{display:flex;gap:8px;overflow:auto}
+.nav button.on{background:#34d399;color:#052117;border:0}
+.stat{background:#101714;border:1px solid #24312b;border-radius:16px;padding:14px}
+#scratch{width:100%;height:220px;border-radius:18px;touch-action:none;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="auth" class="max-w-md mx-auto px-4 py-10">
+  <div class="text-center mb-6">
+    <div class="mint text-xs tracking-[.3em]">AI META TRADE</div>
+    <div class="text-3xl font-extrabold">Earn Desk</div>
+  </div>
+  <div id="box-login" class="card p-5">
+    <div class="font-bold mb-3">Sign in</div>
+    <input id="li-user" class="mb-2" placeholder="Username"/>
+    <input id="li-pass" type="password" class="mb-3" placeholder="Password"/>
+    <button class="btn w-full" onclick="doLogin()">Continue</button>
+    <button class="ghost w-full mt-2" onclick="show('box-signup')">Create account</button>
+  </div>
+  <div id="box-signup" class="card p-5 hidden">
+    <div class="font-bold mb-3">Create ID · Email OTP</div>
+    <input id="su-user" class="mb-2" placeholder="Username"/>
+    <input id="su-email" class="mb-2" placeholder="Email"/>
+    <input id="su-pass" type="password" class="mb-2" placeholder="Password"/>
+    <input id="su-ref" class="mb-3" placeholder="Referral code"/>
+    <button class="btn w-full" onclick="sendOtp()">Send OTP</button>
+    <button class="ghost w-full mt-2" onclick="show('box-login')">Back</button>
+  </div>
+  <div id="box-otp" class="card p-5 hidden">
+    <div class="font-bold mb-3">Enter email OTP</div>
+    <input id="otp" class="mb-3" placeholder="6 digit OTP"/>
+    <button class="btn w-full" onclick="verifyOtp()">Verify & Create</button>
+  </div>
+</div>
+
+<div id="app" class="hidden max-w-5xl mx-auto px-4 py-5">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <div class="mint text-xs tracking-[.25em]">AI META TRADE</div>
+      <div id="hello" class="text-xl font-extrabold"></div>
+      <div id="rank" class="text-xs text-[#b7c4bc]"></div>
+    </div>
+    <div class="card px-4 py-2 text-right">
+      <div class="text-[11px] text-[#b7c4bc]">Wallet</div>
+      <div id="bal" class="text-xl font-extrabold">$0.00</div>
+    </div>
+  </div>
+  <div class="grid grid-cols-3 gap-2 mb-4">
+    <div class="stat"><div class="text-[11px] text-[#b7c4bc]">Base</div><div id="base" class="font-extrabold">$0</div></div>
+    <div class="stat"><div class="text-[11px] text-[#b7c4bc]">Profit</div><div id="profit" class="font-extrabold">$0</div></div>
+    <div class="stat"><div class="text-[11px] text-[#b7c4bc]">Team</div><div id="team" class="font-extrabold">0</div></div>
+  </div>
+  <div class="nav mb-4">
+    <button class="ghost on" onclick="tab('earn',this)">Earn</button>
+    <button class="ghost" onclick="tab('wallet',this)">Wallet</button>
+    <button class="ghost" onclick="tab('ref',this)">Referral</button>
+    <button class="ghost" onclick="tab('ranks',this)">Ranks</button>
+    <button class="ghost" onclick="tab('admin',this)">Admin</button>
+    <button class="ghost" onclick="logout()">Logout</button>
+  </div>
+  <div id="earn" class="card p-4">
+    <div class="font-bold mb-1">Daily scratch</div>
+    <div class="text-xs text-[#b7c4bc] mb-3">One scratch a day after a successful deposit. Reward is 2.5% of your base.</div>
+    <canvas id="scratch"></canvas>
+    <div id="earn-msg" class="mt-3 text-sm"></div>
+    <button class="btn mt-3" onclick="reinvest()">Reinvest total</button>
+  </div>
+  <div id="wallet" class="card p-4 hidden">
+    <div class="font-bold mb-2">Deposit USDT BEP20</div>
+    <div class="text-sm mb-2">Minimum $15. Send only USDT on BEP20.</div>
+    <div class="card p-3 mb-2 break-all text-sm" id="dep-addr">0x59552E67B1a30Ee520C8B0701dA22bf398d0D0AE</div>
+    <button class="ghost mb-3" onclick="copyAddr()">Copy address</button>
+    <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-2"/>
+    <input id="dep-hash" placeholder="Transaction hash" class="mb-3"/>
+    <button class="btn" onclick="deposit()">Submit deposit</button>
+    <div id="dep-msg" class="mt-3 text-sm"></div>
+    <div class="font-bold mt-5 mb-2">Withdraw</div>
+    <div class="text-xs text-[#b7c4bc] mb-2">Minimum $1. Paid after admin approval.</div>
+    <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-2"/>
+    <input id="wd-addr" placeholder="Your BEP20 address" class="mb-3"/>
+    <button class="btn" onclick="withdraw()">Request withdraw</button>
+    <div id="wd-msg" class="mt-3 text-sm"></div>
+    <div class="font-bold mt-5 mb-2">History</div>
+    <div id="hist" class="text-sm"></div>
+  </div>
+  <div id="ref" class="card p-4 hidden"></div>
+  <div id="ranks" class="card p-4 hidden"></div>
+  <div id="admin" class="card p-4 hidden"></div>
+</div>
+<script>
+var EJ_PUB="YOUR_PUBLIC_KEY", EJ_SVC="YOUR_SERVICE_ID", EJ_TPL="YOUR_TEMPLATE_ID";
+var ADMIN={user:"admin",pass:"Meta@2026"};
+var RANKS=[
+  {n:1,name:"Analyst",need:"10 levels deep",pay:30},
+  {n:2,name:"Strategist",need:"30 active team",pay:70},
+  {n:3,name:"Manager",need:"90 active team",pay:180},
+  {n:4,name:"Director",need:"170 active team",pay:420},
+  {n:5,name:"Partner",need:"320 active team",pay:880}
+];
+var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
+var u=null, otp="", pending=null, otpAt=0, scratched=false;
+function el(id){return document.getElementById(id)}
+function money(n){return (+n||0).toFixed(2)}
+function day(){return new Date().toISOString().slice(0,10)}
+function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden")}
+function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
+function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
+function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
+function active(p){return (p.deps||[]).some(function(d){return d.st==="SUCCESSFUL"})}
+function downAll(ref){
+  var out=[], q=kids(ref);
+  while(q.length){var p=q.shift();out.push(p);q=q.concat(kids(p.ref))}
+  return out;
+}
+function depth(ref){
+  var ks=kids(ref); if(!ks.length)return 0;
+  return 1+Math.max.apply(null, ks.map(function(k){return depth(k.ref)}));
+}
+function rankOf(p){
+  var team=downAll(p.ref).filter(active);
+  var d=depth(p.ref), n=team.length, r=0;
+  if(d>=10)r=1;
+  if(n>=30)r=2;
+  if(n>=90)r=3;
+  if(n>=170)r=4;
+  if(n>=320)r=5;
+  return r;
+}
+function salary(p){
+  var r=rankOf(p); if(!r)return;
+  var now=Date.now();
+  if(p.lastSalary&&now-p.lastSalary<15*86400000)return;
+  var pay=RANKS[r-1].pay;
+  p.bal=+((+p.bal||0)+pay).toFixed(2);
+  p.profit=+((+p.profit||0)+pay).toFixed(2);
+  p.lastSalary=now; p.rank=r; save(p);
+}
+function ambCards(p){
+  var n=downAll(p.ref).filter(active).length;
+  p.amb=p.amb||[];
+  AMB.forEach(function(a){
+    if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay}
+  });
+  save(p);
+}
+function sendOtp(){
+  var name=el("su-user").value.trim(), email=el("su-email").value.trim(), pass=el("su-pass").value;
+  if(!name||!email||pass.length<4){alert("Fill all fields");return}
+  if(load(name)){alert("Username taken");return}
+  otp=String(Math.floor(100000+Math.random()*900000)); otpAt=Date.now();
+  pending={user:name,email:email,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
+  if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"AI Meta Trade OTP "+otp})
+      .then(function(){alert("OTP sent")}).catch(function(){alert("OTP: "+otp)});
+  } else alert("Set EmailJS keys. OTP: "+otp);
+  show("box-otp");
+}
+function verifyOtp(){
+  if(Date.now()-otpAt>600000){alert("OTP expired");return}
+  if(el("otp").value.trim()!==otp){alert("Wrong OTP");return}
+  var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
+  var p={user:pending.user,email:pending.email,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],refPaid:false,amb:[],scratchDay:""};
+  save(p); u=p; enter();
+}
+function doLogin(){
+  var name=el("li-user").value.trim(), pass=el("li-pass").value;
+  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};enter();tab("admin");return}
+  var p=load(name); if(!p||p.pass!==pass){alert("Wrong login");return}
+  u=p; salary(u); ambCards(u); enter();
+}
+function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;paint();setupScratch()}
+function logout(){u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login")}
+function tab(id,btn){["earn","wallet","ref","ranks","admin"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(function(b){b.classList.remove("on")});if(btn)btn.classList.add("on");paint()}
+function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){alert("Copied")})}
+function paint(){
+  if(!u)return;
+  var team=u.user==="admin"?[]:downAll(u.ref).filter(active);
+  var r=u.user==="admin"?0:rankOf(u);
+  el("bal").textContent="$"+money(u.bal);
+  el("base").textContent="$"+money(u.base);
+  el("profit").textContent="$"+money(u.profit);
+  el("team").textContent=team.length;
+  el("rank").textContent=r?RANKS[r-1].name+" rank":"No rank yet";
+  var mine=all().filter(function(x){return x.sponsor===u.ref});
+  el("ref").innerHTML='<div class="font-bold mb-1">Referral</div><div class="text-sm mb-2 break-all">'+location.origin+location.pathname+'?ref='+u.ref+'</div><div class="mb-2">Direct: <b>'+mine.length+'</b></div><div class="text-sm">You earn <b>15%</b> of each direct referral deposit, added to wallet.</div>';
+  el("ranks").innerHTML='<div class="font-bold mb-2">Ranks</div><div class="text-sm mb-2">Salary is added every 15 days.</div>'+RANKS.map(function(x){return '<div class="flex justify-between py-2 border-b border-white/10 text-sm"><span>'+x.name+' · '+x.need+'</span><b>$'+x.pay+'</b></div>'}).join("")+'<div class="font-bold mt-4 mb-2">Ambassador scratch</div>'+AMB.map(function(a){return '<div class="flex justify-between py-2 border-b border-white/10 text-sm"><span>'+a.n+' active team</span><b>$'+a.pay+' scratch</b></div>'}).join("");
+  var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
+  el("hist").innerHTML=hist.join("<br>")||"No history";
+  var pendD=[], pendW=[];
+  all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});
+  el("admin").innerHTML='<div class="font-bold mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-2 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all">'+x.d.hash+'</div><button class="btn mt-1" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="font-bold mt-4 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-2 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all">'+x.w.addr+'</div><button class="btn mt-1" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None");
+}
+function deposit(){
+  var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
+  if(amt<15){el("dep-msg").textContent="Minimum $15";return}
+  if(hash.length<10){el("dep-msg").textContent="Enter hash";return}
+  u.deps=u.deps||[];
+  if(u.deps.some(function(d){return d.hash===hash})){el("dep-msg").textContent="Hash used";return}
+  u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
+  save(u);paint(); el("dep-msg").textContent="Pending admin approval.";
+}
+function approveDep(user,hash){
+  var p=load(user); if(!p)return;
+  var d=(p.deps||[]).filter(function(x){return x.hash===hash})[0];
+  if(!d||d.st!=="PENDING")return;
+  d.st="SUCCESSFUL";
+  p.base=+((+p.base||0)+Number(d.amt)).toFixed(2);
+  p.bal=+((+p.bal||0)+Number(d.amt)).toFixed(2);
+  save(p);
+  if(p.sponsor){
+    var up=all().filter(function(x){return x.ref===p.sponsor})[0];
+    if(up){var cut=+(d.amt*0.15).toFixed(2);up.bal=+((+up.bal||0)+cut).toFixed(2);up.profit=+((+up.profit||0)+cut).toFixed(2);save(up)}
+  }
+  if(u&&u.user===p.user)u=p;
+  paint();
+}
+function withdraw(){
+  var amt=+el("wd-amt").value, addr=el("wd-addr").value.trim();
+  if(amt<1){el("wd-msg").textContent="Minimum $1";return}
+  if(u.bal<amt){el("wd-msg").textContent="Low balance";return}
+  if(addr.length<10){el("wd-msg").textContent="Enter address";return}
+  u.bal=+(u.bal-amt).toFixed(2);
+  u.wds=u.wds||[];
+  u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});
+  save(u);paint(); el("wd-msg").textContent="Withdraw pending admin approval.";
+}
+function approveWd(user,id){
+  var p=load(user); if(!p)return;
+  var w=(p.wds||[]).filter(function(x){return x.id===id})[0];
+  if(!w||w.st!=="PENDING")return;
+  w.st="PAID"; save(p); if(u&&u.user===p.user)u=p; paint();
+}
+function reinvest(){
+  if(!(u.profit>0)){el("earn-msg").textContent="No profit to reinvest";return}
+  u.base=+((+u.base||0)+(+u.profit||0)).toFixed(2);
+  u.profit=0; save(u); paint();
+  el("earn-msg").textContent="Reinvested. Next scratch uses the new base.";
+}
+function coin(){
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(440,a.currentTime+.18);g.gain.setValueAtTime(.2,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.25);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.25)}catch(e){}
+}
+function setupScratch(){
+  var c=el("scratch"), ctx=c.getContext("2d");
+  function fit(){c.width=c.offsetWidth*2;c.height=440;ctx.scale(2,2)}
+  fit();
+  function cover(){
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(2,2);
+    ctx.fillStyle="#1f6f54"; ctx.fillRect(0,0,c.offsetWidth,220);
+    ctx.fillStyle="#d1fae5"; ctx.font="700 22px Outfit"; ctx.textAlign="center";
+    ctx.fillText(u&&u.ambCard?"Ambassador scratch $"+u.ambCard:"Scratch to earn", c.offsetWidth/2, 110);
+  }
+  cover(); scratched=false;
+  var down=false;
+  function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}
+  function go(e){if(!down)return;var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,24,0,7);ctx.fill()}
+  c.onpointerdown=function(){down=true};
+  c.onpointerup=function(){down=false;reveal()};
+  c.onpointermove=go;
+  c.ontouchstart=function(){down=true};
+  c.ontouchend=function(){down=false;reveal()};
+  c.ontouchmove=function(e){e.preventDefault();go(e)};
+  function reveal(){
+    if(scratched)return;
+    var img=ctx.getImageData(0,0,c.width,c.height), n=0, z=0;
+    for(var i=3;i<img.data.length;i+=16){n++;if(img.data[i]===0)z++}
+    if(z/n<0.45)return;
+    scratched=true; claim();
+  }
+}
+function claim(){
+  if(!active(u)&&!u.ambCard){el("earn-msg").textContent="Deposit first. Scratch opens after approval.";setupScratch();return}
+  if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();el("earn-msg").textContent="Ambassador reward $"+money(a)+" added.";paint();return}
+  if(u.scratchDay===day()){el("earn-msg").textContent="Today's scratch already used.";return}
+  var add=+(u.base*0.025).toFixed(2);
+  u.bal=+(u.bal+add).toFixed(2); u.profit=+(u.profit+add).toFixed(2); u.scratchDay=day(); save(u); coin();
+  el("earn-msg").textContent="Earned $"+money(add)+" · 2.5% of $"+money(u.base); paint();
+}
+(function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
+</script>
+</body>
+</html>
