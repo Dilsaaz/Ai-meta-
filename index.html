@@ -109,6 +109,11 @@ input:focus{border-color:#d4b483}
       <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
     </div>
   </div>
+  <div class="card p-5">
+  <div class="serif text-2xl mb-1">Trade</div>
+  <div class="text-sm text-[#b7ad98] mb-4" id="trade-msg">Ready to trade</div>
+  <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
+</div>
 
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
@@ -198,6 +203,26 @@ function rankOf(p){
   if(n>=170)r=4;
   if(n>=320)r=5;
   return r;
+}
+  function startTrade(){
+  var btn=el("trade-btn"), msg=el("trade-msg");
+  if(!btn||btn.disabled) return;
+  btn.disabled=true;
+  btn.textContent="Trading...";
+  if(msg) msg.textContent="Processing trade...";
+  setTimeout(function(){
+    var profit=2.5;
+    if(u){
+      u.bal=+(u.bal+profit).toFixed(2);
+      u.profit=+((u.profit||0)+profit).toFixed(2);
+      save(u);
+      showHome();
+    }
+    if(msg) msg.textContent="Trade successful · +$"+profit.toFixed(2);
+    pop("Trade successful","+$"+profit.toFixed(2)+" added");
+    btn.textContent="Trade Now";
+    btn.disabled=false;
+  },5000);
 }
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
