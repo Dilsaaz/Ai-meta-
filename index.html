@@ -9,33 +9,38 @@
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap");
 *{box-sizing:border-box}
-body{font-family:Inter,system-ui;background:#0a0b10;color:#efe8d8;margin:0;min-height:100vh}
+body{font-family:Inter,system-ui;background:#07080c;color:#f4efe4;margin:0;min-height:100vh}
 .serif{font-family:"Cormorant Garamond",serif}
 .gold{color:#d4b483}
-.card{background:linear-gradient(180deg,#161821,#12141b);border:1px solid rgba(212,180,131,.18);border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
-.btn{background:linear-gradient(180deg,#e7c98a,#b8924f);color:#1a1408;border:0;border-radius:12px;font-weight:700;padding:12px 16px;cursor:pointer;letter-spacing:.02em}
-.ghost{background:transparent;color:#efe8d8;border:1px solid rgba(212,180,131,.35);border-radius:12px;padding:12px 16px;cursor:pointer}
-input{width:100%;background:#0e1016;border:1px solid rgba(212,180,131,.22);color:#efe8d8;border-radius:12px;padding:12px;outline:none}
+.card{background:linear-gradient(180deg,#12141c,#0d0f15);border:1px solid rgba(212,180,131,.16);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.btn{background:linear-gradient(180deg,#e8c98a,#b8924f);color:#1a1408;border:0;border-radius:14px;font-weight:700;padding:13px 16px;cursor:pointer}
+.ghost{background:transparent;color:#f4efe4;border:1px solid rgba(212,180,131,.3);border-radius:14px;padding:13px 16px;cursor:pointer}
+input{width:100%;background:#0c0e14;border:1px solid rgba(212,180,131,.2);color:#f4efe4;border-radius:14px;padding:13px;outline:none}
 input:focus{border-color:#d4b483}
 .hidden{display:none!important}
-.nav{display:flex;gap:6px;overflow:auto;padding-bottom:4px}
-.nav button{white-space:nowrap}
-.nav button.on{background:#d4b483;color:#1a1408;border-color:#d4b483}
-.stat{background:#101218;border:1px solid rgba(212,180,131,.15);border-radius:16px;padding:16px}
-#scratch{width:100%;height:240px;border-radius:18px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.25)}
-.line{height:1px;background:rgba(212,180,131,.15);margin:12px 0}
+.stat{background:#0f1118;border:1px solid rgba(212,180,131,.12);border-radius:18px;padding:16px}
+#scratch{width:100%;height:250px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);background:#0e1016}
+.menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
+.menu.open{display:block}
+.drawer{position:fixed;top:0;right:0;height:100%;width:280px;background:#0e1016;border-left:1px solid rgba(212,180,131,.2);z-index:50;padding:24px 18px;transform:translateX(100%);transition:.28s ease}
+.drawer.open{transform:translateX(0)}
+.drawer button{width:100%;text-align:left;margin-bottom:8px}
+.pop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.pop .box{background:#12141c;border:1px solid rgba(212,180,131,.3);border-radius:22px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+.rel{position:relative}
+.prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
+.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .2s}
 </style>
 </head>
 <body>
 <div id="auth" class="max-w-md mx-auto px-5 py-16">
-  <div class="text-center mb-10">
-    <div class="serif text-5xl gold">Mintora</div>
-    <div class="text-xs tracking-[.35em] mt-2 text-[#b7ad98]">PRIVATE EARN DESK</div>
-  </div>
+  <div class="text-center mb-10"><div class="serif text-5xl gold">Mintora</div></div>
   <div id="box-login" class="card p-6">
     <div class="serif text-2xl mb-4">Sign in</div>
     <input id="li-user" class="mb-3" placeholder="Username"/>
-    <input id="li-pass" type="password" class="mb-4" placeholder="Password"/>
+    <div class="rel mb-4"><input id="li-pass" type="password" placeholder="Password"/><span class="eye" onclick="toggleEye('li-pass',this)">👁</span></div>
     <button class="btn w-full" onclick="doLogin()">Continue</button>
     <button class="ghost w-full mt-3" onclick="show('box-signup')">Create account</button>
   </div>
@@ -43,10 +48,11 @@ input:focus{border-color:#d4b483}
     <div class="serif text-2xl mb-4">Create account</div>
     <input id="su-user" class="mb-3" placeholder="Username"/>
     <input id="su-email" class="mb-3" placeholder="Email"/>
-    <input id="su-pass" type="password" class="mb-3" placeholder="Password"/>
+    <input id="su-phone" class="mb-3" placeholder="Phone number"/>
+    <div class="rel mb-3"><input id="su-pass" type="password" placeholder="Password"/><span class="eye" onclick="toggleEye('su-pass',this)">👁</span></div>
     <input id="su-ref" class="mb-4" placeholder="Referral code"/>
     <button class="btn w-full" onclick="sendOtp()">Send OTP</button>
-    <button class="ghost w-full mt-3" onclick="show('box-login')">Back</button>
+    <button class="ghost w-full mt-3" onclick="show('box-login')">Login</button>
   </div>
   <div id="box-otp" class="card p-6 hidden">
     <div class="serif text-2xl mb-4">Enter OTP</div>
@@ -62,32 +68,32 @@ input:focus{border-color:#d4b483}
       <div id="hello" class="text-lg mt-1"></div>
       <div id="rank" class="text-xs text-[#b7ad98] mt-1"></div>
     </div>
-    <div class="card px-5 py-3 text-right">
-      <div class="text-[11px] tracking-widest text-[#b7ad98]">BALANCE</div>
-      <div id="bal" class="text-2xl font-semibold gold">$0.00</div>
+    <button class="ghost px-3" onclick="openMenu()" aria-label="menu"><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div></button>
+  </div>
+  <div class="card px-5 py-3 text-right mb-4 inline-block float-right"><div class="text-[11px] tracking-widest text-[#b7ad98]">BALANCE</div><div id="bal" class="text-2xl font-semibold gold">$0.00</div></div>
+  <div style="clear:both"></div>
+  <div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="base" class="text-xl mt-1">$0</div></div>
+    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
+    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+  </div>
+  <div class="card p-4 mb-5">
+    <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL CODE</div>
+    <div class="flex items-center justify-between gap-2">
+      <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
+      <button class="btn px-4" onclick="copyRef()">Copy</button>
     </div>
   </div>
-  <div class="grid grid-cols-3 gap-3 mb-5">
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BASE</div><div id="base" class="text-xl mt-1">$0</div></div>
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">PROFIT</div><div id="profit" class="text-xl mt-1">$0</div></div>
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0</div></div>
-  </div>
-  <div class="nav mb-5">
-    <button class="ghost on" onclick="tab('earn',this)">Earn</button>
-    <button class="ghost" onclick="tab('wallet',this)">Wallet</button>
-    <button class="ghost" onclick="tab('ref',this)">Referral</button>
-    <button class="ghost" onclick="tab('ranks',this)">Ranks</button>
-    <button class="ghost" onclick="tab('admin',this)">Admin</button>
-    <button class="ghost" onclick="logout()">Logout</button>
-  </div>
   <div id="earn" class="card p-5">
-    <div class="serif text-2xl mb-1">Daily reward</div>
-    <div class="text-sm text-[#b7ad98] mb-4">One reveal per day after a successful deposit. Reward is 2.5% of your base.</div>
+    <div class="serif text-2xl mb-1">Daily earn</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Scratch for 30 seconds to unlock today's earn.</div>
     <canvas id="scratch"></canvas>
-    <div id="earn-msg" class="mt-4 text-sm"></div>
-    <button class="btn mt-4" onclick="reinvest()">Reinvest profit</button>
+    <div class="prog"><div id="prog"></div></div>
+    <div id="timer" class="text-xs text-[#b7ad98]">0s / 30s</div>
+    <div id="earn-msg" class="mt-3 text-sm"></div>
+    <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
   </div>
-  <div id="wallet" class="card p-5 hidden">
+  <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
     <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0x59552E67B1a30Ee520C8B0701dA22bf398d0D0AE</div>
@@ -96,21 +102,35 @@ input:focus{border-color:#d4b483}
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
     <button class="btn" onclick="deposit()">Submit deposit</button>
     <div id="dep-msg" class="mt-3 text-sm"></div>
-    <div class="line"></div>
-    <div class="serif text-2xl mt-2 mb-2">Withdraw</div>
+  </div>
+  <div id="withdraw" class="card p-5 hidden">
+    <div class="serif text-2xl mb-2">Withdraw</div>
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $1. Paid after admin approval.</div>
     <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
     <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
     <button class="btn" onclick="withdraw()">Request withdraw</button>
     <div id="wd-msg" class="mt-3 text-sm"></div>
-    <div class="line"></div>
-    <div class="serif text-xl mb-2">History</div>
-    <div id="hist" class="text-sm"></div>
+    <div class="mt-5 text-sm" id="hist"></div>
   </div>
   <div id="ref" class="card p-5 hidden"></div>
-  <div id="ranks" class="card p-5 hidden"></div>
+  <div id="teamview" class="card p-5 hidden"></div>
   <div id="admin" class="card p-5 hidden"></div>
 </div>
+
+<div id="menu" class="menu" onclick="closeMenu()">
+  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
+    <div class="serif text-2xl gold mb-5">Menu</div>
+    <button class="ghost" onclick="tab('earn')">Daily earn</button>
+    <button class="ghost" onclick="tab('deposit')">Deposit</button>
+    <button class="ghost" onclick="tab('withdraw')">Withdraw</button>
+    <button class="ghost" onclick="tab('ref')">Referral</button>
+    <button class="ghost" onclick="tab('teamview')">Team</button>
+    <button class="ghost" id="admin-btn" onclick="tab('admin')">Admin</button>
+    <button class="ghost" onclick="logout()">Logout</button>
+  </div>
+</div>
+<div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm text-[#d8d0c2] mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
+
 <script>
 var EJ_PUB="YOUR_PUBLIC_KEY", EJ_SVC="YOUR_SERVICE_ID", EJ_TPL="YOUR_TEMPLATE_ID";
 var ADMIN={user:"admin",pass:"Mint@2026"};
@@ -122,7 +142,7 @@ var RANKS=[
   {n:5,name:"Partner",need:"320 active team",pay:880}
 ];
 var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
-var u=null, otp="", pending=null, otpAt=0, scratched=false;
+var u=null, otp="", pending=null, otpAt=0, scratched=false, scratchMs=0, lastTick=0, scratching=false;
 function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
@@ -152,6 +172,11 @@ function rankOf(p){
   if(n>=320)r=5;
   return r;
 }
+function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
+function closePop(){el("pop").classList.add("hidden")}
+function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
+function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
+function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
 function salary(p){
   var r=rankOf(p); if(!r)return;
   var now=Date.now();
@@ -160,71 +185,77 @@ function salary(p){
   p.bal=+((+p.bal||0)+pay).toFixed(2);
   p.profit=+((+p.profit||0)+pay).toFixed(2);
   p.lastSalary=now; p.rank=r; save(p);
+  if(u&&u.user===p.user)pop("Rank achieved",RANKS[r-1].name+" · $"+pay+" added");
 }
 function ambCards(p){
   var n=downAll(p.ref).filter(active).length;
   p.amb=p.amb||[];
   AMB.forEach(function(a){
-    if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay}
+    if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay;if(u&&u.user===p.user)pop("Ambassador",a.n+" team · $"+a.pay+" reward ready")}
   });
   save(p);
 }
 function sendOtp(){
-  var name=el("su-user").value.trim(), email=el("su-email").value.trim(), pass=el("su-pass").value;
-  if(!name||!email||pass.length<4){alert("Fill all fields");return}
-  if(load(name)){alert("Username taken");return}
+  var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;
+  if(!name||!email||!phone||pass.length<4){pop("Missing","Fill all fields");return}
+  if(load(name)){pop("Taken","Username already used");return}
   otp=String(Math.floor(100000+Math.random()*900000)); otpAt=Date.now();
-  pending={user:name,email:email,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
+  pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
   if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
     emailjs.init(EJ_PUB);
     emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"Mintora OTP "+otp})
-      .then(function(){alert("OTP sent")}).catch(function(){alert("OTP: "+otp)});
-  } else alert("Set EmailJS keys. OTP: "+otp);
+      .then(function(){pop("OTP sent","Check your email")}).catch(function(){pop("OTP",otp)});
+  } else pop("OTP",otp);
   show("box-otp");
 }
 function verifyOtp(){
-  if(Date.now()-otpAt>600000){alert("OTP expired");return}
-  if(el("otp").value.trim()!==otp){alert("Wrong OTP");return}
+  if(Date.now()-otpAt>600000){pop("Expired","Request a new OTP");return}
+  if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}
   var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
-  var p={user:pending.user,email:pending.email,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],refPaid:false,amb:[],scratchDay:""};
-  save(p); u=p; enter();
+  var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],refPaid:false,amb:[],scratchDay:""};
+  save(p); u=p; enter(); pop("Welcome","Account created");
 }
 function doLogin(){
   var name=el("li-user").value.trim(), pass=el("li-pass").value;
-  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};enter();tab("admin");return}
-  var p=load(name); if(!p||p.pass!==pass){alert("Wrong login");return}
-  u=p; salary(u); ambCards(u); enter();
+  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};enter();tab("admin");pop("Admin","Signed in");return}
+  var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
+  u=p; salary(u); ambCards(u); enter(); pop("Welcome",u.user);
 }
-function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;paint();setupScratch()}
-function logout(){u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login")}
-function tab(id,btn){["earn","wallet","ref","ranks","admin"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(function(b){b.classList.remove("on")});if(btn)btn.classList.add("on");paint()}
-function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){alert("Copied")})}
+function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
+function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
+function tab(id){["earn","deposit","withdraw","ref","teamview","admin"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden");closeMenu();paint()}
+function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
+function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
 function paint(){
   if(!u)return;
-  var team=u.user==="admin"?[]:downAll(u.ref).filter(active);
+  var allTeam=u.user==="admin"?[]:downAll(u.ref);
+  var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});
   var r=u.user==="admin"?0:rankOf(u);
   el("bal").textContent="$"+money(u.bal);
   el("base").textContent="$"+money(u.base);
   el("profit").textContent="$"+money(u.profit);
-  el("team").textContent=team.length;
-  el("rank").textContent=r?RANKS[r-1].name+" rank":"No rank yet";
+  el("team").textContent=act.length+" / "+ina.length;
+  el("rank").textContent=r?RANKS[r-1].name:"";
+  el("home-ref").textContent=u.ref||"";
   var mine=all().filter(function(x){return x.sponsor===u.ref});
-  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><div class="mb-2">Direct referrals: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98]">You earn <b class="gold">15%</b> of each direct deposit, added to wallet.</div>';
-  el("ranks").innerHTML='<div class="serif text-2xl mb-2">Ranks</div><div class="text-sm text-[#b7ad98] mb-3">Salary is added every 15 days.</div>'+RANKS.map(function(x){return '<div class="flex justify-between py-3 border-b border-white/10 text-sm"><span>'+x.name+' · '+x.need+'</span><b class="gold">$'+x.pay+'</b></div>'}).join("")+'<div class="serif text-xl mt-5 mb-2">Ambassador rewards</div>'+AMB.map(function(a){return '<div class="flex justify-between py-3 border-b border-white/10 text-sm"><span>'+a.n+' active team</span><b class="gold">$'+a.pay+'</b></div>'}).join("");
+  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-3" onclick="navigator.clipboard.writeText(location.origin+location.pathname+\'?ref=\'+u.ref).then(function(){pop(\'Copied\',\'Link copied\')})">Copy link</button><div class="mb-2">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98]">You earn <b class="gold">15%</b> of each direct deposit.</div>';
+  el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div><div class="text-xs text-[#b7ad98] mt-3">Active = deposited</div>';
   var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
   el("hist").innerHTML=hist.join("<br>")||"No history";
-  var pendD=[], pendW=[];
-  all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});
-  el("admin").innerHTML='<div class="serif text-2xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div><button class="btn mt-2" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-2xl mt-5 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div><button class="btn mt-2" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None");
+  if(u.user==="admin"){
+    var pendD=[], pendW=[];
+    all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});
+    el("admin").innerHTML='<div class="serif text-2xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div><button class="btn mt-2" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-2xl mt-5 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div><button class="btn mt-2" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None");
+  }
 }
 function deposit(){
   var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
-  if(amt<15){el("dep-msg").textContent="Minimum $15";return}
-  if(hash.length<10){el("dep-msg").textContent="Enter hash";return}
+  if(amt<15){pop("Minimum","Deposit at least $15");return}
+  if(hash.length<10){pop("Hash","Enter transaction hash");return}
   u.deps=u.deps||[];
-  if(u.deps.some(function(d){return d.hash===hash})){el("dep-msg").textContent="Hash used";return}
+  if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
   u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
-  save(u);paint(); el("dep-msg").textContent="Pending admin approval.";
+  save(u);paint(); pop("Submitted","Deposit pending admin approval");
 }
 function approveDep(user,hash){
   var p=load(user); if(!p)return;
@@ -239,68 +270,83 @@ function approveDep(user,hash){
     if(up){var cut=+(d.amt*0.15).toFixed(2);up.bal=+((+up.bal||0)+cut).toFixed(2);up.profit=+((+up.profit||0)+cut).toFixed(2);save(up)}
   }
   if(u&&u.user===p.user)u=p;
-  paint();
+  paint(); pop("Approved","Deposit approved");
 }
 function withdraw(){
   var amt=+el("wd-amt").value, addr=el("wd-addr").value.trim();
-  if(amt<1){el("wd-msg").textContent="Minimum $1";return}
-  if(u.bal<amt){el("wd-msg").textContent="Low balance";return}
-  if(addr.length<10){el("wd-msg").textContent="Enter address";return}
+  if(amt<1){pop("Minimum","Withdraw at least $1");return}
+  if(u.bal<amt){pop("Low balance","Not enough balance");return}
+  if(addr.length<10){pop("Address","Enter your BEP20 address");return}
   u.bal=+(u.bal-amt).toFixed(2);
   u.wds=u.wds||[];
   u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});
-  save(u);paint(); el("wd-msg").textContent="Withdraw pending admin approval.";
+  save(u);paint(); pop("Requested","Withdraw pending admin approval");
 }
 function approveWd(user,id){
   var p=load(user); if(!p)return;
   var w=(p.wds||[]).filter(function(x){return x.id===id})[0];
   if(!w||w.st!=="PENDING")return;
-  w.st="PAID"; save(p); if(u&&u.user===p.user)u=p; paint();
+  w.st="PAID"; save(p); if(u&&u.user===p.user)u=p; paint(); pop("Paid","Withdraw marked paid");
 }
 function reinvest(){
-  if(!(u.profit>0)){el("earn-msg").textContent="No profit to reinvest";return}
-  u.base=+((+u.base||0)+(+u.profit||0)).toFixed(2);
+  if(!(u.profit>0)){pop("Nothing","No earn to reinvest");return}
+  var n=+u.profit;
+  u.base=+((+u.base||0)+n).toFixed(2);
   u.profit=0; save(u); paint();
-  el("earn-msg").textContent="Reinvested. Next reward uses the new base.";
+  pop("Reinvested","Total reinvested $"+money(n));
 }
 function coin(){
-  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(440,a.currentTime+.18);g.gain.setValueAtTime(.2,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.25);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.25)}catch(e){}
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}
+}
+function tickSound(){
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.06);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.06)}catch(e){}
 }
 function setupScratch(){
   var c=el("scratch"), ctx=c.getContext("2d");
-  function fit(){c.width=c.offsetWidth*2;c.height=480;ctx.scale(2,2)}
+  function fit(){c.width=c.offsetWidth*2;c.height=500;ctx.scale(2,2)}
   fit();
   function cover(){
     ctx.setTransform(1,0,0,1,0,0); ctx.scale(2,2);
-    ctx.fillStyle="#1c1812"; ctx.fillRect(0,0,c.offsetWidth,240);
-    ctx.fillStyle="#d4b483"; ctx.font="600 24px Cormorant Garamond"; ctx.textAlign="center";
-    ctx.fillText(u&&u.ambCard?"Ambassador reward $"+u.ambCard:"Reveal to earn", c.offsetWidth/2, 125);
+    var g=ctx.createLinearGradient(0,0,c.offsetWidth,250);
+    g.addColorStop(0,"#2a2418"); g.addColorStop(.5,"#4a3c24"); g.addColorStop(1,"#1c1812");
+    ctx.fillStyle=g; ctx.fillRect(0,0,c.offsetWidth,250);
+    ctx.fillStyle="#d4b483"; ctx.font="600 26px Cormorant Garamond"; ctx.textAlign="center";
+    ctx.fillText(u&&u.ambCard?"Ambassador $"+u.ambCard:"Scratch 30 seconds", c.offsetWidth/2, 130);
   }
-  cover(); scratched=false;
-  var down=false;
+  cover(); scratched=false; scratchMs=0; lastTick=0; scratching=false;
+  el("prog").style.width="0%"; el("timer").textContent="0s / 30s";
+  var down=false, lastSound=0;
   function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}
-  function go(e){if(!down)return;var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,26,0,7);ctx.fill()}
-  c.onpointerdown=function(){down=true};
-  c.onpointerup=function(){down=false;reveal()};
+  function go(e){
+    if(!down||scratched)return;
+    var now=Date.now();
+    if(lastTick)scratchMs+=Math.min(now-lastTick,200);
+    lastTick=now;
+    var sec=Math.min(30,scratchMs/1000);
+    el("prog").style.width=(sec/30*100)+"%";
+    el("timer").textContent=Math.floor(sec)+"s / 30s";
+    if(now-lastSound>400){tickSound();lastSound=now}
+    var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,28,0,7);ctx.fill();
+  }
+  c.onpointerdown=function(){down=true;lastTick=Date.now()};
+  c.onpointerup=function(){down=false;lastTick=0;check()};
   c.onpointermove=go;
-  c.ontouchstart=function(){down=true};
-  c.ontouchend=function(){down=false;reveal()};
+  c.ontouchstart=function(){down=true;lastTick=Date.now()};
+  c.ontouchend=function(){down=false;lastTick=0;check()};
   c.ontouchmove=function(e){e.preventDefault();go(e)};
-  function reveal(){
+  function check(){
     if(scratched)return;
-    var img=ctx.getImageData(0,0,c.width,c.height), n=0, z=0;
-    for(var i=3;i<img.data.length;i+=16){n++;if(img.data[i]===0)z++}
-    if(z/n<0.45)return;
+    if(scratchMs<30000)return;
     scratched=true; claim();
   }
 }
 function claim(){
-  if(!active(u)&&!u.ambCard){el("earn-msg").textContent="Deposit first. Reward opens after approval.";setupScratch();return}
-  if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();el("earn-msg").textContent="Ambassador reward $"+money(a)+" added.";paint();return}
-  if(u.scratchDay===day()){el("earn-msg").textContent="Today's reward already used.";return}
+  if(!active(u)&&!u.ambCard){pop("Deposit first","Earn opens after a successful deposit");setupScratch();return}
+  if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();pop("Ambassador","$"+money(a)+" added");paint();return}
+  if(u.scratchDay===day()){pop("Done","Today's earn already used");return}
   var add=+(u.base*0.025).toFixed(2);
   u.bal=+(u.bal+add).toFixed(2); u.profit=+(u.profit+add).toFixed(2); u.scratchDay=day(); save(u); coin();
-  el("earn-msg").textContent="Earned $"+money(add)+" · 2.5% of $"+money(u.base); paint();
+  pop("Earned","$"+money(add)+" · 2.5% of $"+money(u.base)); paint();
 }
 (function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
 </script>
