@@ -109,14 +109,14 @@ input:focus{border-color:#d4b483}
     </div>
   </div>
 
-  <div id="deposit" class="card p-5 hidden">
-    <div class="serif text-2xl mb-3">Deposit</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
+    <div id="deposit" class="card p-5 hidden">
+    <div class="serif text-2xl mb-2">Deposit</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15 · USDT BEP20</div>
     <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
-    <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
+    <button class="ghost w-full mb-4" onclick="copyAddr()">Copy address</button>
     <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
-    <button class="btn" onclick="deposit()">Submit deposit</button>
+    <button class="btn w-full" onclick="deposit()">Submit deposit</button>
   </div>
   <div id="withdraw" class="card p-5 hidden">
     <div class="serif text-2xl mb-2">Withdraw</div>
