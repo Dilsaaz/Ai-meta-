@@ -13,13 +13,13 @@ body{font-family:Inter,system-ui;background:#07080c;color:#f4efe4;margin:0;min-h
 .serif{font-family:"Cormorant Garamond",serif}
 .gold{color:#d4b483}
 .card{background:linear-gradient(180deg,#12141c,#0d0f15);border:1px solid rgba(212,180,131,.16);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
-.btn{background:linear-gradient(180deg,#e8c98a,#b8924f);color:#1a1408;border:0;border-radius:14px;font-weight:700;padding:13px 16px;cursor:pointer}
-.ghost{background:transparent;color:#f4efe4;border:1px solid rgba(212,180,131,.3);border-radius:14px;padding:13px 16px;cursor:pointer}
+.btn{background:linear-gradient(180deg,#f0d7a0,#c9a15a);color:#1a1408;border:0;border-radius:16px;font-weight:700;padding:14px 18px;cursor:pointer;box-shadow:0 10px 24px rgba(201,161,90,.22)}
+.ghost{background:#141720;color:#f4efe4;border:1px solid rgba(212,180,131,.28);border-radius:16px;padding:14px 18px;cursor:pointer}
 input{width:100%;background:#0c0e14;border:1px solid rgba(212,180,131,.2);color:#f4efe4;border-radius:14px;padding:13px;outline:none}
 input:focus{border-color:#d4b483}
 .hidden{display:none!important}
 .stat{background:#0f1118;border:1px solid rgba(212,180,131,.12);border-radius:18px;padding:16px}
-#scratch{width:100%;height:250px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);background:#0e1016}
+#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
 .menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
 .menu.open{display:block}
 .drawer{position:fixed;top:0;right:0;height:100%;width:280px;background:#0e1016;border-left:1px solid rgba(212,180,131,.2);z-index:50;padding:24px 18px;transform:translateX(100%);transition:.28s ease}
@@ -31,7 +31,7 @@ input:focus{border-color:#d4b483}
 .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
 .rel{position:relative}
 .prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
-.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .2s}
+.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .15s}
 </style>
 </head>
 <body>
@@ -66,33 +66,35 @@ input:focus{border-color:#d4b483}
     <div>
       <div class="serif text-4xl gold">Mintora</div>
       <div id="hello" class="text-lg mt-1"></div>
-      <div id="rank" class="text-xs text-[#b7ad98] mt-1"></div>
     </div>
     <button class="ghost px-3" onclick="openMenu()" aria-label="menu"><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div></button>
   </div>
-  <div class="card px-5 py-3 text-right mb-4 inline-block float-right"><div class="text-[11px] tracking-widest text-[#b7ad98]">BALANCE</div><div id="bal" class="text-2xl font-semibold gold">$0.00</div></div>
-  <div style="clear:both"></div>
-  <div class="grid grid-cols-3 gap-3 mb-5">
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="base" class="text-xl mt-1">$0</div></div>
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
-    <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
-  </div>
-  <div class="card p-4 mb-5">
-    <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL CODE</div>
-    <div class="flex items-center justify-between gap-2">
-      <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
-      <button class="btn px-4" onclick="copyRef()">Copy</button>
+
+  <div id="home">
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+    </div>
+    <div class="card p-4 mb-4">
+      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
+        <button class="btn px-4" onclick="copyRef()">Copy</button>
+      </div>
+      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
+      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
+    </div>
+    <div class="card p-5">
+      <div class="serif text-2xl mb-1">Daily earn</div>
+      <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
+      <canvas id="scratch"></canvas>
+      <div class="prog"><div id="prog"></div></div>
+      <div id="timer" class="text-xs text-[#b7ad98]">0s / 10s</div>
+      <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
     </div>
   </div>
-  <div id="earn" class="card p-5">
-    <div class="serif text-2xl mb-1">Daily earn</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Scratch for 30 seconds to unlock today's earn.</div>
-    <canvas id="scratch"></canvas>
-    <div class="prog"><div id="prog"></div></div>
-    <div id="timer" class="text-xs text-[#b7ad98]">0s / 30s</div>
-    <div id="earn-msg" class="mt-3 text-sm"></div>
-    <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
-  </div>
+
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
@@ -101,7 +103,6 @@ input:focus{border-color:#d4b483}
     <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
     <button class="btn" onclick="deposit()">Submit deposit</button>
-    <div id="dep-msg" class="mt-3 text-sm"></div>
   </div>
   <div id="withdraw" class="card p-5 hidden">
     <div class="serif text-2xl mb-2">Withdraw</div>
@@ -109,22 +110,28 @@ input:focus{border-color:#d4b483}
     <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
     <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
     <button class="btn" onclick="withdraw()">Request withdraw</button>
-    <div id="wd-msg" class="mt-3 text-sm"></div>
     <div class="mt-5 text-sm" id="hist"></div>
   </div>
   <div id="ref" class="card p-5 hidden"></div>
   <div id="teamview" class="card p-5 hidden"></div>
+  <div id="settings" class="card p-5 hidden">
+    <div class="serif text-2xl mb-3">Settings</div>
+    <input id="set-email" class="mb-3" placeholder="Email"/>
+    <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
+    <button class="btn w-full" onclick="saveSettings()">Save</button>
+  </div>
   <div id="admin" class="card p-5 hidden"></div>
 </div>
 
 <div id="menu" class="menu" onclick="closeMenu()">
   <div class="drawer" id="drawer" onclick="event.stopPropagation()">
     <div class="serif text-2xl gold mb-5">Menu</div>
-    <button class="ghost" onclick="tab('earn')">Daily earn</button>
+    <button class="ghost" onclick="tab('home')">Home</button>
     <button class="ghost" onclick="tab('deposit')">Deposit</button>
     <button class="ghost" onclick="tab('withdraw')">Withdraw</button>
     <button class="ghost" onclick="tab('ref')">Referral</button>
     <button class="ghost" onclick="tab('teamview')">Team</button>
+    <button class="ghost" onclick="tab('settings')">Settings</button>
     <button class="ghost" id="admin-btn" onclick="tab('admin')">Admin</button>
     <button class="ghost" onclick="logout()">Logout</button>
   </div>
@@ -142,7 +149,7 @@ var RANKS=[
   {n:5,name:"Partner",need:"320 active team",pay:880}
 ];
 var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
-var u=null, otp="", pending=null, otpAt=0, scratched=false, scratchMs=0, lastTick=0, scratching=false;
+var u=null, otp="", pending=null, otpAt=0, done=false, scratchMs=0, lastTick=0;
 function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
@@ -212,7 +219,7 @@ function verifyOtp(){
   if(Date.now()-otpAt>600000){pop("Expired","Request a new OTP");return}
   if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}
   var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
-  var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],refPaid:false,amb:[],scratchDay:""};
+  var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};
   save(p); u=p; enter(); pop("Welcome","Account created");
 }
 function doLogin(){
@@ -223,22 +230,29 @@ function doLogin(){
 }
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
-function tab(id){["earn","deposit","withdraw","ref","teamview","admin"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden");closeMenu();paint()}
+function tab(id){
+  ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
+  el(id).classList.remove("hidden");
+  closeMenu();
+  if(id==="home")setupScratch();
+  paint();
+}
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
 function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
+function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname+"?ref="+u.ref).then(function(){pop("Copied","Link copied")})}
 function paint(){
   if(!u)return;
   var allTeam=u.user==="admin"?[]:downAll(u.ref);
   var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});
-  var r=u.user==="admin"?0:rankOf(u);
   el("bal").textContent="$"+money(u.bal);
-  el("base").textContent="$"+money(u.base);
   el("profit").textContent="$"+money(u.profit);
   el("team").textContent=act.length+" / "+ina.length;
-  el("rank").textContent=r?RANKS[r-1].name:"";
   el("home-ref").textContent=u.ref||"";
+  el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
+  if(el("set-email"))el("set-email").value=u.email||"";
+  if(el("set-addr"))el("set-addr").value=u.wdAddr||"";
   var mine=all().filter(function(x){return x.sponsor===u.ref});
-  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-3" onclick="navigator.clipboard.writeText(location.origin+location.pathname+\'?ref=\'+u.ref).then(function(){pop(\'Copied\',\'Link copied\')})">Copy link</button><div class="mb-2">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98]">You earn <b class="gold">15%</b> of each direct deposit.</div>';
+  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn <b class="gold">15%</b> of each direct deposit.</div>';
   el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div><div class="text-xs text-[#b7ad98] mt-3">Active = deposited</div>';
   var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
   el("hist").innerHTML=hist.join("<br>")||"No history";
@@ -247,6 +261,12 @@ function paint(){
     all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});
     el("admin").innerHTML='<div class="serif text-2xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div><button class="btn mt-2" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-2xl mt-5 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div><button class="btn mt-2" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None");
   }
+}
+function saveSettings(){
+  u.email=el("set-email").value.trim();
+  u.wdAddr=el("set-addr").value.trim();
+  save(u);
+  pop("Saved","Email and withdraw address updated");
 }
 function deposit(){
   var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
@@ -273,11 +293,12 @@ function approveDep(user,hash){
   paint(); pop("Approved","Deposit approved");
 }
 function withdraw(){
-  var amt=+el("wd-amt").value, addr=el("wd-addr").value.trim();
+  var amt=+el("wd-amt").value, addr=(el("wd-addr").value||u.wdAddr||"").trim();
   if(amt<1){pop("Minimum","Withdraw at least $1");return}
   if(u.bal<amt){pop("Low balance","Not enough balance");return}
   if(addr.length<10){pop("Address","Enter your BEP20 address");return}
   u.bal=+(u.bal-amt).toFixed(2);
+  u.wdAddr=addr;
   u.wds=u.wds||[];
   u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});
   save(u);paint(); pop("Requested","Withdraw pending admin approval");
@@ -302,43 +323,39 @@ function tickSound(){
   try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.06);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.06)}catch(e){}
 }
 function setupScratch(){
-  var c=el("scratch"), ctx=c.getContext("2d");
-  function fit(){c.width=c.offsetWidth*2;c.height=500;ctx.scale(2,2)}
-  fit();
-  function cover(){
-    ctx.setTransform(1,0,0,1,0,0); ctx.scale(2,2);
-    var g=ctx.createLinearGradient(0,0,c.offsetWidth,250);
-    g.addColorStop(0,"#2a2418"); g.addColorStop(.5,"#4a3c24"); g.addColorStop(1,"#1c1812");
-    ctx.fillStyle=g; ctx.fillRect(0,0,c.offsetWidth,250);
-    ctx.fillStyle="#d4b483"; ctx.font="600 26px Cormorant Garamond"; ctx.textAlign="center";
-    ctx.fillText(u&&u.ambCard?"Ambassador $"+u.ambCard:"Scratch 30 seconds", c.offsetWidth/2, 130);
-  }
-  cover(); scratched=false; scratchMs=0; lastTick=0; scratching=false;
-  el("prog").style.width="0%"; el("timer").textContent="0s / 30s";
+  var c=el("scratch"); if(!c)return;
+  var ctx=c.getContext("2d");
+  var w=c.clientWidth||320, h=220;
+  c.width=w*2; c.height=h*2;
+  ctx.setTransform(2,0,0,2,0,0);
+  var g=ctx.createLinearGradient(0,0,w,h);
+  g.addColorStop(0,"#3a2f1a"); g.addColorStop(.5,"#6b5428"); g.addColorStop(1,"#2a2214");
+  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="#f0d7a0"; ctx.font="600 26px Cormorant Garamond, serif"; ctx.textAlign="center";
+  ctx.fillText(u&&u.ambCard?"Ambassador $"+u.ambCard:"Scratch 10 seconds", w/2, h/2);
+  done=false; scratchMs=0; lastTick=0;
+  el("prog").style.width="0%"; el("timer").textContent="0s / 10s";
   var down=false, lastSound=0;
   function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}
   function go(e){
-    if(!down||scratched)return;
+    if(!down||done)return;
     var now=Date.now();
-    if(lastTick)scratchMs+=Math.min(now-lastTick,200);
+    if(lastTick)scratchMs+=Math.min(now-lastTick,180);
     lastTick=now;
-    var sec=Math.min(30,scratchMs/1000);
-    el("prog").style.width=(sec/30*100)+"%";
-    el("timer").textContent=Math.floor(sec)+"s / 30s";
-    if(now-lastSound>400){tickSound();lastSound=now}
-    var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,28,0,7);ctx.fill();
+    var sec=Math.min(10,scratchMs/1000);
+    el("prog").style.width=(sec/10*100)+"%";
+    el("timer").textContent=Math.floor(sec)+"s / 10s";
+    if(now-lastSound>350){tickSound();lastSound=now}
+    var p=pos(e);ctx.globalCompositeOperation="destination-out";ctx.beginPath();ctx.arc(p.x,p.y,26,0,7);ctx.fill();
+    if(scratchMs>=10000){done=true;claim()}
   }
   c.onpointerdown=function(){down=true;lastTick=Date.now()};
-  c.onpointerup=function(){down=false;lastTick=0;check()};
+  c.onpointerup=function(){down=false;lastTick=0};
+  c.onpointerleave=function(){down=false;lastTick=0};
   c.onpointermove=go;
   c.ontouchstart=function(){down=true;lastTick=Date.now()};
-  c.ontouchend=function(){down=false;lastTick=0;check()};
+  c.ontouchend=function(){down=false;lastTick=0};
   c.ontouchmove=function(e){e.preventDefault();go(e)};
-  function check(){
-    if(scratched)return;
-    if(scratchMs<30000)return;
-    scratched=true; claim();
-  }
 }
 function claim(){
   if(!active(u)&&!u.ambCard){pop("Deposit first","Earn opens after a successful deposit");setupScratch();return}
