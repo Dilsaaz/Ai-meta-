@@ -116,16 +116,6 @@ input:focus{border-color:#d4b483}
     <div class="text-xs break-all mt-3 text-[#b7ad98]" id="reflink"></div>
     <button class="ghost w-full mt-3" onclick="copyLink()">Copy link</button>
   </div>
-  <div class="card p-5">
-  <div class="serif text-2xl mb-1">Daily earn</div>
-  <div class="text-sm text-[#b7ad98] mb-3" id="earn-msg">Swipe to unlock today's earn.</div>
-  <div id="swipe-area" class="h-16 rounded-2xl border border-white/10 relative overflow-hidden bg-white/5">
-    <div id="swipe-btn" class="absolute left-0 top-0 h-full w-16 bg-[#d4b483] rounded-2xl flex items-center justify-center cursor-pointer select-none">
-      <span class="text-black font-bold text-xl">→</span>
-    </div>
-  </div>
-  <div id="stars" class="hidden mt-4 flex justify-center gap-3"></div>
-</div>
 
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
@@ -198,36 +188,9 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("team").textContent=(u.act||0)+" / "+(u.tot||0);
   el("refcode").textContent=u.ref||(u.ref=code(),save(u),u.ref);
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
-initEarn();
+
 }
-function initEarn(){
-  var area=el("swipe-area"), btn=el("swipe-btn"), stars=el("stars"), msg=el("earn-msg");
-  if(!area||!btn) return;
-  var startX=0, dragging=false, unlocked=false;
-  btn.onpointerdown=function(e){
-    if(unlocked) return;
-    dragging=true;
-    startX=e.clientX;
-    btn.setPointerCapture(e.pointerId);
-  };
-  btn.onpointermove=function(e){
-    if(!dragging||unlocked) return;
-    var x=Math.max(0, Math.min(e.clientX-startX, area.offsetWidth-64));
-    btn.style.left=x+"px";
-    if(x>area.offsetWidth-100){
-      unlocked=true;
-      dragging=false;
-      btn.style.left=(area.offsetWidth-64)+"px";
-      if(msg) msg.textContent="Rate your experience";
-      showStars();
-    }
-  };
-  btn.onpointerup=function(){
-    if(!unlocked){
-      dragging=false;
-      btn.style.left="0px";
-    }
-  };
+
   function showStars(){
     if(!stars) return;
     stars.classList.remove("hidden");
