@@ -198,7 +198,7 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("team").textContent=(u.act||0)+" / "+(u.tot||0);
   el("refcode").textContent=u.ref||(u.ref=code(),save(u),u.ref);
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
-  initEarn();
+  // initEarn();
 }
 function initEarn(){
   var area=el("swipe-area"), btn=el("swipe-btn"), stars=el("stars"), msg=el("earn-msg");
