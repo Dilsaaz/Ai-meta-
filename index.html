@@ -282,6 +282,8 @@ function doLogin(){
   var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
   u=p; salary(u); ambCards(u); showSpin(function(){enter()});
   if(!u.ref) u.ref=code();
+  if(!u.ref) u.ref=code();
+save(u);
 }
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
