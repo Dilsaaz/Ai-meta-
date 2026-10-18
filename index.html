@@ -86,29 +86,45 @@ input:focus{border-color:#d4b483}
   </div>
 
   <div id="home">
-    <div class="grid grid-cols-3 gap-3 mb-4">
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
-      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <div class="serif text-4xl gold">Mintora</div>
+      <div class="text-sm mt-1" id="hello">Daler</div>
     </div>
-    <div class="card p-4 mb-4">
-      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
-        <button class="btn px-4" onclick="copyRef()">Copy</button>
-      </div>
-      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
-      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
+    <button class="navbtn" onclick="openNav()">☰</button>
+  </div>
+  <div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="card p-4 text-center">
+      <div class="text-xs text-[#b7ad98] mb-1">BALANCE</div>
+      <div class="serif text-xl gold" id="bal">$0</div>
     </div>
-    <div class="card p-5">
-      <div class="serif text-2xl mb-1">Daily earn</div>
-      <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
-      <canvas id="scratch"></canvas>
-      <div class="prog"><div id="prog"></div></div>
-      <div id="timer" class="text-xs text-[#b7ad98]">0s / 10s</div>
-      <button class="btn mt-4" onclick="reinvest()">Reinvest</button>
+    <div class="card p-4 text-center">
+      <div class="text-xs text-[#b7ad98] mb-1">EARN</div>
+      <div class="serif text-xl gold" id="earn">$0</div>
+    </div>
+    <div class="card p-4 text-center">
+      <div class="text-xs text-[#b7ad98] mb-1">TEAM</div>
+      <div class="serif text-xl" id="team">0 / 0</div>
     </div>
   </div>
+  <div class="card p-4 mb-5">
+    <div class="text-xs text-[#b7ad98] mb-1">REFERRAL</div>
+    <div class="flex items-center justify-between">
+      <div class="serif text-2xl gold" id="refcode">----</div>
+      <button class="btn px-4 py-2" onclick="copyRef()">Copy</button>
+    </div>
+    <div class="text-xs break-all mt-3 text-[#b7ad98]" id="reflink"></div>
+    <button class="ghost w-full mt-3" onclick="copyLink()">Copy link</button>
+  </div>
+  <div class="card p-5">
+    <div class="serif text-2xl mb-1">Daily earn</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Scratch for 10 seconds to unlock today's earn.</div>
+    <canvas id="scratch"></canvas>
+    <div class="prog mt-3"><div id="prog"></div></div>
+    <div id="timer" class="text-xs text-[#b7ad98] mt-1">0s / 10s</div>
+    <button class="btn w-full mt-4" onclick="reinvest()">Reinvest</button>
+  </div>
+</div>
 
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
