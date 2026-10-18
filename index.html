@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI Meta Trade</title>
+<title>Mintora</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
@@ -25,7 +25,7 @@ input{width:100%;background:#0e1512;border:1px solid #24312b;color:#fff;border-r
 <body>
 <div id="auth" class="max-w-md mx-auto px-4 py-10">
   <div class="text-center mb-6">
-    <div class="mint text-xs tracking-[.3em]">AI META TRADE</div>
+    <div class="mint text-xs tracking-[.3em]">MINTORA</div>
     <div class="text-3xl font-extrabold">Earn Desk</div>
   </div>
   <div id="box-login" class="card p-5">
@@ -54,7 +54,7 @@ input{width:100%;background:#0e1512;border:1px solid #24312b;color:#fff;border-r
 <div id="app" class="hidden max-w-5xl mx-auto px-4 py-5">
   <div class="flex items-center justify-between mb-4">
     <div>
-      <div class="mint text-xs tracking-[.25em]">AI META TRADE</div>
+      <div class="mint text-xs tracking-[.25em]">MINTORA</div>
       <div id="hello" class="text-xl font-extrabold"></div>
       <div id="rank" class="text-xs text-[#b7c4bc]"></div>
     </div>
@@ -107,7 +107,7 @@ input{width:100%;background:#0e1512;border:1px solid #24312b;color:#fff;border-r
 </div>
 <script>
 var EJ_PUB="YOUR_PUBLIC_KEY", EJ_SVC="YOUR_SERVICE_ID", EJ_TPL="YOUR_TEMPLATE_ID";
-var ADMIN={user:"admin",pass:"Meta@2026"};
+var ADMIN={user:"admin",pass:"Mint@2026"};
 var RANKS=[
   {n:1,name:"Analyst",need:"10 levels deep",pay:30},
   {n:2,name:"Strategist",need:"30 active team",pay:70},
@@ -171,7 +171,7 @@ function sendOtp(){
   pending={user:name,email:email,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
   if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
     emailjs.init(EJ_PUB);
-    emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"AI Meta Trade OTP "+otp})
+    emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"Mintora OTP "+otp})
       .then(function(){alert("OTP sent")}).catch(function(){alert("OTP: "+otp)});
   } else alert("Set EmailJS keys. OTP: "+otp);
   show("box-otp");
