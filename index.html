@@ -199,6 +199,14 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
   initScratch();
 }
+  function initScratch(){
+  var c=el("scratch"); if(!c) return;
+  var ctx=c.getContext("2d");
+  c.width=c.offsetWidth||300; c.height=160;
+  ctx.fillStyle="#1a1a1a"; ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle="#d4b483"; ctx.font="20px serif"; ctx.textAlign="center";
+  ctx.fillText("Scratch 10 seconds", c.width/2, c.height/2);
+}
 function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
 function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
 function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
@@ -273,6 +281,7 @@ function doLogin(){
   if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}
   var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
   u=p; salary(u); ambCards(u); showSpin(function(){enter()});
+  if(!u.ref) u.ref=code();
 }
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
