@@ -195,7 +195,7 @@ function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x)
   el("bal").textContent="$"+money(u.bal);
   el("earn").textContent="$"+money(u.profit||0);
   el("team").textContent=(u.act||0)+" / "+(u.tot||0);
-  el("refcode").textContent=u.ref||"----";
+  el("refcode").textContent=u.ref||(u.ref=code(),save(u),u.ref);
   el("reflink").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
   initScratch();
 }
