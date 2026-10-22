@@ -203,6 +203,17 @@ function rankOf(p){
   if(!u){pop("Login","Please login first");return;}
   if(!(u.bal>=15)){pop("Balance","Minimum $15 needed to trade");return;}
 
+  // Check daily limit
+  var now=Date.now();
+  if(u.nextTrade && now < u.nextTrade){
+    var left=Math.ceil((u.nextTrade-now)/1000);
+    var h=Math.floor(left/3600);
+    var m=Math.floor((left%3600)/60);
+    pop("Already Traded","Next trade available in "+h+"h "+m+"m");
+    if(msg) msg.textContent="Next trade in "+h+"h "+m+"m";
+    return;
+  }
+
   btn.disabled=true;
   btn.textContent="Trading...";
   if(msg) msg.textContent="Scanning market...";
@@ -227,6 +238,13 @@ function rankOf(p){
 
     u.bal=+(u.bal+profit).toFixed(2);
     u.profit=+((u.profit||0)+profit).toFixed(2);
+
+    // Next trade = tomorrow 6 AM
+    var next=new Date();
+    next.setDate(next.getDate()+1);
+    next.setHours(6,0,0,0);
+    u.nextTrade=next.getTime();
+
     save(u);
     paint();
 
@@ -306,6 +324,14 @@ function paint(){
   var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});
   el("bal").textContent="$"+money(u.bal);
   el("profit").textContent="$"+money(u.profit);
+  if(el("trade-msg") && u.nextTrade && Date.now() < u.nextTrade){
+  var left = Math.ceil((u.nextTrade - Date.now()) / 1000);
+  var h = Math.floor(left / 3600);
+  var m = Math.floor((left % 3600) / 60);
+  el("trade-msg").textContent = "Next trade in " + h + "h " + m + "m";
+} else if(el("trade-msg")){
+  el("trade-msg").textContent = "Ready to trade";
+}
   el("team").textContent=act.length+" / "+ina.length;
   el("home-ref").textContent=u.ref||"";
   el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
