@@ -104,7 +104,7 @@ input:focus{border-color:#d4b483}
   </div>
   <div class="card p-5">
   <div class="serif text-2xl mb-1">Trade</div>
-  <div class="text-sm text-[#b7ad98] mb-4" id="trade-msg">Ready to trade</div>
+  <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
   <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
 </div>
 
@@ -200,22 +200,43 @@ function rankOf(p){
   function startTrade(){
   var btn=el("trade-btn"), msg=el("trade-msg");
   if(!btn||btn.disabled) return;
+  if(!u){pop("Login","Please login first");return;}
+  if(!(u.bal>=15)){pop("Balance","Minimum $15 needed to trade");return;}
+
   btn.disabled=true;
   btn.textContent="Trading...";
-  if(msg) msg.textContent="Processing trade...";
+  if(msg) msg.textContent="Scanning market...";
+
+  var pairs=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT"];
+  var pair=pairs[Math.floor(Math.random()*pairs.length)];
+  var delay=5000+Math.floor(Math.random()*3000); // 5-8 sec
+
   setTimeout(function(){
-    var profit=2.5;
-    if(u){
-      u.bal=+(u.bal+profit).toFixed(2);
-      u.profit=+((u.profit||0)+profit).toFixed(2);
-      save(u);
-      showHome();
-    }
-    if(msg) msg.textContent="Trade successful · +$"+profit.toFixed(2);
-    pop("Trade successful","+$"+profit.toFixed(2)+" added");
+    if(msg) msg.textContent="Analyzing "+pair+"...";
+  },1200);
+
+  setTimeout(function(){
+    if(msg) msg.textContent="Executing trade on "+pair+"...";
+  },2800);
+
+  setTimeout(function(){
+    // Random profit between 1.8% - 4.2% of current balance (capped)
+    var pct=1.8 + Math.random()*2.4;
+    var profit=+(u.bal * (pct/100)).toFixed(2);
+    if(profit<1.5) profit=1.5;
+    if(profit>25) profit=25;
+
+    u.bal=+(u.bal+profit).toFixed(2);
+    u.profit=+( (u.profit||0)+profit ).toFixed(2);
+    save(u);
+    paint();
+
+    if(msg) msg.textContent="Trade successful • +$"+profit;
+    pop("Trade Successful","+$"+profit+" earned on "+pair);
     btn.textContent="Trade Now";
     btn.disabled=false;
-  },5000);
+  },delay);
+}
 }
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
