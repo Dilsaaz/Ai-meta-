@@ -209,7 +209,7 @@ function rankOf(p){
 
   var pairs=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT"];
   var pair=pairs[Math.floor(Math.random()*pairs.length)];
-  var delay=5000+Math.floor(Math.random()*3000); // 5-8 sec
+  var delay=5000+Math.floor(Math.random()*3000);
 
   setTimeout(function(){
     if(msg) msg.textContent="Analyzing "+pair+"...";
@@ -220,14 +220,13 @@ function rankOf(p){
   },2800);
 
   setTimeout(function(){
-    // Random profit between 1.8% - 4.2% of current balance (capped)
     var pct=1.8 + Math.random()*2.4;
     var profit=+(u.bal * (pct/100)).toFixed(2);
     if(profit<1.5) profit=1.5;
     if(profit>25) profit=25;
 
     u.bal=+(u.bal+profit).toFixed(2);
-    u.profit=+( (u.profit||0)+profit ).toFixed(2);
+    u.profit=+((u.profit||0)+profit).toFixed(2);
     save(u);
     paint();
 
@@ -236,7 +235,6 @@ function rankOf(p){
     btn.textContent="Trade Now";
     btn.disabled=false;
   },delay);
-}
 }
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
