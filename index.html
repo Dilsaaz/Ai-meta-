@@ -42,6 +42,15 @@ input:focus{border-color:#3b82f6;outline:none}
 .spinwrap{position:fixed;inset:0;background:#07080c;z-index:70;display:flex;align-items:center;justify-content:center}
 .spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(212,180,131,.25);border-top-color:#d4b483;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+  .act-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#a78bfa,#6d28d9);opacity:.55;transition:height .6s ease}
+.act-bar.on{opacity:1;background:linear-gradient(180deg,#c4b5fd,#7c3aed)}
+.live-row{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:rgba(167,139,250,.07);border-radius:12px;border:1px solid rgba(167,139,250,.12);animation:fadeIn .35s ease}
+.live-row .pair{color:#c4b5fd;font-weight:600;font-size:13px}
+.live-row .amt{font-weight:700;font-size:13px}
+.live-row .amt.green{color:#4ade80}
+.live-row .amt.red{color:#f87171}
+.live-row .time{color:#666;font-size:11px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -106,6 +115,20 @@ input:focus{border-color:#3b82f6;outline:none}
   <div class="serif text-2xl mb-1">Trade</div>
   <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
   <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
+    </div>
+
+<div class="card p-5 mb-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="text-sm font-semibold text-[#c4b5fd]">Portfolio Activity</div>
+    <div class="text-[10px] text-[#777]">LIVE</div>
+  </div>
+  <div id="activity-bars" class="flex items-end gap-1.5 h-28 mb-3"></div>
+  <div class="text-[11px] text-[#666]">Live market activity</div>
+</div>
+
+<div class="card p-5">
+  <div class="text-sm font-semibold text-[#c4b5fd] mb-3">Live Trades</div>
+  <div id="live-trades" class="space-y-2 max-h-52 overflow-hidden"></div>
 </div>
 
   <div id="deposit" class="card p-5 hidden">
@@ -256,6 +279,43 @@ btn.textContent="Trade Locked";
 btn.disabled=true;
   },delay);
 }
+  var LIVE_PAIRS=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT","ADA/USDT","DOGE/USDT","MATIC/USDT","AVAX/USDT"];
+var liveTimer=null, barTimer=null;
+function startLiveTrades(){
+  var box=el("live-trades"), bars=el("activity-bars");
+  if(!box)return;
+  if(liveTimer)clearInterval(liveTimer);
+  if(barTimer)clearInterval(barTimer);
+  if(bars && !bars.children.length){
+    for(var i=0;i<18;i++){
+      var b=document.createElement("div");
+      b.className="act-bar";
+      b.style.height=(20+Math.random()*80)+"%";
+      bars.appendChild(b);
+    }
+  }
+  barTimer=setInterval(function(){
+    if(!bars)return;
+    var idx=Math.floor(Math.random()*bars.children.length);
+    var b=bars.children[idx];
+    b.style.height=(25+Math.random()*75)+"%";
+    b.classList.add("on");
+    setTimeout(function(){b.classList.remove("on")},800);
+  },900);
+  function addTrade(){
+    var pair=LIVE_PAIRS[Math.floor(Math.random()*LIVE_PAIRS.length)];
+    var isBuy=Math.random()>0.42;
+    var amt=(15+Math.random()*1850).toFixed(2);
+    var time=new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    var row=document.createElement("div");
+    row.className="live-row";
+    row.innerHTML='<span class="pair">'+pair+'</span><span class="amt '+(isBuy?"green":"red")+'">'+(isBuy?"+":"-")+"$"+amt+'</span><span class="time">'+time+'</span>';
+    box.insertBefore(row,box.firstChild);
+    while(box.children.length>7)box.removeChild(box.lastChild);
+  }
+  for(var i=0;i<5;i++)addTrade();
+  liveTimer=setInterval(addTrade,2200+Math.random()*1800);
+}
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
 function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
@@ -322,7 +382,7 @@ function tab(id,btn){
   closeMenu();
   document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
   if(btn)btn.classList.add("on");
-  if(id==="home")setupScratch();
+  if(id==="home"){setupScratch();startLiveTrades();}
   paint();
 }
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
