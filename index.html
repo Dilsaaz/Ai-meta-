@@ -197,8 +197,23 @@ function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
 function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden")}
-function load(name){try{return JSON.parse(localStorage.getItem("amt_"+name)||"null")}catch(e){return null}}
-function save(p){localStorage.setItem("amt_"+p.user, JSON.stringify(p)); if(u&&u.user===p.user)u=p}
+function load(name){
+  try{
+    var raw=localStorage.getItem("mint_"+name);
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null;}
+}
+
+function save(p){
+  if(!p||!p.user)return;
+  // balance hamesha number rahe
+  p.bal=+(Number(p.bal)||0).toFixed(2);
+  p.profit=+(Number(p.profit)||0).toFixed(2);
+  p.lock=+(Number(p.lock)||0).toFixed(2);
+  localStorage.setItem("mint_"+p.user,JSON.stringify(p));
+  // current user bhi sync
+  if(u&&u.user===p.user)u=p;
+}
 function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
 function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
@@ -433,35 +448,79 @@ function deposit(){
   u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
   save(u);paint(); pop("Submitted","Deposit pending admin approval");
 }
-function approveDep(user,hash){
-  var p=load(user); if(!p)return;
-  var d=(p.deps||[]).filter(function(x){return x.hash===hash})[0];
-  if(!d||d.st!=="PENDING")return;
-  d.st="SUCCESSFUL";
-  p.base=+((+p.base||0)+Number(d.amt)).toFixed(2);
-  p.bal=+((+p.bal||0)+Number(d.amt)).toFixed(2);
-  save(p);
-  if(p.sponsor){
-    var up=all().filter(function(x){return x.ref===p.sponsor})[0];
-    if(up){var cut=+(d.amt*0.15).toFixed(2);up.bal=+((+up.bal||0)+cut).toFixed(2);up.profit=+((+up.profit||0)+cut).toFixed(2);save(up)}
+function adDep(user,id,ok,amt){
+  var p=load(user);
+  if(!p)return;
+  if(!p.deps)p.deps=[];
+  var d=p.deps.find(function(x){return x.id===id;});
+  if(!d||d.status!=="PENDING")return;
+
+  if(ok){
+    d.status="SUCCESSFUL";
+    d.amt=Number(amt||d.amt||0);
+    p.bal=+(Number(p.bal||0)+d.amt).toFixed(2);
+    p.lock=+(Number(p.lock||0)+d.amt).toFixed(2);
+  }else{
+    d.status="REJECTED";
   }
-  if(u&&u.user===p.user)u=p;
-  paint(); pop("Approved","Deposit approved");
+  save(p);
+  if(u&&u.user===user){u=p;paint();}
+  renderAdmin();
 }
 function withdraw(){
-  if(!verifyWdOtp()) return;
-  var amt=+el("wd-amt").value, addr=(el("wd-addr").value||u.wdAddr||"").trim();
-  if(amt<1){pop("Minimum","Withdraw at least $1");return}
-  if(u.bal<amt){pop("Low balance","Not enough balance");return}
-  if(addr.length<10){pop("Address","Enter your BEP20 address");return}
-  u.bal=+(u.bal-amt).toFixed(2);
-  u.wdAddr=addr;
-  u.wds=u.wds||[];
-  u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});
-  save(u);paint(); pop("Requested","Withdraw pending admin approval");
+  if(!u)return;
+  var amt=Number(el("wd-amt").value||0);
+  var addr=(el("wd-addr").value||"").trim();
+  if(amt<10)return pop("Error","Minimum withdraw $10");
+  if(!addr||addr.length<10)return pop("Error","Enter valid BEP20 address");
+
+  // latest data lo
+  var p=load(u.user);
+  if(!p)return pop("Error","Account not found");
+
+  var bal=Number(p.bal||0);
+  if(amt>bal)return pop("Error","Insufficient balance");
+
+  // pehle se pending hai to block
+  var hasPending=(p.wds||[]).some(function(w){return w.status==="PENDING";});
+  if(hasPending)return pop("Pending","You already have a pending withdrawal");
+
+  // balance turant kaato
+  p.bal=+(bal-amt).toFixed(2);
+  if(!p.wds)p.wds=[];
+  var id="WD"+Date.now();
+  p.wds.unshift({
+    id:id,
+    amt:amt,
+    addr:addr,
+    status:"PENDING",
+    time:Date.now()
+  });
+  save(p);
+  u=p;
+  paint();
+  el("wd-amt").value="";
+  pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
 }
   var wdOtpCode="", wdOtpTime=0;
-
+function adWd(user,id,ok){
+  var p=load(user);
+  if(!p||!p.wds)return;
+  var w=p.wds.find(function(x){return x.id===id;});
+  if(!w||w.status!=="PENDING")return;
+  if(ok){
+    w.status="PAID";
+    w.paidAt=Date.now();
+  }else{
+    p.bal=+(Number(p.bal||0)+Number(w.amt||0)).toFixed(2);
+    w.status="REJECTED";
+    w.rejectedAt=Date.now();
+  }
+  save(p);
+  if(u&&u.user===user){u=p;paint();}
+  renderAdmin();
+  pop(ok?"Paid":"Rejected",user+" · $"+Number(w.amt).toFixed(2));
+}
 function sendWdOtp(){
   if(!u){pop("Login","Please login first");return;}
   if(!u.email){pop("Email","Please set email in Settings first");return;}
