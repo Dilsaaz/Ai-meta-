@@ -201,7 +201,7 @@ function rankOf(p){
   var btn=el("trade-btn"), msg=el("trade-msg");
   if(!btn||btn.disabled) return;
   if(!u){pop("Login","Please login first");return;}
-  if(!(u.bal>=15)){pop("Balance","Minimum $15 needed to trade");return;}
+  if(!(u.bal>=100)){pop("Balance","Minimum $100 required");return;}
 
   // Check daily limit
   var now=Date.now();
@@ -356,7 +356,7 @@ function saveSettings(){
 }
 function deposit(){
   var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
-  if(amt<15){pop("Minimum","Deposit at least $15");return}
+  if(amt<100){pop("Minimum","Deposit at least $100");return;}
   if(hash.length<10){pop("Hash","Enter transaction hash");return}
   u.deps=u.deps||[];
   if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
