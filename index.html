@@ -288,7 +288,15 @@ function sendOtp(){
   pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
   if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
     emailjs.init(EJ_PUB);
-    emailjs.send(EJ_SVC,EJ_TPL,{email:email,to_email:email,user_name:name,otp_code:otp,message:"Mintora OTP "+otp})
+    emailjs.send(EJ_SVC,EJ_TPL,{
+  email: email,
+  to_email: email,
+  user_name: name,
+  name: name,
+  otp_code: otp,
+  otp: otp,
+  message: "Your Mintora verification OTP is: " + otp
+})
       .then(function(){pop("OTP sent","Check your email")}).catch(function(){pop("OTP",otp)});
   } else pop("OTP",otp);
   show("box-otp");
