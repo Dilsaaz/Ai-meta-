@@ -122,6 +122,8 @@ input:focus{border-color:#3b82f6;outline:none}
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $1. Paid after admin approval.</div>
     <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
     <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
+    <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6">
+<button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
     <button class="btn" onclick="withdraw()">Request withdraw</button>
     <div class="mt-5 text-sm" id="hist"></div>
   </div>
@@ -157,7 +159,7 @@ input:focus{border-color:#3b82f6;outline:none}
 <div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm text-[#d8d0c2] mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
 
 <script>
-var EJ_PUB="YOUR_PUBLIC_KEY", EJ_SVC="YOUR_SERVICE_ID", EJ_TPL="YOUR_TEMPLATE_ID";
+var EJ_PUB="f6VfY8gBXO69xaw8J", EJ_SVC="service_jn9cnki", EJ_TPL="template_vj30p4d";
 var ADMIN={user:"admin",pass:"Mint@2026"};
 var RANKS=[
   {n:1,name:"Analyst",need:"10 levels deep",pay:30},
@@ -379,6 +381,7 @@ function approveDep(user,hash){
   paint(); pop("Approved","Deposit approved");
 }
 function withdraw(){
+  if(!verifyWdOtp()) return;
   var amt=+el("wd-amt").value, addr=(el("wd-addr").value||u.wdAddr||"").trim();
   if(amt<1){pop("Minimum","Withdraw at least $1");return}
   if(u.bal<amt){pop("Low balance","Not enough balance");return}
@@ -388,6 +391,27 @@ function withdraw(){
   u.wds=u.wds||[];
   u.wds.unshift({id:"W"+Date.now(),amt:amt,addr:addr,st:"PENDING",t:Date.now()});
   save(u);paint(); pop("Requested","Withdraw pending admin approval");
+}
+  var wdOtpCode="", wdOtpTime=0;
+
+function sendWdOtp(){
+  if(!u){pop("Login","Please login first");return;}
+  if(!u.email){pop("Email","Please set email in Settings first");return;}
+  wdOtpCode=String(Math.floor(100000+Math.random()*900000));
+  wdOtpTime=Date.now();
+  if(window.emailjs){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC,EJ_TPL,{to_email:u.email,otp:wdOtpCode,name:u.user})
+    .then(function(){pop("OTP Sent","Check your email");})
+    .catch(function(){pop("Error","Failed to send OTP");});
+  } else pop("OTP",wdOtpCode);
+}
+
+function verifyWdOtp(){
+  var entered=(el("wd-otp")||{}).value||"";
+  if(!wdOtpCode||Date.now()-wdOtpTime>5*60*1000){pop("OTP","OTP expired. Send again");return false;}
+  if(entered!==wdOtpCode){pop("OTP","Invalid OTP");return false;}
+  return true;
 }
 function approveWd(user,id){
   var p=load(user); if(!p)return;
