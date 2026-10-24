@@ -538,7 +538,6 @@ function paint(){
           JSON.stringify(x.user) + ',' + JSON.stringify(x.d.hash) + ',false)">Reject</button>' +
         '</div>';
     }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
-
     '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
     (pendW.map(function(x) {
       return '<div class="py-3 border-b border-white/10">' +
