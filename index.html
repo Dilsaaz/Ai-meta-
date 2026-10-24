@@ -458,8 +458,8 @@ function paint(){
       });
 
       (p.wds||[]).forEach(function(w){
-        if(w.st==="PENDING")
-          pendW.push({user:p.user,w:w});
+        if(w.st==="PENDING" || w.status==="PENDING")
+  pendW.push({user:p.user,w:w});
       });
     });
 
@@ -583,23 +583,47 @@ function withdraw(){
   pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
 }
 
-function adWd(user,id,ok){
-  var p=load(user);
-  if(!p||!p.wds)return;
-  var w=p.wds.find(function(x){return x.id===id;});
-  if(!w||w.status!=="PENDING")return;
-  if(ok){
-    w.status="PAID";
-    w.paidAt=Date.now();
-  }else{
-    p.bal=+(Number(p.bal||0)+Number(w.amt||0)).toFixed(2);
-    w.status="REJECTED";
-    w.rejectedAt=Date.now();
+function adWd(user, id, ok) {
+  var p = load(user);
+  if (!p || !Array.isArray(p.wds)) {
+    pop("Error", "User or withdrawal not found");
+    return;
   }
+
+  var w = p.wds.find(function(x) {
+    return String(x.id) === String(id);
+  });
+
+  if (!w || (w.st !== "PENDING" && w.status !== "PENDING")) {
+    pop("Error", "Withdrawal already processed or not found");
+    return;
+  }
+
+  if (ok) {
+    w.st = "PAID";
+    w.status = "PAID";
+    w.paidAt = Date.now();
+  } else {
+    if (!w.refunded) {
+      p.bal = +(Number(p.bal || 0) + Number(w.amt || 0)).toFixed(2);
+      w.refunded = true;
+    }
+    w.st = "REJECTED";
+    w.status = "REJECTED";
+    w.rejectedAt = Date.now();
+  }
+
   save(p);
-  if(u&&u.user===user){u=p;paint();}
-  renderAdmin();
-  pop(ok?"Paid":"Rejected",user+" · $"+Number(w.amt).toFixed(2));
+
+  if (u && u.user === user) {
+    u = p;
+  }
+
+  paint();
+  pop(ok ? "Paid" : "Rejected",
+      ok
+        ? "Withdrawal marked paid. Confirm payment was sent."
+        : "Withdrawal rejected and amount returned.");
 }
 function sendWdOtp(){
   if(!u){pop("Login","Please login first");return;}
