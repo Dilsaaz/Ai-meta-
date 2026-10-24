@@ -401,7 +401,33 @@ function doLogin(){
   var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
   u=p; salary(u); ambCards(u); showSpin(function(){enter()});
 }
-function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
+
+function enter(){
+  if(!u) return;
+
+  el("auth").classList.add("hidden");
+  el("app").classList.remove("hidden");
+
+  el("hello").textContent = u.user;
+
+  if(el("uid")) el("uid").textContent = u.user;
+
+  if(el("admin-btn")){
+    el("admin-btn").style.display =
+      u.user === "admin" ? "block" : "none";
+  }
+
+  paint();
+
+  if(u.user === "admin"){
+    tab("admin");
+  }else{
+    tab("home");
+  }
+
+  setupScratch();
+}
+
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
 
 function tab(id,btn){
