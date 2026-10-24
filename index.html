@@ -509,59 +509,48 @@ function paint(){
   
 
   if (u.user === "admin") {
-    var pendD = [];
-    var pendW = [];
+  var pendD = [];
+  var pendW = [];
 
-    all().forEach(function(p) {
-      (p.deps || []).forEach(function(d) {
-        if (d.st === "PENDING" || d.status === "PENDING") {
-          pendD.push({ user: p.user, d: d });
-        }
-      });
-
-      (p.wds || []).forEach(function(w) {
-        if (w.st === "PENDING" || w.status === "PENDING") {
-          pendW.push({ user: p.user, w: w });
-        }
-      });
+  all().forEach(function(p) {
+    (p.deps || []).forEach(function(d) {
+      if (d.st === "PENDING" || d.status === "PENDING") {
+        pendD.push({ user: p.user, d: d });
+      }
     });
+    (p.wds || []).forEach(function(w) {
+      if (w.st === "PENDING" || w.status === "PENDING") {
+        pendW.push({ user: p.user, w: w });
+      }
+    });
+  });
 
-    el("admin").innerHTML =
-      '<div class="serif text-2xl mb-3">Admin Panel</div>' +
-      '<div class="serif text-xl mb-2">Pending Deposits</div>' +
-      (pendD.map(function(x) {
-        return '<div class="py-3 border-b border-white/10">' +
-          '<b>' + x.user + '</b> $' + money(x.d.amt) +
-          '<div class="text-xs break-all text-[#b7ad98]">' +
-          (x.d.hash || '') + '</div>' +
-   '<button type="button" class="btn mt-2" onclick="adDep(' +
-JSON.stringify(x.user) + ',' +
-JSON.stringify(x.d.hash) + ',true)">Approve</button> '
+  el("admin").innerHTML =
+    '<div class="serif text-2xl mb-3">Admin Panel</div>' +
+    '<div class="serif text-xl mb-2">Pending Deposits</div>' +
+    (pendD.map(function(x) {
+      return '<div class="py-3 border-b border-white/10">' +
+        '<b>' + x.user + '</b> $' + money(x.d.amt) +
+        '<div class="text-xs break-all text-[#b7ad98]">' + (x.d.hash || '') + '</div>' +
+        '<button type="button" class="btn mt-2" onclick="adDep(' +
+          JSON.stringify(x.user) + ',' + JSON.stringify(x.d.hash) + ',true)">Approve</button> ' +
         '<button type="button" class="ghost mt-2" onclick="adDep(' +
-JSON.stringify(x.user) + ',' +
-JSON.stringify(x.d.hash) + ',false)">Reject</button>'
-          '</div>';
-      }).join("") ||
-      '<div class="text-sm text-gray-400">No pending deposits</div>') +
+          JSON.stringify(x.user) + ',' + JSON.stringify(x.d.hash) + ',false)">Reject</button>' +
+        '</div>';
+    }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
 
-      '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
-      (pendW.map(function(x) {
-        return '<div class="py-3 border-b border-white/10">' +
-          '<b>' + x.user + '</b> $' + money(x.w.amt) +
-          '<div class="text-xs break-all text-[#b7ad98]">' +
-          (x.w.addr || '') + '</div>' +
-          '<button class="btn mt-2" onclick="approveWd(' +
-          JSON.stringify(x.user) + ',' +
-          JSON.stringify(x.w.id) + ')">Mark Paid</button> ' +
-          '<button class="ghost mt-2" onclick="rejectWd(' +
-          JSON.stringify(x.user) + ',' +
-          JSON.stringify(x.w.id) + ')">Reject</button>' +
-          '</div>';
-      }).join("") ||
-      '<div class="text-sm text-gray-400">No pending withdrawals</div>');
+    '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
+    (pendW.map(function(x) {
+      return '<div class="py-3 border-b border-white/10">' +
+        '<b>' + x.user + '</b> $' + money(x.w.amt) +
+        '<div class="text-xs break-all text-[#b7ad98]">' + (x.w.addr || '') + '</div>' +
+        '<button class="btn mt-2" onclick="approveWd(' +
+          JSON.stringify(x.user) + ',' + JSON.stringify(x.w.id) + ')">Mark Paid</button> ' +
+        '<button class="ghost mt-2" onclick="rejectWd(' +
+          JSON.stringify(x.user) + ',' + JSON.stringify(x.w.id) + ')">Reject</button>' +
+        '</div>';
+    }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>');
 }
-}
-
 function saveSettings(){
   u.email=el("set-email").value.trim();
   u.wdAddr=el("set-addr").value.trim();
