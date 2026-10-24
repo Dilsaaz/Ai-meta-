@@ -507,91 +507,59 @@ function paint(){
   el("hist").innerHTML=hist.join("<br>")||"No history";
   
   
-if (u.user === "admin") {
-  var pendD = [], pendW = [];
 
-  all().forEach(function(p) {
-    (p.deps || []).forEach(function(d) {
-      if (d.st === "PENDING" || d.status === "PENDING") {
-        pendD.push({user: p.user, d: d});
-      }
-    });
+  if (u.user === "admin") {
+    var pendD = [];
+    var pendW = [];
 
-    (p.wds || []).forEach(function(w) {
-      if (w.st === "PENDING" || w.status === "PENDING") {
-        pendW.push({user: p.user, w: w});
-      }
-    });
-  });
-
-  el("admin").innerHTML =
-    '<div class="serif text-2xl mb-3">Admin Panel</div>' +
-    '<div class="serif text-xl mb-2">Pending Deposits</div>' +
-    (pendD.map(function(x) {
-      return '<div class="py-3 border-b border-white/10">' +
-        '<b>' + x.user + '</b> $' + money(x.d.amt) +
-        '<div class="text-xs break-all text-[#b7ad98]">' +
-        (x.d.hash || '') + '</div>' +
-        '<button class="btn mt-2" onclick="adDep(' +
-        JSON.stringify(x.user) + ',' +
-        JSON.stringify(x.d.hash) + ',true)">Approve</button> ' +
-        '<button class="ghost mt-2" onclick="adDep(' +
-        JSON.stringify(x.user) + ',' +
-        JSON.stringify(x.d.hash) + ',false)">Reject</button>' +
-        '</div>';
-    }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
-
-    '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
-    (pendW.map(function(x) {
-      return '<div class="py-3 border-b border-white/10">' +
-        '<b>' + x.user + '</b> $' + money(x.w.amt) +
-        '<div class="text-xs break-all text-[#b7ad98]">' +
-        (x.w.addr || '') + '</div>' +
-        '<button class="btn mt-2" onclick="approveWd(' +
-        JSON.stringify(x.user) + ',' +
-        JSON.stringify(x.w.id) + ')">Mark Paid</button> ' +
-        '<button class="ghost mt-2" onclick="rejectWd(' +
-        JSON.stringify(x.user) + ',' +
-        JSON.stringify(x.w.id) + ')">Reject</button>' +
-        '</div>';
-    }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>');
-}
-
-    var pendD=[], pendW=[];
-
-    all().forEach(function(p){
-      (p.deps||[]).forEach(function(d){
-        if(d.st==="PENDING" || d.status==="PENDING")
-  pendD.push({user:p.user,d:d});
+    all().forEach(function(p) {
+      (p.deps || []).forEach(function(d) {
+        if (d.st === "PENDING" || d.status === "PENDING") {
+          pendD.push({ user: p.user, d: d });
+        }
       });
 
-      (p.wds||[]).forEach(function(w){
-        if(w.st==="PENDING" || w.status==="PENDING")
-  pendW.push({user:p.user,w:w});
+      (p.wds || []).forEach(function(w) {
+        if (w.st === "PENDING" || w.status === "PENDING") {
+          pendW.push({ user: p.user, w: w });
+        }
       });
     });
 
     el("admin").innerHTML =
-      '<div class="serif text-2xl mb-2">Pending deposits</div>' +
-      (pendD.map(function(x){
+      '<div class="serif text-2xl mb-3">Admin Panel</div>' +
+      '<div class="serif text-xl mb-2">Pending Deposits</div>' +
+      (pendD.map(function(x) {
         return '<div class="py-3 border-b border-white/10">' +
-          '<b>'+x.user+'</b> $'+money(x.d.amt) +
-          '<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div>' +
-    '<button class="btn mt-2" onclick="adWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+',true)">Paid</button> ' +
-'<button class="ghost mt-2" onclick="adWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+',false)">Reject</button>' +
+          '<b>' + x.user + '</b> $' + money(x.d.amt) +
+          '<div class="text-xs break-all text-[#b7ad98]">' +
+          (x.d.hash || '') + '</div>' +
+          '<button class="btn mt-2" onclick="adDep(' +
+          JSON.stringify(x.user) + ',' +
+          JSON.stringify(x.d.hash) + ',true)">Approve</button> ' +
+          '<button class="ghost mt-2" onclick="adDep(' +
+          JSON.stringify(x.user) + ',' +
+          JSON.stringify(x.d.hash) + ',false)">Reject</button>' +
           '</div>';
-      }).join("") || "None") +
+      }).join("") ||
+      '<div class="text-sm text-gray-400">No pending deposits</div>') +
 
-      '<div class="serif text-2xl mt-5 mb-2">Pending withdrawals</div>' +
-      (pendW.map(function(x){
+      '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
+      (pendW.map(function(x) {
         return '<div class="py-3 border-b border-white/10">' +
-          '<b>'+x.user+'</b> $'+money(x.w.amt) +
-          '<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div>' +
-          '<button class="btn mt-2" onclick="approveWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+')">Paid</button> ' +
-          '<button class="ghost mt-2" onclick="rejectWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+')">Reject</button>' +
+          '<b>' + x.user + '</b> $' + money(x.w.amt) +
+          '<div class="text-xs break-all text-[#b7ad98]">' +
+          (x.w.addr || '') + '</div>' +
+          '<button class="btn mt-2" onclick="approveWd(' +
+          JSON.stringify(x.user) + ',' +
+          JSON.stringify(x.w.id) + ')">Mark Paid</button> ' +
+          '<button class="ghost mt-2" onclick="rejectWd(' +
+          JSON.stringify(x.user) + ',' +
+          JSON.stringify(x.w.id) + ')">Reject</button>' +
           '</div>';
-      }).join("") || "None");
-    }
+      }).join("") ||
+      '<div class="text-sm text-gray-400">No pending withdrawals</div>');
+}
 }
 
 function saveSettings(){
