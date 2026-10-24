@@ -453,8 +453,8 @@ function paint(){
 
     all().forEach(function(p){
       (p.deps||[]).forEach(function(d){
-        if(d.st==="PENDING")
-          pendD.push({user:p.user,d:d});
+        if(d.st==="PENDING" || d.status==="PENDING")
+  pendD.push({user:p.user,d:d});
       });
 
       (p.wds||[]).forEach(function(w){
@@ -469,8 +469,8 @@ function paint(){
         return '<div class="py-3 border-b border-white/10">' +
           '<b>'+x.user+'</b> $'+money(x.d.amt) +
           '<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div>' +
-          '<button class="btn mt-2" onclick="adDep('+JSON.stringify(x.user)+','+JSON.stringify(x.d.hash)+',true)">Approve</button> ' +
-          '<button class="ghost mt-2" onclick="adDep('+JSON.stringify(x.user)+','+JSON.stringify(x.d.hash)+',false)">Reject</button>' +
+    '<button class="btn mt-2" onclick="adWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+',true)">Paid</button> ' +
+'<button class="ghost mt-2" onclick="adWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+',false)">Reject</button>' +
           '</div>';
       }).join("") || "None") +
 
@@ -586,7 +586,7 @@ function withdraw(){
 function adWd(user, id, ok) {
   var p = load(user);
   if (!p || !Array.isArray(p.wds)) {
-    pop("Error", "User or withdrawal not found");
+    pop("Error", "Withdrawal not found");
     return;
   }
 
@@ -595,7 +595,7 @@ function adWd(user, id, ok) {
   });
 
   if (!w || (w.st !== "PENDING" && w.status !== "PENDING")) {
-    pop("Error", "Withdrawal already processed or not found");
+    pop("Error", "Already processed or not found");
     return;
   }
 
@@ -614,16 +614,11 @@ function adWd(user, id, ok) {
   }
 
   save(p);
-
-  if (u && u.user === user) {
-    u = p;
-  }
+  if (u && u.user === user) u = p;
 
   paint();
   pop(ok ? "Paid" : "Rejected",
-      ok
-        ? "Withdrawal marked paid. Confirm payment was sent."
-        : "Withdrawal rejected and amount returned.");
+      ok ? "Withdrawal marked paid" : "Withdrawal rejected; amount refunded");
 }
 function sendWdOtp(){
   if(!u){pop("Login","Please login first");return;}
