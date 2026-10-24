@@ -534,12 +534,12 @@ function paint(){
           '<b>' + x.user + '</b> $' + money(x.d.amt) +
           '<div class="text-xs break-all text-[#b7ad98]">' +
           (x.d.hash || '') + '</div>' +
-          '<button class="btn mt-2" onclick="adDep(' +
-          JSON.stringify(x.user) + ',' +
-          JSON.stringify(x.d.hash) + ',true)">Approve</button> ' +
-          '<button class="ghost mt-2" onclick="adDep(' +
-          JSON.stringify(x.user) + ',' +
-          JSON.stringify(x.d.hash) + ',false)">Reject</button>' +
+   '<button type="button" class="btn mt-2" onclick="adDep(' +
+JSON.stringify(x.user) + ',' +
+JSON.stringify(x.d.hash) + ',true)">Approve</button> '
+        '<button type="button" class="ghost mt-2" onclick="adDep(' +
+JSON.stringify(x.user) + ',' +
+JSON.stringify(x.d.hash) + ',false)">Reject</button>'
           '</div>';
       }).join("") ||
       '<div class="text-sm text-gray-400">No pending deposits</div>') +
