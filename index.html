@@ -483,7 +483,8 @@ function paint(){
           '<button class="ghost mt-2" onclick="rejectWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+')">Reject</button>' +
           '</div>';
       }).join("") || "None");
-  }
+    }
+}
 
 function saveSettings(){
   u.email=el("set-email").value.trim();
