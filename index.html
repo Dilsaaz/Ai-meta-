@@ -396,10 +396,42 @@ function verifyOtp(){
   save(p); u=p; showSpin(function(){enter()});
 }
 function doLogin(){
-  var name=el("li-user").value.trim(), pass=el("li-pass").value;
-  if(name===ADMIN.user&&pass===ADMIN.pass){u={user:"admin",bal:0,profit:0,base:0,ref:"ADMIN",deps:[],wds:[],amb:[]};showSpin(function(){enter();tab("admin")});return}
-  var p=load(name); if(!p||p.pass!==pass){pop("Login failed","Wrong username or password");return}
-  u=p; salary(u); ambCards(u); showSpin(function(){enter()});
+  var name = el("li-user").value.trim();
+  var pass = el("li-pass").value;
+
+  if(name === ADMIN.user && pass === ADMIN.pass){
+    u = {
+      user: "admin",
+      bal: 0,
+      profit: 0,
+      base: 0,
+      ref: "ADMIN",
+      deps: [],
+      wds: [],
+      amb: []
+    };
+
+    showSpin(function(){
+      enter();
+      tab("admin");
+    });
+    return;
+  }
+
+  var p = load(name);
+
+  if(!p || p.pass !== pass){
+    pop("Login failed", "Wrong username or password");
+    return;
+  }
+
+  u = p;
+  salary(u);
+  ambCards(u);
+
+  showSpin(function(){
+    enter();
+  });
 }
 
 function enter(){
