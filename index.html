@@ -214,7 +214,19 @@ function save(p){
   // current user bhi sync
   if(u&&u.user===p.user)u=p;
 }
-function all(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf("amt_")===0){try{o.push(JSON.parse(localStorage.getItem(k)))}catch(e){}}}return o}
+function all(){
+  var o=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k.indexOf("mint_")===0){
+      try{
+        var p=JSON.parse(localStorage.getItem(k));
+        if(p) o.push(p);
+      }catch(e){}
+    }
+  }
+  return o;
+}
 function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
 function active(p){return (p.deps||[]).some(function(d){return d.st==="SUCCESSFUL"})}
@@ -456,24 +468,30 @@ function deposit(){
   u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
   save(u);paint(); pop("Submitted","Deposit pending admin approval");
 }
-function adDep(user,id,ok,amt){
+function adDep(user,hash,ok){
   var p=load(user);
   if(!p)return;
-  if(!p.deps)p.deps=[];
-  var d=p.deps.find(function(x){return x.id===id;});
-  if(!d||d.status!=="PENDING")return;
+
+  p.deps=p.deps||[];
+  var d=p.deps.find(function(x){
+    return x.hash===hash;
+  });
+
+  if(!d||d.st!=="PENDING")return;
 
   if(ok){
-    d.status="SUCCESSFUL";
-    d.amt=Number(amt||d.amt||0);
-    p.bal=+(Number(p.bal||0)+d.amt).toFixed(2);
-    p.lock=+(Number(p.lock||0)+d.amt).toFixed(2);
+    d.st="SUCCESSFUL";
+    p.bal=+(Number(p.bal||0)+Number(d.amt||0)).toFixed(2);
+    p.lock=+(Number(p.lock||0)+Number(d.amt||0)).toFixed(2);
   }else{
-    d.status="REJECTED";
+    d.st="REJECTED";
   }
+
   save(p);
-  if(u&&u.user===user){u=p;paint();}
-  renderAdmin();
+  if(u&&u.user===user){
+    u=p;
+    paint();
+  }
 }
 function withdraw(){
   if(!u)return;
