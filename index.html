@@ -447,12 +447,44 @@ function paint(){
   el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div>';
   var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
   el("hist").innerHTML=hist.join("<br>")||"No history";
+  
   if(u.user==="admin"){
     var pendD=[], pendW=[];
-    all().forEach(function(p){(p.deps||[]).forEach(function(d){if(d.st==="PENDING")pendD.push({user:p.user,d:d})});(p.wds||[]).forEach(function(w){if(w.st==="PENDING")pendW.push({user:p.user,w:w})})});
-    el("admin").innerHTML='<div class="serif text-2xl mb-2">Pending deposits</div>'+(pendD.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.d.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div><button class="btn mt-2" onclick="approveDep(\''+x.user+'\',\''+x.d.hash+'\')">Approve</button></div>'}).join("")||"None")+'<div class="serif text-2xl mt-5 mb-2">Pending withdraws</div>'+(pendW.map(function(x){return '<div class="py-3 border-b border-white/10"><b>'+x.user+'</b> $'+money(x.w.amt)+'<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div><button class="btn mt-2" onclick="approveWd(\''+x.user+'\',\''+x.w.id+'\')">Paid</button></div>'}).join("")||"None");
+
+    all().forEach(function(p){
+      (p.deps||[]).forEach(function(d){
+        if(d.st==="PENDING")
+          pendD.push({user:p.user,d:d});
+      });
+
+      (p.wds||[]).forEach(function(w){
+        if(w.st==="PENDING")
+          pendW.push({user:p.user,w:w});
+      });
+    });
+
+    el("admin").innerHTML =
+      '<div class="serif text-2xl mb-2">Pending deposits</div>' +
+      (pendD.map(function(x){
+        return '<div class="py-3 border-b border-white/10">' +
+          '<b>'+x.user+'</b> $'+money(x.d.amt) +
+          '<div class="text-xs break-all text-[#b7ad98]">'+x.d.hash+'</div>' +
+          '<button class="btn mt-2" onclick="adDep('+JSON.stringify(x.user)+','+JSON.stringify(x.d.hash)+',true)">Approve</button> ' +
+          '<button class="ghost mt-2" onclick="adDep('+JSON.stringify(x.user)+','+JSON.stringify(x.d.hash)+',false)">Reject</button>' +
+          '</div>';
+      }).join("") || "None") +
+
+      '<div class="serif text-2xl mt-5 mb-2">Pending withdrawals</div>' +
+      (pendW.map(function(x){
+        return '<div class="py-3 border-b border-white/10">' +
+          '<b>'+x.user+'</b> $'+money(x.w.amt) +
+          '<div class="text-xs break-all text-[#b7ad98]">'+x.w.addr+'</div>' +
+          '<button class="btn mt-2" onclick="approveWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+')">Paid</button> ' +
+          '<button class="ghost mt-2" onclick="rejectWd('+JSON.stringify(x.user)+','+JSON.stringify(x.w.id)+')">Reject</button>' +
+          '</div>';
+      }).join("") || "None");
   }
-}
+
 function saveSettings(){
   u.email=el("set-email").value.trim();
   u.wdAddr=el("set-addr").value.trim();
@@ -468,67 +500,88 @@ function deposit(){
   u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
   save(u);paint(); pop("Submitted","Deposit pending admin approval");
 }
-function adDep(user,hash,ok){
-  var p=load(user);
-  if(!p)return;
 
-  p.deps=p.deps||[];
-  var d=p.deps.find(function(x){
-    return x.hash===hash;
+function adDep(user, hash, ok) {
+  var p = load(user);
+  if (!p || !p.deps) {
+    pop("Error", "User or deposit not found");
+    return;
+  }
+
+  var d = p.deps.find(function(x) {
+    return x.hash === hash;
   });
 
-  if(!d||d.st!=="PENDING")return;
-
-  if(ok){
-    d.st="SUCCESSFUL";
-    p.bal=+(Number(p.bal||0)+Number(d.amt||0)).toFixed(2);
-    p.lock=+(Number(p.lock||0)+Number(d.amt||0)).toFixed(2);
-  }else{
-    d.st="REJECTED";
+  if (!d || d.st !== "PENDING") {
+    pop("Error", "Deposit already processed or not found");
+    return;
   }
 
-  save(p);
-  if(u&&u.user===user){
-    u=p;
+  if (ok) {
+    d.st = "SUCCESSFUL";
+    p.bal = +(Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2);
+    p.lock = +(Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2);
+    save(p);
+    if (u && u.user === user) u = p;
     paint();
+    pop("Approved", "Deposit approved successfully");
+  } else {
+    d.st = "REJECTED";
+    save(p);
+    if (u && u.user === user) u = p;
+    paint();
+    pop("Rejected", "Deposit request rejected");
   }
 }
+
+
 function withdraw(){
   if(!u)return;
+
   var amt=Number(el("wd-amt").value||0);
   var addr=(el("wd-addr").value||"").trim();
+
   if(amt<10)return pop("Error","Minimum withdraw $10");
   if(!addr||addr.length<10)return pop("Error","Enter valid BEP20 address");
 
-  // latest data lo
   var p=load(u.user);
   if(!p)return pop("Error","Account not found");
 
   var bal=Number(p.bal||0);
   if(amt>bal)return pop("Error","Insufficient balance");
 
-  // pehle se pending hai to block
-  var hasPending=(p.wds||[]).some(function(w){return w.status==="PENDING";});
+  // Check existing pending withdrawal
+  var hasPending=(p.wds||[]).some(function(w){
+    return (w.st==="PENDING" || w.status==="PENDING");
+  });
+
   if(hasPending)return pop("Pending","You already have a pending withdrawal");
 
-  // balance turant kaato
+  // Deduct amount once; refund if admin rejects
   p.bal=+(bal-amt).toFixed(2);
+
   if(!p.wds)p.wds=[];
+
   var id="WD"+Date.now();
+
   p.wds.unshift({
     id:id,
     amt:amt,
     addr:addr,
+    st:"PENDING",
     status:"PENDING",
-    time:Date.now()
+    time:Date.now(),
+    refunded:false
   });
+
   save(p);
   u=p;
   paint();
+
   el("wd-amt").value="";
   pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
 }
-  var wdOtpCode="", wdOtpTime=0;
+
 function adWd(user,id,ok){
   var p=load(user);
   if(!p||!p.wds)return;
@@ -566,12 +619,62 @@ function verifyWdOtp(){
   if(entered!==wdOtpCode){pop("OTP","Invalid OTP");return false;}
   return true;
 }
-function approveWd(user,id){
-  var p=load(user); if(!p)return;
-  var w=(p.wds||[]).filter(function(x){return x.id===id})[0];
-  if(!w||w.st!=="PENDING")return;
-  w.st="PAID"; save(p); if(u&&u.user===p.user)u=p; paint(); pop("Paid","Withdraw marked paid");
+
+
+function approveWd(user, id){
+  var p=load(user);
+  if(!p)return pop("Error","User not found");
+
+  var w=(p.wds||[]).find(function(x){
+    return String(x.id)===String(id);
+  });
+
+  if(!w || (w.st!=="PENDING" && w.status!=="PENDING")){
+    return pop("Error","Withdrawal not found or already processed");
+  }
+
+  w.st="PAID";
+  w.status="PAID";
+
+  save(p);
+
+  if(u && u.user===user)u=p;
+
+  paint();
+  pop("Paid","Mark as paid only after sending the withdrawal.");
 }
+
+
+function rejectWd(user, id){
+  var p=load(user);
+  if(!p)return pop("Error","User not found");
+
+  var w=(p.wds||[]).find(function(x){
+    return String(x.id)===String(id);
+  });
+
+  if(!w || (w.st!=="PENDING" && w.status!=="PENDING")){
+    return pop("Error","Withdrawal not found or already processed");
+  }
+
+  // Amount was deducted when withdrawal was submitted.
+  if(!w.refunded){
+    p.bal=+(Number(p.bal||0)+Number(w.amt||0)).toFixed(2);
+    w.refunded=true;
+  }
+
+  w.st="REJECTED";
+  w.status="REJECTED";
+
+  save(p);
+
+  if(u && u.user===user)u=p;
+
+  paint();
+  pop("Rejected","Withdrawal rejected. Amount returned to user balance.");
+}
+
+
 function reinvest(){
   if(!(u.profit>0)){pop("Nothing","No earn to reinvest");return}
   var n=+u.profit;
