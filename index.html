@@ -391,15 +391,23 @@ function doLogin(){
 }
 function enter(){el("auth").classList.add("hidden");el("app").classList.remove("hidden");el("hello").textContent=u.user;if(el("uid"))el("uid").textContent=u.user;el("admin-btn").style.display=u.user==="admin"?"block":"none";paint();setupScratch()}
 function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
+
 function tab(id,btn){
   ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
   el(id).classList.remove("hidden");
+
+  var tradeCard = document.getElementById("trade-card");
+  if(tradeCard){
+    tradeCard.classList.toggle("hidden", id !== "home");
+  }
+
   closeMenu();
   document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
   if(btn)btn.classList.add("on");
   if(id==="home"){setupScratch();startLiveTrades();}
   paint();
 }
+
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
 function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
 function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname+"?ref="+u.ref).then(function(){pop("Copied","Link copied")})}
