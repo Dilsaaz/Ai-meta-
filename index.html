@@ -179,7 +179,13 @@ input:focus{border-color:#3b82f6;outline:none}
   </div>
 </div>
 <div id="spinwrap" class="spinwrap hidden"><div class="spin"></div></div>
-<div id="pop" class="pop hidden" onclick="closePop()"><div class="box" onclick="event.stopPropagation()"><div id="pop-title" class="serif text-2xl gold mb-2"></div><div id="pop-msg" class="text-sm text-[#d8d0c2] mb-4"></div><button class="btn" onclick="closePop()">OK</button></div></div>
+<div id="pop" class="pop hidden" onclick="if(event.target===this)closePop()">
+  <div class="box" onclick="event.stopPropagation()">
+    <h3 id="pop-title">Title</h3>
+    <p id="pop-msg">Message</p>
+    <button onclick="closePop()">OK</button>
+  </div>
+</div>
 
 <script>
 var EJ_PUB="f6VfY8gBXO69xaw8J", EJ_SVC="service_jn9cnki", EJ_TPL="template_vj30p4d";
@@ -560,7 +566,7 @@ function deposit(){
   u.deps=u.deps||[];
   if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
   u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
-  save(u);paint(); pop("Submitted","Deposit pending admin approval");
+  save(u);paint(); pop("Waiting","Deposit submitted. Waiting for admin approval.");
 }
 
 function adDep(user, hash, ok) {
