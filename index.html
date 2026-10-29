@@ -616,6 +616,8 @@ function withdraw(){
   if(!p)return pop("Error","Account not found");
 
   var bal=Number(p.bal||0);
+  var fee = Number((amt * 0.15).toFixed(2));
+var netAmount = Number((amt - fee).toFixed(2));
   if(amt>bal)return pop("Error","Insufficient balance");
 
   // Check existing pending withdrawal
@@ -633,14 +635,16 @@ function withdraw(){
   var id="WD"+Date.now();
 
   p.wds.unshift({
-    id:id,
-    amt:amt,
-    addr:addr,
-    st:"PENDING",
-    status:"PENDING",
-    time:Date.now(),
-    refunded:false
-  });
+    id: id,
+    amt: amt,
+    fee: fee,
+    netAmount: netAmount,
+    addr: addr,
+    st: "PENDING",
+    status: "PENDING",
+    time: Date.now(),
+    refunded: false
+});
 
   save(p);
   u=p;
