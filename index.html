@@ -634,9 +634,11 @@ if (amt > profit || amt > (bal - lock)) {
   if(hasPending)return pop("Pending","You already have a pending withdrawal");
 
   // Deduct amount once; refund if admin rejects
-  p.bal = +(bal - amt).toFixed(2);
+  // Deduct withdrawal only from earnings
 p.profit = +(profit - amt).toFixed(2);
 
+// Keep balance unchanged so locked investment remains
+p.bal = bal;
   if(!p.wds)p.wds=[];
 
   var id="WD"+Date.now();
