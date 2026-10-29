@@ -612,13 +612,19 @@ function withdraw(){
   if(amt<10)return pop("Error","Minimum withdraw $10");
   if(!addr||addr.length<10)return pop("Error","Enter valid BEP20 address");
 
-  var p=load(u.user);
-  if(!p)return pop("Error","Account not found");
+  var p = load(u.user);
+if (!p) return pop("Error", "Account not found");
 
-  var bal=Number(p.bal||0);
+
   var fee = Number((amt * 0.15).toFixed(2));
 var netAmount = Number((amt - fee).toFixed(2));
-  if(amt>bal)return pop("Error","Insufficient balance");
+  var bal = Number(p.bal || 0);
+var profit = Number(p.profit || 0);
+var lock = Number(p.lock || 0);
+
+if (amt > profit || amt > (bal - lock)) {
+  return pop("Error", "Insufficient earnings");
+}
 
   // Check existing pending withdrawal
   var hasPending=(p.wds||[]).some(function(w){
@@ -628,7 +634,8 @@ var netAmount = Number((amt - fee).toFixed(2));
   if(hasPending)return pop("Pending","You already have a pending withdrawal");
 
   // Deduct amount once; refund if admin rejects
-  p.bal=+(bal-amt).toFixed(2);
+  p.bal = +(bal - amt).toFixed(2);
+p.profit = +(profit - amt).toFixed(2);
 
   if(!p.wds)p.wds=[];
 
@@ -752,12 +759,16 @@ function rejectWd(user, id){
     return pop("Error","Withdrawal not found or already processed");
   }
 
-  // Amount was deducted when withdrawal was submitted.
-  if(!w.refunded){
-    p.bal=+(Number(p.bal||0)+Number(w.amt||0)).toFixed(2);
-    w.refunded=true;
-  }
+// Refund balance and earnings if withdrawal is rejected.
+if (!w.refunded) {
+  var refundAmt = Number(w.amt || 0);
 
+  p.bal = +(Number(p.bal || 0) + refundAmt).toFixed(2);
+  p.profit = +(Number(p.profit || 0) + refundAmt).toFixed(2);
+
+  // Locked investment remains unchanged.
+  w.refunded = true;
+}
   w.st="REJECTED";
   w.status="REJECTED";
 
