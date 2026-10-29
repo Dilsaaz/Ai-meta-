@@ -404,44 +404,73 @@ function verifyOtp(){
   var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};
   save(p); u=p; showSpin(function(){enter()});
 }
-function doLogin(){
-  var name = el("li-user").value.trim();
-  var pass = el("li-pass").value;
 
-  if(name === ADMIN.user && pass === ADMIN.pass){
+async function doLogin() {
+  const name = el("li-user").value.trim().toLowerCase();
+  const pass = el("li-pass").value;
+
+  if (!name || !pass) {
+    pop("Missing", "Enter username and password");
+    return;
+  }
+
+  try {
+    showSpin();
+
+    const response = await fetch(
+      "https://eyabgdpzciaqjrduthok.supabase.co/functions/v1/username-login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "sb_publishable_EGq5svUoU8ayO7HCc34A3g_WpCLm5EP"
+        },
+        body: JSON.stringify({
+          username: name,
+          password: pass
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Login failed");
+    }
+
+    // Supabase session ko browser mein save karna
+    const { data, error } = await window.supabase.createClient(
+      "https://eyabgdpzciaqjrduthok.supabase.co",
+      "sb_publishable_EGq5svUoU8ayO7HCc34A3g_WpCLm5EP"
+    ).auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token
+    });
+
+    if (error) throw error;
+
+    // Abhi sirf login confirm; wallet baad mein database se load karenge.
     u = {
-      user: "admin",
+      user: result.user.username,
+      id: result.user.id,
+      email: result.user.email,
       bal: 0,
       profit: 0,
-      base: 0,
-      ref: "ADMIN",
+      ref: "",
       deps: [],
       wds: [],
       amb: []
     };
 
-    showSpin(function(){
-      enter();
-      tab("admin");
-    });
-    return;
+    showSpin(() => enter());
+
+  } catch (error) {
+    pop("Login failed", error.message || "Please try again");
+  } finally {
+    el("spinwrap").classList.add("hidden");
   }
-
-  var p = load(name);
-
-  if(!p || p.pass !== pass){
-    pop("Login failed", "Wrong username or password");
-    return;
-  }
-
-  u = p;
-  salary(u);
-  ambCards(u);
-
-  showSpin(function(){
-    enter();
-  });
 }
+
 
 function enter(){
   if(!u) return;
