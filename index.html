@@ -647,8 +647,12 @@ var netAmount = Number((amt - fee).toFixed(2));
 });
 
   save(p);
-  u=p;
-  paint();
+u = load(p.user) || p;
+
+el("bal").textContent = "$" + money(u.bal);
+el("profit").textContent = "$" + money(u.profit);
+
+paint();
 
   el("wd-amt").value="";
   pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
