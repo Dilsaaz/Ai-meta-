@@ -1,1 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+<title>Mintora</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap");
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui;background:#0a0612;color:#e9e4f5}
+.serif{font-family:"Cormorant Garamond",serif}
+.gold{color:#c4b5fd}
+.card{background:rgba(20,12,32,.92);border:1px solid rgba(167,139,250,.12);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.btn{background:linear-gradient(180deg,#a78bfa,#7c3aed);color:#fff;border-radius:14px;font-weight:800;box-shadow:0 8px 24px rgba(124,58,237,.4)}
+.ghost{border:1px solid rgba(167,139,250,.22);background:rgba(20,12,32,.6);color:#c4b5fd}
+input,select{background:#110a1a;border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:12px 14px;color:#e9e4f5;width:100%}
+input:focus{border-color:#3b82f6;outline:none}
+.hidden{display:none!important}
+.stat{background:#0b1220;border:1px solid rgba(59,130,246,.15);border-radius:14px;padding:14px}
+#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
+.menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
+.menu.open{display:block}
+.drawer{position:fixed;top:0;left:0;height:100%;width:280px;background:#0d0814;border-right:1px solid rgba(167,139,250,.1);padding:20px 14px;transform:translateX(-100%);transition:transform .3s;z-index:100}
+.drawer.open{transform:translateX(0)}
+.dtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding:0 4px}
+.dx{background:none;border:0;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px}
+.navitem{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;width:100%;font-weight:600;color:#94a3b8;margin:2px 0;transition:all .2s}
+  .navitem.on{background:linear-gradient(90deg,rgba(167,139,250,.2),rgba(167,139,250,.05));color:#c4b5fd;border-left:3px solid #a78bfa}
+.navitem .ic{width:22px;text-align:center;opacity:.9}
+.uid{margin:auto 0 16px;background:#140e1f;border:1px solid rgba(167,139,250,.12);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.uidb{width:36px;height:36px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
+.out{margin:0;background:#1c1212;color:#f87171;border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:12px;font-weight:700;width:100%}
+.pop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.pop .box{background:#12141c;border:1px solid rgba(212,180,131,.3);border-radius:22px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+.rel{position:relative}
+.prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
+.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .15s}
+.spinwrap{position:fixed;inset:0;background:#07080c;z-index:70;display:flex;align-items:center;justify-content:center}
+.spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(212,180,131,.25);border-top-color:#d4b483;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+  .act-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#a78bfa,#6d28d9);opacity:.55;transition:height .6s ease}
+.act-bar.on{opacity:1;background:linear-gradient(180deg,#c4b5fd,#7c3aed)}
+.live-row{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:rgba(167,139,250,.07);border-radius:12px;border:1px solid rgba(167,139,250,.12);animation:fadeIn .35s ease}
+.live-row .pair{color:#c4b5fd;font-weight:600;font-size:13px}
+.live-row .amt{font-weight:700;font-size:13px}
+.live-row .amt.green{color:#4ade80}
+.live-row .amt.red{color:#f87171}
+.live-row .time{color:#666;font-size:11px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="auth" class="max-w-md mx-auto px-5 py-16">
+  <div class="text-center mb-10">
+    <div class="serif text-6xl gold">Mintora</div>
+    <div class="text-xs tracking-widest text-[#b7ad98] mt-2">EARN · GROW · ELEVATE</div>
+  </div>
+  <div id="box-login" class="card p-6">
+    <div class="serif text-2xl gold mb-5">Sign in</div>
+    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">USERNAME</div>
+    <input id="li-user" class="mb-4" placeholder="Enter your username"/>
+    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">PASSWORD</div>
+    <div class="rel mb-5"><input id="li-pass" type="password" placeholder="Enter your password"/><span class="eye" onclick="toggleEye('li-pass',this)">👁</span></div>
+    <button class="btn w-full" onclick="doLogin()">Continue →</button>
+    <button class="ghost w-full mt-3" onclick="show('box-signup')">Create account</button>
+  </div>
+  <div id="box-signup" class="card p-6 hidden">
+    <div class="serif text-2xl gold mb-4">Create account</div>
+    <input id="su-user" class="mb-3" placeholder="Username"/>
+    <input id="su-email" class="mb-3" placeholder="Email"/>
+    <input id="su-phone" class="mb-3" placeholder="Phone number"/>
+    <div class="rel mb-3"><input id="su-pass" type="password" placeholder="Password"/><span class="eye" onclick="toggleEye('su-pass',this)">👁</span></div>
+    <input id="su-ref" class="mb-4" placeholder="Referral code"/>
+    <button class="btn w-full" onclick="sendOtp()">Send OTP</button>
+    <button class="ghost w-full mt-3" onclick="show('box-login')">Login</button>
+  </div>
+  <div id="box-otp" class="card p-6 hidden">
+    <div class="serif text-2xl gold mb-4">Enter OTP</div>
+    <input id="otp" class="mb-4" placeholder="6 digit OTP"/>
+    <button class="btn w-full" onclick="verifyOtp()">Verify & Create</button>
+  </div>
+</div>
+
+<div id="app" class="hidden max-w-5xl mx-auto px-5 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <div class="serif text-4xl gold">Mintora</div>
+      <div id="hello" class="text-lg mt-1"></div>
+    </div>
+    <button class="ghost px-3" onclick="openMenu()" aria-label="menu"><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div></button>
+  </div>
+
+  <div id="home">
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+    </div>
+    <div class="card p-4 mb-4">
+      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
+        <button class="btn px-4" onclick="copyRef()">Copy</button>
+      </div>
+      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
+      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
+    </div>
+    
+  <div id="trade-card" class="card p-5 hidden">
+  <div class="serif text-2xl mb-1">Trade</div>
+  <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
+  <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
+    </div>
+        <div class="card p-5 mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-semibold text-white">Portfolio Activity</div>
+        <div class="text-[10px] text-[#777]">Last 7 days</div>
+      </div>
+      <div id="activity-bars" class="flex items-end gap-1 h-16 mb-2"></div>
+      <div class="text-[11px] text-[#666]">Live performance overview</div>
+    </div>
+
+    <div class="card p-5">
+      <div class="text-sm font-semibold text-white mb-3">Live Trades</div>
+      <div id="live-trades" class="space-y-2"></div>
+    </div>
+
+
+    </div>
+  <div id="deposit" class="card p-5 hidden">
+    <div class="serif text-2xl mb-3">Deposit</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
+    <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
+    <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
+    <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
+    <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
+    <button class="btn" onclick="deposit()">Submit deposit</button>
+  </div>
+  <div id="withdraw" class="card p-5 hidden">
+    <div class="serif text-2xl mb-2">Withdraw</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $1. Paid after admin approval.</div>
+    <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
+    <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
+    <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6">
+<button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
+    <button class="btn" onclick="withdraw()">Request withdraw</button>
+    <div class="mt-5 text-sm" id="hist"></div>
+  </div>
+  <div id="ref" class="card p-5 hidden"></div>
+  <div id="teamview" class="card p-5 hidden"></div>
+  <div id="settings" class="card p-5 hidden">
+    <div class="serif text-2xl mb-3">Settings</div>
+    <input id="set-email" class="mb-3" placeholder="Email"/>
+    <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
+    <button class="btn w-full" onclick="saveSettings()">Save</button>
+  </div>
+  <div id="admin" class="card p-5 hidden"></div>
+</div>
+
+<div id="menu" class="menu" onclick="closeMenu()">
+  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
+    <div class="dtop">
+      <div class="serif text-3xl gold">Mintora</div>
+      <button class="dx" onclick="closeMenu()">×</button>
+    </div>
+    <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
+    <button class="navitem" onclick="tab('deposit',this)"><span class="ic">↓</span> Deposit</button>
+    <button class="navitem" onclick="tab('withdraw',this)"><span class="ic">↑</span> Withdraw</button>
+    <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
+    <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
+    <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
+    <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
+    <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
+    <button class="out" onclick="logout()">← Logout</button>
+  </div>
+</div>
+<div id="spinwrap" class="spinwrap hidden"><div class="spin"></div></div>
+<div id="pop" class="pop hidden" onclick="if(event.target===this)closePop()">
+  <div class="box" onclick="event.stopPropagation()">
+    <h3 id="pop-title">Title</h3>
+    <p id="pop-msg">Message</p>
+    <button onclick="closePop()">OK</button>
+  </div>
+</div>
+
+<script>
+  var SB_URL = "https://eyabgdpzciaqjrduthok.supabase.co";
+var SB_KEY = "sb_publishable_EGq5svUoU8ayO7HCc34A3g_WpCLm5EP";
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var EJ_PUB="sTOZV9D7AJ58oDKZx", EJ_SVC="service_rcfgil8", EJ_TPL="template_1e1da9p";
+var ADMIN={user:"admin",pass:"Mint@2026"};
+var RANKS=[
+  {n:1,name:"Analyst",need:"10 levels deep",pay:30},
+  {n:2,name:"Strategist",need:"30 active team",pay:70},
+  {n:3,name:"Manager",need:"90 active team",pay:180},
+  {n:4,name:"Director",need:"170 active team",pay:420},
+  {n:5,name:"Partner",need:"320 active team",pay:880}
+];
+var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
+var u=null, otp="", pending=null, otpAt=0, done=false, scratchMs=0, lastTick=0;
+function el(id){return document.getElementById(id)}
+function money(n){return (+n||0).toFixed(2)}
+function day(){return new Date().toISOString().slice(0,10)}
+function show(id){["box-login","box-signup","box-otp"].forEach(function(x){el(x).classList.add("hidden")});el(id).classList.remove("hidden")}
+function load(name){
+  try{
+    var raw=localStorage.getItem("mint_"+name);
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null;}
+}
+
+async function loadCloud(name){
+  try{
+    var res = await sb.from("users").select("*").eq("user_name", name).single();
+    if(res.data){
+      var p = {
+        user: res.data.user_name,
+        email: res.data.email || "",
+        phone: res.data.phone || "",
+        pass: res.data.pass || "",
+        ref: res.data.ref || "",
+        sponsor: res.data.sponsor || "",
+        bal: Number(res.data.bal || 0),
+        profit: Number(res.data.profit || 0),
+        base: Number(res.data.base || 0),
+        lock: Number(res.data.lock || 0),
+        wdAddr: res.data.wd_addr || "",
+        deps: res.data.deps || [],
+        wds: res.data.wds || [],
+        amb: res.data.amb || [],
+        nextTrade: Number(res.data.next_trade || 0),
+        scratchDay: res.data.scratch_day || ""
+      };
+      localStorage.setItem("mint_"+name, JSON.stringify(p));
+      return p;
+    }
+  }catch(e){}
+  return load(name);
+}
+
+function save(p){
+  if(!p||!p.user)return;
+  p.bal=+(Number(p.bal)||0).toFixed(2);
+  p.profit=+(Number(p.profit)||0).toFixed(2);
+  p.lock=+(Number(p.lock)||0).toFixed(2);
+  localStorage.setItem("mint_"+p.user,JSON.stringify(p));
+  if(u&&u.user===p.user)u=p;
+
+  // Cloud sync
+  sb.from("users").upsert({
+    user_name: p.user,
+    email: p.email || "",
+    phone: p.phone || "",
+    pass: p.pass || "",
+    ref: p.ref || "",
+    sponsor: p.sponsor || "",
+    bal: p.bal,
+    profit: p.profit,
+    base: p.base || 0,
+    lock: p.lock || 0,
+    wd_addr: p.wdAddr || "",
+    deps: p.deps || [],
+    wds: p.wds || [],
+    amb: p.amb || [],
+    next_trade: p.nextTrade || 0,
+    scratch_day: p.scratchDay || ""
+  }).then(function(){}).catch(function(){});
+}
+function all(){
+  var list=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf("mint_")==0){
+      try{list.push(JSON.parse(localStorage.getItem(k)));}catch(e){}
+    }
+  }
+  return list;
+}
+
+async function allCloud(){
+  try{
+    var res = await sb.from("users").select("*");
+    if(res.data && res.data.length){
+      var list = res.data.map(function(r){
+        var p = {
+          user: r.user_name,
+          email: r.email || "",
+          phone: r.phone || "",
+          pass: r.pass || "",
+          ref: r.ref || "",
+          sponsor: r.sponsor || "",
+          bal: Number(r.bal || 0),
+          profit: Number(r.profit || 0),
+          base: Number(r.base || 0),
+          lock: Number(r.lock || 0),
+          wdAddr: r.wd_addr || "",
+          deps: r.deps || [],
+          wds: r.wds || [],
+          amb: r.amb || [],
+          nextTrade: Number(r.next_trade || 0),
+          scratchDay: r.scratch_day || ""
+        };
+        localStorage.setItem("mint_"+p.user, JSON.stringify(p));
+        return p;
+      });
+      return list;
+    }
+  }catch(e){}
+  return all();
+}
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
+function active(p){return (p.deps||[]).some(function(d){return d.st==="SUCCESSFUL"})}
+function downAll(ref){
+  var out=[], q=kids(ref);
+  while(q.length){var p=q.shift();out.push(p);q=q.concat(kids(p.ref))}
+  return out;
+}
+function depth(ref){
+  var ks=kids(ref); if(!ks.length)return 0;
+  return 1+Math.max.apply(null, ks.map(function(k){return depth(k.ref)}));
+}
+function rankOf(p){
+  var team=downAll(p.ref).filter(active);
+  var d=depth(p.ref), n=team.length, r=0;
+  if(d>=10)r=1;
+  if(n>=30)r=2;
+  if(n>=90)r=3;
+  if(n>=170)r=4;
+  if(n>=320)r=5;
+  return r;
+}
+  function startTrade(){
+  var btn=el("trade-btn"), msg=el("trade-msg");
+  if(!btn||btn.disabled) return;
+  if(!u){pop("Login","Please login first");return;}
+  if(!(u.bal>=100)){pop("Balance","Minimum $100 required");return;}
+
+  // Check daily limit
+  var now=Date.now();
+  if(u.nextTrade && now < u.nextTrade){
+    var left=Math.ceil((u.nextTrade-now)/1000);
+    var h=Math.floor(left/3600);
+    var m=Math.floor((left%3600)/60);
+    pop("Already Traded","Next trade available in "+h+"h "+m+"m");
+    if(msg) msg.textContent="Next trade in "+h+"h "+m+"m";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="Trading...";
+  if(msg) msg.textContent="Scanning market...";
+
+  var pairs=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT"];
+  var pair=pairs[Math.floor(Math.random()*pairs.length)];
+  var delay=5000+Math.floor(Math.random()*3000);
+
+  setTimeout(function(){
+    if(msg) msg.textContent="Analyzing "+pair+"...";
+  },1200);
+
+  setTimeout(function(){
+    if(msg) msg.textContent="Executing trade on "+pair+"...";
+  },2800);
+
+  setTimeout(function(){
+    var pct=2.5;
+    var profit=+(u.bal * (pct/100)).toFixed(2);
+    if(profit<1.5) profit=1.5;
+    if(profit>25) profit=25;
+
+    u.bal=+(u.bal+profit).toFixed(2);
+    u.profit=+((u.profit||0)+profit).toFixed(2);
+
+    // Next trade = tomorrow 6 AM
+    var next=new Date();
+    next.setDate(next.getDate()+1);
+    next.setHours(6,0,0,0);
+    u.nextTrade=next.getTime();
+
+    save(u);
+    paint();
+
+    if(msg) msg.textContent="Next trade available tomorrow 6 AM";
+pop("Trade Successful","+$"+profit.toFixed(2)+" added");
+btn.textContent="Trade Locked";
+btn.disabled=true;
+  },delay);
+}
+  var LIVE_PAIRS=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT","ADA/USDT","DOGE/USDT","MATIC/USDT","AVAX/USDT"];
+var liveTimer=null, barTimer=null;
+function startLiveTrades(){
+  var box=el("live-trades"), bars=el("activity-bars");
+  if(!box)return;
+  if(liveTimer)clearInterval(liveTimer);
+  if(barTimer)clearInterval(barTimer);
+  if(bars && !bars.children.length){
+    for(var i=0;i<18;i++){
+      var b=document.createElement("div");
+      b.className="act-bar";
+      b.style.height=(20+Math.random()*80)+"%";
+      bars.appendChild(b);
+    }
+  }
+  barTimer=setInterval(function(){
+    if(!bars)return;
+    var idx=Math.floor(Math.random()*bars.children.length);
+    var b=bars.children[idx];
+    b.style.height=(25+Math.random()*75)+"%";
+    b.classList.add("on");
+    setTimeout(function(){b.classList.remove("on")},800);
+  },900);
+  function addTrade(){
+    var pair=LIVE_PAIRS[Math.floor(Math.random()*LIVE_PAIRS.length)];
+    var isBuy=Math.random()>0.42;
+    var amt=(15+Math.random()*1850).toFixed(2);
+    var time=new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    var row=document.createElement("div");
+    row.className="live-row";
+    row.innerHTML='<span class="pair">'+pair+'</span><span class="amt '+(isBuy?"green":"red")+'">'+(isBuy?"+":"-")+"$"+amt+'</span><span class="time">'+time+'</span>';
+    box.insertBefore(row,box.firstChild);
+    while(box.children.length>7)box.removeChild(box.lastChild);
+  }
+  for(var i=0;i<5;i++)addTrade();
+  liveTimer=setInterval(addTrade,2200+Math.random()*1800);
+}
+function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
+function closePop(){el("pop").classList.add("hidden")}
+function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
+function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
+function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
+function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
+function salary(p){
+  var r=rankOf(p); if(!r)return;
+  var now=Date.now();
+  if(p.lastSalary&&now-p.lastSalary<15*86400000)return;
+  var pay=RANKS[r-1].pay;
+  p.bal=+((+p.bal||0)+pay).toFixed(2);
+  p.profit=+((+p.profit||0)+pay).toFixed(2);
+  p.lastSalary=now; p.rank=r; save(p);
+  if(u&&u.user===p.user)pop("Rank achieved",RANKS[r-1].name+" · $"+pay+" added");
+}
+function ambCards(p){
+  var n=downAll(p.ref).filter(active).length;
+  p.amb=p.amb||[];
+  AMB.forEach(function(a){
+    if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay;if(u&&u.user===p.user)pop("Ambassador",a.n+" team · $"+a.pay+" reward ready")}
+  });
+  save(p);
+}
+function sendOtp(){
+  var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;
+  if(!name||!email||!phone||pass.length<4){pop("Missing","Fill all fields");return}
+  if(load(name)){pop("Taken","Username already used");return}
+  otp=String(Math.floor(100000+Math.random()*900000)); otpAt=Date.now();
+  pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
+  if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC,EJ_TPL,{
+  email: email,
+  to_email: email,
+  user_name: name,
+  name: name,
+  otp_code: otp,
+  otp: otp,
+  message: "Your Mintora verification OTP is: " + otp
+})
+      .then(function(){pop("OTP sent","Check your email")}).catch(function(){pop("OTP",otp)});
+  } else pop("OTP",otp);
+  show("box-otp");
+}
+function verifyOtp(){
+  if(Date.now()-otpAt>600000){pop("Expired","Request a new OTP");return}
+  if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}
+  var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
+  var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};
+  save(p); u=p; showSpin(function(){enter()});
+}
+function doLogin(){
+  var name = (el("li-user").value || "").trim();
+  var pass = el("li-pass").value || "";
+
+  if(name === ADMIN.user && pass === ADMIN.pass){
+    u = {user:"admin", bal:0, profit:0, base:0, ref:"ADMIN", deps:[], wds:[], amb:[]};
+    localStorage.setItem("mint_session", "admin");
+    showSpin(function(){ enter(); });
+    return;
+  }
+
+  showSpin(function(){});
+  loadCloud(name).then(function(p){
+    el("spinwrap").classList.add("hidden");
+    if(!p || p.pass !== pass){
+      pop("Login failed", "Wrong username or password");
+      return;
+    }
+    u = p;
+    localStorage.setItem("mint_session", u.user);
+    salary(u);
+    ambCards(u);
+    showSpin(function(){ enter(); });
+  });
+}
+function enter(){
+  if(!u) return;
+
+  el("auth").classList.add("hidden");
+  el("app").classList.remove("hidden");
+
+  el("hello").textContent = u.user;
+
+  if(el("uid")) el("uid").textContent = u.user;
+
+  if(el("admin-btn")){
+    el("admin-btn").style.display =
+      u.user === "admin" ? "block" : "none";
+  }
+
+  paint();
+
+  if(u.user === "admin"){
+    tab("admin");
+  }else{
+    tab("home");
+  }
+
+  setupScratch();
+}
+
+function logout(){
+  closeMenu();
+  u = null;
+  localStorage.removeItem("mint_session");
+  el("app").classList.add("hidden");
+  el("auth").classList.remove("hidden");
+  show("box-login");
+  pop("Signed out", "See you again");
+}
+
+function tab(id,btn){
+  ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
+  el(id).classList.remove("hidden");
+
+  var tradeCard = document.getElementById("trade-card");
+  if(tradeCard){
+    tradeCard.classList.toggle("hidden", id !== "home");
+  }
+
+  closeMenu();
+  document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
+  if(btn)btn.classList.add("on");
+  if(id==="home"){setupScratch();startLiveTrades();}
+  paint();
+}
+
+function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
+function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
+function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname+"?ref="+u.ref).then(function(){pop("Copied","Link copied")})}
+function paint(){
+  if(!u)return;
+  var allTeam=u.user==="admin"?[]:downAll(u.ref);
+  var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});
+  el("bal").textContent="$"+money(u.bal);
+  el("profit").textContent="$"+money(u.profit);
+  if(el("trade-msg") && u.nextTrade && Date.now() < u.nextTrade){
+  var left = Math.ceil((u.nextTrade - Date.now()) / 1000);
+  var h = Math.floor(left / 3600);
+  var m = Math.floor((left % 3600) / 60);
+  el("trade-msg").textContent = "Next trade in " + h + "h " + m + "m";
+} else if(el("trade-msg")){
+  el("trade-msg").textContent = "Ready to trade";
+}
+  el("team").textContent=act.length+" / "+ina.length;
+  el("home-ref").textContent=u.ref||"";
+  el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
+  if(el("set-email"))el("set-email").value=u.email||"";
+  if(el("set-addr"))el("set-addr").value=u.wdAddr||"";
+  var mine=all().filter(function(x){return x.sponsor===u.ref});
+  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn <b class="gold">15%</b> of each direct deposit.</div>';
+  var teamHtml = '<div class="serif text-2xl mb-3">Team</div>';
+teamHtml += '<div class="grid grid-cols-2 gap-3 mb-4">';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div>';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div>';
+teamHtml += '</div>';
+
+if(allTeam.length === 0){
+  teamHtml += '<div class="text-sm text-[#b7ad98]">No team members yet</div>';
+} else {
+  teamHtml += '<div class="text-sm font-semibold mb-2 text-[#c4b5fd]">All Members</div>';
+  allTeam.forEach(function(m){
+    var isAct = active(m);
+    var statusColor = isAct ? "#4ade80" : "#f87171";
+    var statusText = isAct ? "Active" : "Inactive";
+    teamHtml += '<div class="py-3 px-3 mb-2 rounded-xl" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.12)">';
+    teamHtml += '<div class="flex justify-between items-center">';
+    teamHtml += '<div><div class="font-semibold text-white">'+m.user+'</div>';
+    teamHtml += '<div class="text-xs mt-1" style="color:'+statusColor+'">'+statusText+'</div></div>';
+    teamHtml += '<div class="text-right"><div class="gold font-semibold">$'+money(m.bal)+'</div>';
+    teamHtml += '<div class="text-xs text-[#b7ad98]">Wallet</div></div>';
+    teamHtml += '</div></div>';
+  });
+}
+el("teamview").innerHTML = teamHtml;
+  var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
+  el("hist").innerHTML=hist.join("<br>")||"No history";
+  
+  
+
+  if (u.user === "admin") {
+  var pendD = [];
+  var pendW = [];
+
+  all().forEach(function(p) {
+    (p.deps || []).forEach(function(d) {
+      if (d.st === "PENDING" || d.status === "PENDING") {
+        pendD.push({ user: p.user, d: d });
+      }
+    });
+    (p.wds || []).forEach(function(w) {
+      if (w.st === "PENDING" || w.status === "PENDING") {
+        pendW.push({ user: p.user, w: w });
+      }
+    });
+  });
+
+  el("admin").innerHTML =
+  '<div class="serif text-2xl mb-3">Admin Panel</div>' +
+  '<div class="serif text-xl mb-2">Pending Deposits</div>' +
+  (pendD.map(function(x) {
+    return '<div class="py-3 border-b border-white/10">' +
+      '<b>' + x.user + '</b> $' + money(x.d.amt) +
+      '<div class="text-xs break-all text-[#b7ad98]">' + (x.d.hash || '') + '</div>' +
+      '<button type="button" class="btn mt-2" onclick="adDep(\'' + x.user + '\',\'' + (x.d.hash||'') + '\',true)">Approve</button> ' +
+      '<button type="button" class="ghost mt-2" onclick="adDep(\'' + x.user + '\',\'' + (x.d.hash||'') + '\',false)">Reject</button>' +
+      '</div>';
+  }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
+  '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
+  (pendW.map(function(x) {
+    return '<div class="py-3 border-b border-white/10">' +
+      '<b>' + x.user + '</b> $' + money(x.w.amt) +
+      '<div class="text-xs break-all text-[#b7ad98]">' + (x.w.addr || '') + '</div>' +
+      '<button class="btn mt-2" onclick="approveWd(\'' + x.user + '\',\'' + x.w.id + '\')">Mark Paid</button> ' +
+      '<button class="ghost mt-2" onclick="rejectWd(\'' + x.user + '\',\'' + x.w.id + '\')">Reject</button>' +
+      '</div>';
+  }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>');
+}
+}
+function saveSettings(){
+  u.email=el("set-email").value.trim();
+  u.wdAddr=el("set-addr").value.trim();
+  save(u);
+  pop("Saved","Email and withdraw address updated");
+}
+function deposit(){
+  var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
+  if(amt<100){pop("Minimum","Deposit at least $100");return;}
+  if(hash.length<10){pop("Hash","Enter transaction hash");return}
+  u.deps=u.deps||[];
+  if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
+  u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
+  save(u);paint(); pop("Waiting","Deposit submitted. Waiting for admin approval.");
+}
+
+function adDep(user, hash, ok) {
+  var p = load(user);
+  if (!p || !p.deps) {
+    pop("Error", "User or deposit not found");
+    return;
+  }
+
+  var d = p.deps.find(function(x) {
+    return x.hash === hash;
+  });
+
+  if (!d || d.st !== "PENDING") {
+    pop("Error", "Deposit already processed or not found");
+    return;
+  }
+
+  if (ok) {
+    d.st = "SUCCESSFUL";
+    p.bal = +(Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2);
+    p.lock = +(Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2);
+
+    // ===== 15% Referral Reward =====
+    var rewardMsg = "";
+    if (p.sponsor) {
+      var sponsorUser = all().find(function(x) {
+        return x.ref === p.sponsor;
+      });
+      if (sponsorUser) {
+        var reward = +(Number(d.amt || 0) * 0.15).toFixed(2);
+        if (reward > 0) {
+          sponsorUser.bal = +(Number(sponsorUser.bal || 0) + reward).toFixed(2);
+          sponsorUser.profit = +(Number(sponsorUser.profit || 0) + reward).toFixed(2);
+          save(sponsorUser);
+          if (u && u.user === sponsorUser.user) u = sponsorUser;
+          rewardMsg = " | Sponsor got $" + reward + " (15%)";
+        }
+      } else {
+        rewardMsg = " | Sponsor not found";
+      }
+    } else {
+      rewardMsg = " | No sponsor";
+    }
+    // ==============================
+
+    save(p);
+    if (u && u.user === user) u = p;
+    paint();
+    pop("Approved", "Deposit approved" + rewardMsg);
+  } else {
+    d.st = "REJECTED";
+    save(p);
+    if (u && u.user === user) u = p;
+    paint();
+    pop("Rejected", "Deposit request rejected");
+  }
+}
+
+function withdraw(){
+  if(!u)return;
+
+  var amt=Number(el("wd-amt").value||0);
+  var addr=(el("wd-addr").value||"").trim();
+
+  if(amt<10)return pop("Error","Minimum withdraw $10");
+  if(!addr||addr.length<10)return pop("Error","Enter valid BEP20 address");
+
+  var p = load(u.user);
+if (!p) return pop("Error", "Account not found");
+
+
+  var fee = Number((amt * 0.15).toFixed(2));
+var netAmount = Number((amt - fee).toFixed(2));
+  var bal = Number(p.bal || 0);
+var profit = Number(p.profit || 0);
+var lock = Number(p.lock || 0);
+
+if (amt > profit || amt > (bal - lock)) {
+  return pop("Error", "Insufficient earnings");
+}
+
+  // Check existing pending withdrawal
+  var hasPending=(p.wds||[]).some(function(w){
+    return (w.st==="PENDING" || w.status==="PENDING");
+  });
+
+  if(hasPending)return pop("Pending","You already have a pending withdrawal");
+
+  // Deduct amount once; refund if admin rejects
+  // Deduct withdrawal only from earnings
+p.profit = +(profit - amt).toFixed(2);
+
+// Keep balance unchanged so locked investment remains
+p.bal = bal;
+  if(!p.wds)p.wds=[];
+
+  var id="WD"+Date.now();
+
+  p.wds.unshift({
+    id: id,
+    amt: amt,
+    fee: fee,
+    netAmount: netAmount,
+    addr: addr,
+    st: "PENDING",
+    status: "PENDING",
+    time: Date.now(),
+    refunded: false
+});
+
+  save(p);
+u = load(p.user) || p;
+
+el("bal").textContent = "$" + money(u.bal);
+el("profit").textContent = "$" + money(u.profit);
+
+paint();
+
+  el("wd-amt").value="";
+  pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
+}
+
+function adWd(user, id, ok) {
+  var p = load(user);
+  if (!p || !Array.isArray(p.wds)) {
+    pop("Error", "Withdrawal not found");
+    return;
+  }
+
+  var w = p.wds.find(function(x) {
+    return String(x.id) === String(id);
+  });
+
+  if (!w || (w.st !== "PENDING" && w.status !== "PENDING")) {
+    pop("Error", "Already processed or not found");
+    return;
+  }
+
+  if (ok) {
+    w.st = "PAID";
+    w.status = "PAID";
+    w.paidAt = Date.now();
+  } else {
+    if (!w.refunded) {
+      p.bal = +(Number(p.bal || 0) + Number(w.amt || 0)).toFixed(2);
+      w.refunded = true;
+    }
+    w.st = "REJECTED";
+    w.status = "REJECTED";
+    w.rejectedAt = Date.now();
+  }
+
+  save(p);
+  if (u && u.user === user) u = p;
+
+  paint();
+  pop(ok ? "Paid" : "Rejected",
+      ok ? "Withdrawal marked paid" : "Withdrawal rejected; amount refunded");
+}
+function sendWdOtp(){
+  if(!u){pop("Login","Please login first");return;}
+  if(!u.email){pop("Email","Please set email in Settings first");return;}
+  wdOtpCode=String(Math.floor(100000+Math.random()*900000));
+  wdOtpTime=Date.now();
+  if(window.emailjs){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC,EJ_TPL,{to_email:u.email,otp:wdOtpCode,name:u.user})
+    .then(function(){pop("OTP Sent","Check your email");})
+    .catch(function(){pop("Error","Failed to send OTP");});
+  } else pop("OTP",wdOtpCode);
+}
+
+function verifyWdOtp(){
+  var entered=(el("wd-otp")||{}).value||"";
+  if(!wdOtpCode||Date.now()-wdOtpTime>5*60*1000){pop("OTP","OTP expired. Send again");return false;}
+  if(entered!==wdOtpCode){pop("OTP","Invalid OTP");return false;}
+  return true;
+}
+
+
+function approveWd(user, id){
+  var p=load(user);
+  if(!p)return pop("Error","User not found");
+
+  var w=(p.wds||[]).find(function(x){
+    return String(x.id)===String(id);
+  });
+
+  if(!w || (w.st!=="PENDING" && w.status!=="PENDING")){
+    return pop("Error","Withdrawal not found or already processed");
+  }
+
+  w.st="PAID";
+  w.status="PAID";
+
+  save(p);
+
+  if(u && u.user===user)u=p;
+
+  paint();
+  pop("Paid","Mark as paid only after sending the withdrawal.");
+}
+
+
+function rejectWd(user, id){
+  var p=load(user);
+  if(!p)return pop("Error","User not found");
+
+  var w=(p.wds||[]).find(function(x){
+    return String(x.id)===String(id);
+  });
+
+  if(!w || (w.st!=="PENDING" && w.status!=="PENDING")){
+    return pop("Error","Withdrawal not found or already processed");
+  }
+
+// Refund balance and earnings if withdrawal is rejected.
+if (!w.refunded) {
+  var refundAmt = Number(w.amt || 0);
+
+  p.bal = +(Number(p.bal || 0) + refundAmt).toFixed(2);
+  p.profit = +(Number(p.profit || 0) + refundAmt).toFixed(2);
+
+  // Locked investment remains unchanged.
+  w.refunded = true;
+}
+  w.st="REJECTED";
+  w.status="REJECTED";
+
+  save(p);
+
+  if(u && u.user===user)u=p;
+
+  paint();
+  pop("Rejected","Withdrawal rejected. Amount returned to user balance.");
+}
+
+
+function reinvest(){
+  if(!(u.profit>0)){pop("Nothing","No earn to reinvest");return}
+  var n=+u.profit;
+  u.base=+((+u.base||0)+n).toFixed(2);
+  u.profit=0; save(u); paint();
+  pop("Reinvested","Total reinvested $"+money(n));
+}
+function coin(){
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}
+}
+function tickSound(){
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.05,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.06);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.06)}catch(e){}
+}
+function setupScratch(){
+  var c=el("scratch"); if(!c)return;
+  var ctx=c.getContext("2d");
+  var w=Math.max(c.clientWidth||0,280), h=220;
+  c.width=w*2; c.height=h*2;
+  ctx.setTransform(2,0,0,2,0,0);
+  function cover(){
+    ctx.setTransform(2,0,0,2,0,0);
+    var g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,"#4a3b1e"); g.addColorStop(.5,"#7a5c2e"); g.addColorStop(1,"#2e2414");
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle="#f0d7a0"; ctx.font="600 24px Cormorant Garamond, serif"; ctx.textAlign="center";
+    ctx.fillText("Scratch 10 seconds", w/2, h/2);
+  }
+  cover();
+  done=false; scratchMs=0; lastTick=0;
+  el("prog").style.width="0%"; el("timer").textContent="0s / 10s";
+  var down=false, lastSound=0, raf=null;
+  function pos(e){var r=c.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return {x:t.clientX-r.left,y:t.clientY-r.top}}
+  function tick(){
+    if(!down||done){raf=null;return}
+    var now=Date.now();
+    if(lastTick)scratchMs+=Math.min(now-lastTick,200);
+    lastTick=now;
+    var sec=Math.min(10,scratchMs/1000);
+    el("prog").style.width=(sec/10*100)+"%";
+    el("timer").textContent=Math.floor(sec)+"s / 10s";
+    if(now-lastSound>400){tickSound();lastSound=now}
+    if(scratchMs>=10000){done=true;claim();return}
+    raf=requestAnimationFrame(tick);
+  }
+  function go(e){
+    if(!down||done)return;
+    var p=pos(e);
+    ctx.globalCompositeOperation="destination-out";
+    ctx.beginPath();ctx.arc(p.x,p.y,28,0,7);ctx.fill();
+  }
+  function start(e){down=true;lastTick=Date.now();if(!raf)raf=requestAnimationFrame(tick);go(e)}
+  function stop(){down=false;lastTick=0}
+  c.onpointerdown=start;
+  c.onpointerup=stop;
+  c.onpointerleave=stop;
+  c.onpointermove=go;
+  c.ontouchstart=function(e){e.preventDefault();start(e)};
+  c.ontouchend=stop;
+  c.ontouchmove=function(e){e.preventDefault();go(e)};
+}
+function claim(){
+  if(!active(u)&&!u.ambCard){pop("Deposit first","Earn opens after a successful deposit");setupScratch();return}
+  if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();pop("Ambassador","$"+money(a)+" added");paint();return}
+  if(u.scratchDay===day()){pop("Done","Today's earn already used");return}
+  var add=+(u.base*0.025).toFixed(2);
+  u.bal=+(u.bal+add).toFixed(2); u.profit=+(u.profit+add).toFixed(2); u.scratchDay=day(); save(u); coin();
+  pop("Earned","$"+money(add)+" · 2.5% of $"+money(u.base)); paint();
+}
+(function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
+  window.addEventListener("load", function(){
+  allCloud().then(function(){
+    var s = localStorage.getItem("mint_session");
+    if(s === "admin"){
+      u = {user:"admin", bal:0, profit:0, base:0, ref:"ADMIN", deps:[], wds:[], amb:[]};
+      enter();
+      return;
+    }
+    if(s){
+      loadCloud(s).then(function(p){
+        if(p){
+          u = p;
+          enter();
+        } else {
+          show("box-login");
+        }
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>
