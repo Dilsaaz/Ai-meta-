@@ -35,9 +35,60 @@ input:focus{border-color:#3b82f6;outline:none}
 .uid{margin:auto 0 16px;background:#140e1f;border:1px solid rgba(167,139,250,.12);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
 .uidb{width:36px;height:36px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
 .out{margin:0;background:#1c1212;color:#f87171;border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:12px;font-weight:700;width:100%}
-.pop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
-.pop .box{background:#12141c;border:1px solid rgba(212,180,131,.3);border-radius:22px;padding:28px 22px;max-width:340px;width:100%;text-align:center;animation:pop .25s ease}
-@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+  
+.pop{
+  position:fixed;
+  inset:0;
+  background:rgba(8,3,18,.82);
+  backdrop-filter:blur(9px);
+  z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.pop .box{
+  background:linear-gradient(145deg,#211333,#12091f);
+  border:1px solid rgba(167,139,250,.35);
+  border-radius:24px;
+  padding:28px 22px;
+  max-width:340px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 20px 70px rgba(124,58,237,.3);
+  animation:pop .3s ease;
+}
+
+.pop .box h3{
+  color:#c4b5fd;
+  font-size:23px;
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+.pop .box p{
+  color:#c4b5fd;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:20px;
+}
+
+.pop .box button{
+  width:100%;
+  padding:12px;
+  border-radius:13px;
+  color:white;
+  font-weight:700;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed);
+  box-shadow:0 7px 22px rgba(124,58,237,.3);
+}
+
+@keyframes pop{
+  from{transform:scale(.92) translateY(12px);opacity:0}
+  to{transform:scale(1) translateY(0);opacity:1}
+}
+
 .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
 .rel{position:relative}
 .prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
@@ -54,6 +105,10 @@ input:focus{border-color:#3b82f6;outline:none}
 .live-row .amt.red{color:#f87171}
 .live-row .time{color:#666;font-size:11px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes reinvestCircle{
+  from{stroke-dashoffset:314}
+  to{stroke-dashoffset:0}
+}
 </style>
 </head>
 <body>
@@ -980,53 +1035,126 @@ if (!w.refunded) {
 }
 
 
+
 function reinvest(){
   if(!u) return;
+
+  if(reinvest.busy) return;
 
   var p = load(u.user);
   if(!p) return pop("Error","Account not found");
 
   var available = Number(p.profit || 0);
+  var inputEl = el("reinvest-amt");
+  var n = Number(inputEl.value || 0);
 
   if(available <= 0)
     return pop("Nothing","No Earn available to reinvest");
 
-  var input = prompt(
-    "Available Earn: $" + available.toFixed(2) +
-    "\nEnter amount to reinvest:"
-  );
-
-  if(input === null) return;
-
-  var n = Number(input);
-
   if(!Number.isFinite(n) || n <= 0)
-    return pop("Error","Enter a valid amount");
+    return pop("Error","Enter a valid reinvest amount");
 
   if(n > available)
     return pop("Error","Insufficient Earn balance");
 
-  // Earn se minus
-  p.profit = Number((available - n).toFixed(2));
+  if(n < 0.01)
+    return pop("Error","Minimum reinvest amount is $0.01");
 
-  // Base mein add
-  p.base = Number(
-    (Number(p.base || 0) + n).toFixed(2)
-  );
+  reinvest.busy = true;
 
-  save(p);
+  var popEl = el("pop");
 
-  u = load(p.user) || p;
+  popEl.innerHTML = `
+    <div class="box" onclick="event.stopPropagation()">
+      <h3 style="color:#c4b5fd;font-size:23px">Reinvesting</h3>
 
-  paint();
+      <div style="color:#c4b5fd;font-size:28px;font-weight:700;margin:15px 0">
+        $${n.toFixed(2)}
+      </div>
 
-  pop(
-    "Reinvested",
-    "$" + n.toFixed(2) +
-    " added to Base. Remaining Earn: $" +
-    Number(u.profit || 0).toFixed(2)
-  );
+      <div style="width:110px;height:110px;margin:20px auto;position:relative">
+        <svg viewBox="0 0 120 120" width="110" height="110">
+          <circle cx="60" cy="60" r="50"
+            stroke="#493365" stroke-width="7" fill="none"/>
+          <circle cx="60" cy="60" r="50"
+            stroke="#c4b5fd" stroke-width="7" fill="none"
+            stroke-linecap="round" stroke-dasharray="314"
+            stroke-dashoffset="314"
+            transform="rotate(-90 60 60)"
+            style="animation:reinvestCircle 5s linear forwards"/>
+        </svg>
+        <div id="reinvest-count"
+          style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e9d5ff;font-size:25px;font-weight:700">
+          5s
+        </div>
+      </div>
+
+      <p style="color:#c4b5fd;font-size:13px">
+        Please wait while your reinvestment is processing...
+      </p>
+    </div>
+  `;
+
+  popEl.classList.remove("hidden");
+
+  var seconds = 5;
+
+  var timer = setInterval(function(){
+    seconds--;
+    var count = el("reinvest-count");
+    if(count) count.textContent = seconds + "s";
+
+    if(seconds <= 0){
+      clearInterval(timer);
+
+      // Reload latest account data before updating
+      var latest = load(u.user);
+
+      if(!latest){
+        reinvest.busy = false;
+        return pop("Error","Account not found");
+      }
+
+      var latestEarn = Number(latest.profit || 0);
+
+      if(n > latestEarn){
+        reinvest.busy = false;
+        return pop("Error","Earn balance changed. Please try again.");
+      }
+
+      latest.profit = Number((latestEarn - n).toFixed(2));
+      latest.base = Number(
+        (Number(latest.base || 0) + n).toFixed(2)
+      );
+
+      save(latest);
+
+      u = load(latest.user) || latest;
+      paint();
+
+      inputEl.value = "";
+      reinvest.busy = false;
+
+      popEl.innerHTML = `
+        <div class="box" onclick="event.stopPropagation()">
+          <div style="font-size:42px;margin-bottom:10px">✓</div>
+          <h3 style="color:#c4b5fd;font-size:24px">Reinvest Successful</h3>
+          <div style="color:#e9d5ff;font-size:28px;font-weight:700;margin:15px 0">
+            $${n.toFixed(2)}
+          </div>
+          <p style="color:#c4b5fd;font-size:13px">
+            Amount added to your investment successfully.
+          </p>
+          <button onclick="closePop()"
+            style="width:100%;padding:12px;border-radius:13px;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:white;font-weight:700">
+            Done
+          </button>
+        </div>
+      `;
+    }
+  },1000);
 }
+
 function coin(){
   try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}
 }
