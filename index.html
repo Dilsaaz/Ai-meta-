@@ -136,7 +136,7 @@ input:focus{border-color:#3b82f6;outline:none}
     </div>
   <div id="deposit" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Deposit</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $15. USDT on BEP20 only.</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $100. USDT on BEP20 only.</div>
     <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
     <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
     <input id="dep-amt" type="number" min="15" placeholder="Amount" class="mb-3"/>
@@ -145,7 +145,7 @@ input:focus{border-color:#3b82f6;outline:none}
   </div>
   <div id="withdraw" class="card p-5 hidden">
     <div class="serif text-2xl mb-2">Withdraw</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $1. Paid after admin approval.</div>
+    <div class="text-sm text-[#b7ad98] mb-3">Minimum $10. Paid after admin approval.</div>
     <input id="wd-amt" type="number" min="1" placeholder="Amount" class="mb-3"/>
     <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
     <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6">
@@ -153,6 +153,9 @@ input:focus{border-color:#3b82f6;outline:none}
     <button class="btn" onclick="withdraw()">Request withdraw</button>
     <div class="mt-5 text-sm" id="hist"></div>
   </div>
+  
+
+
   <div id="ref" class="card p-5 hidden"></div>
   <div id="teamview" class="card p-5 hidden"></div>
   <div id="settings" class="card p-5 hidden">
@@ -161,6 +164,25 @@ input:focus{border-color:#3b82f6;outline:none}
     <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
     <button class="btn w-full" onclick="saveSettings()">Save</button>
   </div>
+  <div class="card p-5 mb-4">
+  <div class="serif text-2xl gold mb-2">Reinvest</div>
+  <div class="text-sm text-[#b7ad98] mb-3">
+    Transfer your available Earn into your investment.
+  </div>
+
+  <input
+    id="reinvest-amt"
+    type="number"
+    min="0.01"
+    step="0.01"
+    placeholder="Enter reinvest amount"
+    class="mb-3"
+  />
+
+  <button class="btn w-full" onclick="reinvest()">
+    Reinvest Now
+  </button>
+</div>
   <div id="admin" class="card p-5 hidden"></div>
 </div>
 
@@ -726,44 +748,43 @@ function adDep(user, hash, ok) {
 }
 
 function withdraw(){
-  if(!u)return;
+  if(!u) return;
 
-  var amt=Number(el("wd-amt").value||0);
-  var addr=(el("wd-addr").value||"").trim();
+  var amt = Number(el("wd-amt").value || 0);
+  var addr = (el("wd-addr").value || "").trim();
 
-  if(amt<10)return pop("Error","Minimum withdraw $10");
-  if(!addr||addr.length<10)return pop("Error","Enter valid BEP20 address");
+  if(!Number.isFinite(amt) || amt < 10)
+    return pop("Error","Minimum withdraw $10");
+
+  if(!addr || addr.length < 10)
+    return pop("Error","Enter valid BEP20 address");
 
   var p = load(u.user);
-if (!p) return pop("Error", "Account not found");
+  if(!p) return pop("Error","Account not found");
 
+  var profit = Number(p.profit || 0);
 
-  var fee = Number((amt * 0.15).toFixed(2));
-var netAmount = Number((amt - fee).toFixed(2));
-  var bal = Number(p.bal || 0);
-var profit = Number(p.profit || 0);
-var lock = Number(p.lock || 0);
+  // Withdrawal sirf available Earn se hoga
+  if(amt > profit)
+    return pop("Error","Insufficient earnings");
 
-if (amt > profit || amt > (bal - lock)) {
-  return pop("Error", "Insufficient earnings");
-}
-
-  // Check existing pending withdrawal
-  var hasPending=(p.wds||[]).some(function(w){
-    return (w.st==="PENDING" || w.status==="PENDING");
+  var hasPending = (p.wds || []).some(function(w){
+    return w.st === "PENDING" || w.status === "PENDING";
   });
 
-  if(hasPending)return pop("Pending","You already have a pending withdrawal");
+  if(hasPending)
+    return pop("Pending","You already have a pending withdrawal");
 
-  // Deduct amount once; refund if admin rejects
-  // Deduct withdrawal only from earnings
-p.profit = +(profit - amt).toFixed(2);
+  var fee = Number((amt * 0.15).toFixed(2));
+  var netAmount = Number((amt - fee).toFixed(2));
 
-// Keep balance unchanged so locked investment remains
-p.bal = bal;
-  if(!p.wds)p.wds=[];
+  // Earn se amount reserve/deduct
+  p.profit = Number((profit - amt).toFixed(2));
 
-  var id="WD"+Date.now();
+  // Balance aur locked investment unchanged
+  if(!Array.isArray(p.wds)) p.wds = [];
+
+  var id = "WD" + Date.now();
 
   p.wds.unshift({
     id: id,
@@ -775,20 +796,74 @@ p.bal = bal;
     status: "PENDING",
     time: Date.now(),
     refunded: false
-});
+  });
 
   save(p);
-u = load(p.user) || p;
+  u = load(p.user) || p;
 
-el("bal").textContent = "$" + money(u.bal);
-el("profit").textContent = "$" + money(u.profit);
+  el("bal").textContent = "$" + money(u.bal);
+  el("profit").textContent = "$" + money(u.profit);
 
-paint();
+  paint();
 
-  el("wd-amt").value="";
-  pop("Withdraw Submitted","$"+amt.toFixed(2)+" deducted. Waiting for admin approval.");
+  el("wd-amt").value = "";
+  pop("Withdraw Submitted","$"+amt.toFixed(2)+" reserved from Earn. Waiting for admin approval.");
 }
 
+
+function adWd(user, id, ok){
+  var p = load(user);
+
+  if(!p || !Array.isArray(p.wds))
+    return pop("Error","Withdrawal not found");
+
+  var w = p.wds.find(function(x){
+    return String(x.id) === String(id);
+  });
+
+  if(!w || (w.st !== "PENDING" && w.status !== "PENDING"))
+    return pop("Error","Already processed or not found");
+
+  if(ok){
+    // Amount pehle hi Earn se deduct ho chuka hai
+    w.st = "PAID";
+    w.status = "PAID";
+    w.paidAt = Date.now();
+  }else{
+    // Rejection par sirf Earn mein ek baar refund
+    if(!w.refunded){
+      p.profit = Number(
+        (Number(p.profit || 0) + Number(w.amt || 0)).toFixed(2)
+      );
+      w.refunded = true;
+    }
+
+    w.st = "REJECTED";
+    w.status = "REJECTED";
+    w.rejectedAt = Date.now();
+  }
+
+  save(p);
+
+  if(u && u.user === user) u = load(user) || p;
+
+  paint();
+
+  pop(
+    ok ? "Paid" : "Rejected",
+    ok ? "Withdrawal marked paid" : "Withdrawal rejected; Earn refunded once"
+  );
+}
+
+
+// Dono admin buttons same processing use karenge
+function approveWd(user, id){
+  adWd(user, id, true);
+}
+
+function rejectWd(user, id){
+  adWd(user, id, false);
+}
 function adWd(user, id, ok) {
   var p = load(user);
   if (!p || !Array.isArray(p.wds)) {
@@ -906,11 +981,51 @@ if (!w.refunded) {
 
 
 function reinvest(){
-  if(!(u.profit>0)){pop("Nothing","No earn to reinvest");return}
-  var n=+u.profit;
-  u.base=+((+u.base||0)+n).toFixed(2);
-  u.profit=0; save(u); paint();
-  pop("Reinvested","Total reinvested $"+money(n));
+  if(!u) return;
+
+  var p = load(u.user);
+  if(!p) return pop("Error","Account not found");
+
+  var available = Number(p.profit || 0);
+
+  if(available <= 0)
+    return pop("Nothing","No Earn available to reinvest");
+
+  var input = prompt(
+    "Available Earn: $" + available.toFixed(2) +
+    "\nEnter amount to reinvest:"
+  );
+
+  if(input === null) return;
+
+  var n = Number(input);
+
+  if(!Number.isFinite(n) || n <= 0)
+    return pop("Error","Enter a valid amount");
+
+  if(n > available)
+    return pop("Error","Insufficient Earn balance");
+
+  // Earn se minus
+  p.profit = Number((available - n).toFixed(2));
+
+  // Base mein add
+  p.base = Number(
+    (Number(p.base || 0) + n).toFixed(2)
+  );
+
+  save(p);
+
+  u = load(p.user) || p;
+
+  paint();
+
+  pop(
+    "Reinvested",
+    "$" + n.toFixed(2) +
+    " added to Base. Remaining Earn: $" +
+    Number(u.profit || 0).toFixed(2)
+  );
 }
 function coin(){
   try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}
