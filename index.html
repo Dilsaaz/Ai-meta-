@@ -593,27 +593,33 @@ function adDep(user, hash, ok) {
     p.bal = +(Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2);
     p.lock = +(Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2);
 
-    // ===== 15% Referral Reward to Sponsor =====
+    // ===== 15% Referral Reward =====
+    var rewardMsg = "";
     if (p.sponsor) {
-      var sponsor = all().find(function(x) {
+      var sponsorUser = all().find(function(x) {
         return x.ref === p.sponsor;
       });
-      if (sponsor) {
+      if (sponsorUser) {
         var reward = +(Number(d.amt || 0) * 0.15).toFixed(2);
         if (reward > 0) {
-          sponsor.bal = +(Number(sponsor.bal || 0) + reward).toFixed(2);
-          sponsor.profit = +(Number(sponsor.profit || 0) + reward).toFixed(2);
-          save(sponsor);
-          if (u && u.user === sponsor.user) u = sponsor;
+          sponsorUser.bal = +(Number(sponsorUser.bal || 0) + reward).toFixed(2);
+          sponsorUser.profit = +(Number(sponsorUser.profit || 0) + reward).toFixed(2);
+          save(sponsorUser);
+          if (u && u.user === sponsorUser.user) u = sponsorUser;
+          rewardMsg = " | Sponsor got $" + reward + " (15%)";
         }
+      } else {
+        rewardMsg = " | Sponsor not found";
       }
+    } else {
+      rewardMsg = " | No sponsor";
     }
-    // =========================================
+    // ==============================
 
     save(p);
     if (u && u.user === user) u = p;
     paint();
-    pop("Approved", "Deposit approved successfully");
+    pop("Approved", "Deposit approved" + rewardMsg);
   } else {
     d.st = "REJECTED";
     save(p);
@@ -622,7 +628,6 @@ function adDep(user, hash, ok) {
     pop("Rejected", "Deposit request rejected");
   }
 }
-
 
 function withdraw(){
   if(!u)return;
