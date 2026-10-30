@@ -141,8 +141,6 @@ input:focus{border-color:#3b82f6;outline:none}
 }
 </style>
 </head>
-</style>
-</head>
 <body>
 <div id="auth" class="max-w-md mx-auto px-5 py-16">
   <div class="text-center mb-10">
@@ -920,20 +918,7 @@ function startLiveTrades(){
   marketTimer = setInterval(updateMarketRates,10000);
   chartTimer = setInterval(updateMarketChart,60000);
 }
-  function addTrade(){
-    var pair=LIVE_PAIRS[Math.floor(Math.random()*LIVE_PAIRS.length)];
-    var isBuy=Math.random()>0.42;
-    var amt=(15+Math.random()*1850).toFixed(2);
-    var time=new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-    var row=document.createElement("div");
-    row.className="live-row";
-    row.innerHTML='<span class="pair">'+pair+'</span><span class="amt '+(isBuy?"green":"red")+'">'+(isBuy?"+":"-")+"$"+amt+'</span><span class="time">'+time+'</span>';
-    box.insertBefore(row,box.firstChild);
-    while(box.children.length>7)box.removeChild(box.lastChild);
-  }
-  for(var i=0;i<5;i++)addTrade();
-  liveTimer=setInterval(addTrade,2200+Math.random()*1800);
-}
+  
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
 function closePop(){el("pop").classList.add("hidden")}
 function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
