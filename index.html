@@ -1000,71 +1000,11 @@ function adWd(user, id, ok){
     return pop("Error","Already processed or not found");
 
   if(ok){
-    // Amount pehle hi Earn se deduct ho chuka hai
     w.st = "PAID";
     w.status = "PAID";
     w.paidAt = Date.now();
   }else{
-    // Rejection par sirf Earn mein ek baar refund
     if(!w.refunded){
-      p.profit = Number(
-        (Number(p.profit || 0) + Number(w.amt || 0)).toFixed(2)
-      );
-      w.refunded = true;
-    }
-
-    w.st = "REJECTED";
-    w.status = "REJECTED";
-    w.rejectedAt = Date.now();
-  }
-
-  save(p);
-
-  if(u && u.user === user) u = load(user) || p;
-
-  paint();
-
-  pop(
-    ok ? "Paid" : "Rejected",
-    ok ? "Withdrawal marked paid" : "Withdrawal rejected; Earn refunded once"
-  );
-}
-
-
-// Dono admin buttons same processing use karenge
-function approveWd(user, id){
-  adWd(user, id, true);
-}
-
-function rejectWd(user, id){
-  adWd(user, id, false);
-}
-
-function adWd(user, id, ok) {
-  var p = load(user);
-
-  if (!p || !Array.isArray(p.wds)) {
-    pop("Error", "Withdrawal not found");
-    return;
-  }
-
-  var w = p.wds.find(function(x) {
-    return String(x.id) === String(id);
-  });
-
-  if (!w || (w.st !== "PENDING" && w.status !== "PENDING")) {
-    pop("Error", "Already processed or not found");
-    return;
-  }
-
-  if (ok) {
-    w.st = "PAID";
-    w.status = "PAID";
-    w.paidAt = Date.now();
-
-  } else {
-    if (!w.refunded) {
-      // Refund ONLY to Earn
       p.profit = +(
         Number(p.profit || 0) + Number(w.amt || 0)
       ).toFixed(2);
@@ -1079,16 +1019,22 @@ function adWd(user, id, ok) {
 
   save(p);
 
-  if (u && u.user === user) u = p;
+  if(u && u.user === user) u = p;
 
   paint();
 
   pop(
     ok ? "Paid" : "Rejected",
-    ok
-      ? "Withdrawal marked paid"
-      : "Withdrawal rejected; amount refunded to Earn"
+    ok ? "Withdrawal marked paid" : "Amount refunded to Earn only"
   );
+}
+
+function approveWd(user, id){
+  adWd(user, id, true);
+}
+
+function rejectWd(user, id){
+  adWd(user, id, false);
 }
 function sendWdOtp(){
   if(!u){pop("Login","Please login first");return;}
