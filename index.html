@@ -999,6 +999,9 @@ function adWd(user, id, ok){
   if(!w || (w.st !== "PENDING" && w.status !== "PENDING"))
     return pop("Error","Already processed or not found");
 
+  // Balance ko unchanged rakho
+  var oldBalance = Number(p.bal || 0);
+
   if(ok){
     w.st = "PAID";
     w.status = "PAID";
@@ -1016,6 +1019,9 @@ function adWd(user, id, ok){
     w.status = "REJECTED";
     w.rejectedAt = Date.now();
   }
+
+  // Rejection par Balance mein koi change nahi
+  p.bal = oldBalance;
 
   save(p);
 
