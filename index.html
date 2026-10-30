@@ -7,6 +7,7 @@
 <title>Mintora</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 
@@ -109,6 +110,37 @@ input:focus{border-color:#3b82f6;outline:none}
   from{stroke-dashoffset:314}
   to{stroke-dashoffset:0}
 }
+  @keyframes reinvestCircle{
+  from{stroke-dashoffset:314}
+  to{stroke-dashoffset:0}
+}
+
+/* Mobile spacing */
+@media (max-width: 640px){
+  #app{
+    padding-left:12px;
+    padding-right:12px;
+    padding-top:16px;
+  }
+
+  #home .card{
+    border-radius:16px;
+  }
+
+  #home .stat{
+    padding:10px;
+  }
+
+  #home .stat .text-xl{
+    font-size:16px;
+  }
+
+  #home{
+    gap:10px;
+  }
+}
+</style>
+</head>
 </style>
 </head>
 <body>
@@ -192,19 +224,59 @@ input:focus{border-color:#3b82f6;outline:none}
   <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
   <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
     </div>
-        <div class="card p-5 mb-4">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-sm font-semibold text-white">Portfolio Activity</div>
-        <div class="text-[10px] text-[#777]">Last 7 days</div>
-      </div>
-      <div id="activity-bars" class="flex items-end gap-1 h-16 mb-2"></div>
-      <div class="text-[11px] text-[#666]">Live performance overview</div>
+   <!-- PREMIUM MARKET CHART -->
+<div class="card p-4 mb-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="flex justify-between items-center mb-3">
+    <div>
+      <div class="text-sm font-bold text-white">Market Overview</div>
+      <div class="text-[10px] text-[#a78bfa] mt-1">BTC / USDT · 7 Days</div>
     </div>
+    <div class="text-[10px] text-green-400">● LIVE MARKET</div>
+  </div>
 
-    <div class="card p-5">
-      <div class="text-sm font-semibold text-white mb-3">Live Trades</div>
-      <div id="live-trades" class="space-y-2"></div>
+  <div class="flex items-end justify-between mb-2">
+    <div>
+      <div id="btc-main-price" class="text-2xl font-bold text-white">$--</div>
+      <div id="btc-main-change" class="text-xs text-gray-400 mt-1">Loading market...</div>
     </div>
+    <div class="text-[10px] text-[#a78bfa]">7D PERFORMANCE</div>
+  </div>
+
+  <div style="height:155px;position:relative">
+    <canvas id="market-chart"></canvas>
+  </div>
+
+  <div class="flex justify-between text-[10px] text-gray-500 mt-2">
+    <span>7 days ago</span>
+    <span>Today</span>
+  </div>
+</div>
+
+<!-- LIVE MARKET RATES -->
+<div class="card p-4 mb-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="flex justify-between items-center mb-4">
+    <div class="text-sm font-bold text-white">Live Market Rates</div>
+    <div class="text-[10px] text-green-400">● LIVE</div>
+  </div>
+
+  <div id="market-rates" class="space-y-3">
+    <div class="text-xs text-gray-400 text-center py-4">
+      Connecting to market...
+    </div>
+  </div>
+
+  <div class="text-[10px] text-gray-500 mt-4">
+    Market data source: Binance · Prices in USDT
+  </div>
+</div>
+
+<!-- TRADE ACTIVITY -->
+<div class="card p-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="text-sm font-bold text-white mb-2">Trade Activity</div>
+  <div class="text-xs text-gray-400">
+    Your actual trade records will appear here when connected to a verified trading backend.
+  </div>
+</div>     
 
 
     </div>
@@ -616,27 +688,238 @@ function rankOf(p){
 }
   var LIVE_PAIRS=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT","ADA/USDT","DOGE/USDT","MATIC/USDT","AVAX/USDT"];
 var liveTimer=null, barTimer=null;
-function startLiveTrades(){
-  var box=el("live-trades"), bars=el("activity-bars");
-  if(!box)return;
-  if(liveTimer)clearInterval(liveTimer);
-  if(barTimer)clearInterval(barTimer);
-  if(bars && !bars.children.length){
-    for(var i=0;i<18;i++){
-      var b=document.createElement("div");
-      b.className="act-bar";
-      b.style.height=(20+Math.random()*80)+"%";
-      bars.appendChild(b);
+var marketChart = null;
+var marketTimer = null;
+var chartTimer = null;
+
+var MARKET_COINS = [
+  {symbol:"BTCUSDT", name:"Bitcoin", short:"BTC", icon:"₿"},
+  {symbol:"ETHUSDT", name:"Ethereum", short:"ETH", icon:"Ξ"},
+  {symbol:"BNBUSDT", name:"BNB", short:"BNB", icon:"◆"},
+  {symbol:"SOLUSDT", name:"Solana", short:"SOL", icon:"◎"},
+  {symbol:"XRPUSDT", name:"XRP", short:"XRP", icon:"✕"}
+];
+
+function formatMarketPrice(value){
+  var n = Number(value);
+  if(!Number.isFinite(n)) return "--";
+
+  return "$" + n.toLocaleString("en-US",{
+    minimumFractionDigits:2,
+    maximumFractionDigits: n < 1 ? 5 : 2
+  });
+}
+
+async function updateMarketRates(){
+  var box = el("market-rates");
+  if(!box) return;
+
+  try{
+    var symbols = MARKET_COINS.map(function(c){
+      return '"' + c.symbol + '"';
+    }).join(",");
+
+    var url =
+      "https://api.binance.com/api/v3/ticker/24hr?symbols=" +
+      encodeURIComponent("[" + symbols + "]");
+
+    var response = await fetch(url);
+
+    if(!response.ok) throw new Error("Market unavailable");
+
+    var data = await response.json();
+
+    box.innerHTML = "";
+
+    MARKET_COINS.forEach(function(coin){
+      var item = data.find(function(x){
+        return x.symbol === coin.symbol;
+      });
+
+      if(!item) return;
+
+      var price = Number(item.lastPrice);
+      var change = Number(item.priceChangePercent);
+      var positive = change >= 0;
+
+      var row = document.createElement("div");
+
+      row.style.cssText =
+        "display:flex;align-items:center;justify-content:space-between;" +
+        "padding:11px 10px;border-radius:13px;" +
+        "background:rgba(167,139,250,.055);" +
+        "border:1px solid rgba(167,139,250,.10)";
+
+      var left = document.createElement("div");
+      left.style.cssText = "display:flex;align-items:center;gap:10px";
+
+      var icon = document.createElement("div");
+      icon.textContent = coin.icon;
+      icon.style.cssText =
+        "width:34px;height:34px;border-radius:50%;" +
+        "display:flex;align-items:center;justify-content:center;" +
+        "background:rgba(167,139,250,.16);color:#c4b5fd;font-weight:bold";
+
+      var name = document.createElement("div");
+      name.innerHTML =
+        '<div style="font-size:13px;color:#fff;font-weight:700">' +
+        coin.short + '</div>' +
+        '<div style="font-size:10px;color:#8f829f">' +
+        coin.name + '</div>';
+
+      left.appendChild(icon);
+      left.appendChild(name);
+
+      var right = document.createElement("div");
+      right.style.textAlign = "right";
+
+      var priceText = document.createElement("div");
+      priceText.textContent = formatMarketPrice(price);
+      priceText.style.cssText =
+        "font-size:13px;color:#fff;font-weight:700";
+
+      var changeText = document.createElement("div");
+      changeText.textContent =
+        (positive ? "+" : "") + change.toFixed(2) + "%";
+      changeText.style.cssText =
+        "font-size:11px;margin-top:3px;font-weight:600;color:" +
+        (positive ? "#4ade80" : "#f87171");
+
+      right.appendChild(priceText);
+      right.appendChild(changeText);
+
+      row.appendChild(left);
+      row.appendChild(right);
+
+      box.appendChild(row);
+    });
+
+    var btc = data.find(function(x){
+      return x.symbol === "BTCUSDT";
+    });
+
+    if(btc){
+      el("btc-main-price").textContent =
+        formatMarketPrice(btc.lastPrice);
+
+      var change = Number(btc.priceChangePercent);
+
+      el("btc-main-change").textContent =
+        (change >= 0 ? "+" : "") +
+        change.toFixed(2) + "% today";
+
+      el("btc-main-change").style.color =
+        change >= 0 ? "#4ade80" : "#f87171";
     }
+
+  }catch(error){
+    console.error("Market rates error:",error);
+    box.innerHTML =
+      '<div class="text-xs text-red-400 py-3">' +
+      'Market data temporarily unavailable. Please retry.' +
+      '</div>';
   }
-  barTimer=setInterval(function(){
-    if(!bars)return;
-    var idx=Math.floor(Math.random()*bars.children.length);
-    var b=bars.children[idx];
-    b.style.height=(25+Math.random()*75)+"%";
-    b.classList.add("on");
-    setTimeout(function(){b.classList.remove("on")},800);
-  },900);
+}
+
+async function updateMarketChart(){
+  try{
+    var response = await fetch(
+      "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=7"
+    );
+
+    if(!response.ok) throw new Error("Chart unavailable");
+
+    var data = await response.json();
+
+    var labels = data.map(function(x){
+      return new Date(x[0]).toLocaleDateString("en-IN",{
+        day:"2-digit",
+        month:"short"
+      });
+    });
+
+    var prices = data.map(function(x){
+      return Number(x[4]);
+    });
+
+    var latest = prices[prices.length-1];
+    var first = prices[0];
+
+    var canvas = el("market-chart");
+    if(!canvas || typeof Chart === "undefined") return;
+
+    if(marketChart) marketChart.destroy();
+
+    var ctx = canvas.getContext("2d");
+    var gradient = ctx.createLinearGradient(0,0,0,160);
+
+    gradient.addColorStop(0,"rgba(167,139,250,.35)");
+    gradient.addColorStop(1,"rgba(167,139,250,0)");
+
+    marketChart = new Chart(ctx,{
+      type:"line",
+      data:{
+        labels:labels,
+        datasets:[{
+          data:prices,
+          borderColor:"#a78bfa",
+          backgroundColor:gradient,
+          fill:true,
+          tension:.4,
+          borderWidth:2,
+          pointRadius:2,
+          pointBackgroundColor:"#d8b4fe",
+          pointBorderWidth:0
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:function(context){
+                return formatMarketPrice(context.raw);
+              }
+            }
+          }
+        },
+        scales:{
+          x:{
+            grid:{display:false},
+            ticks:{color:"#81758f",font:{size:9}}
+          },
+          y:{
+            position:"right",
+            grid:{color:"rgba(167,139,250,.08)"},
+            ticks:{
+              color:"#81758f",
+              font:{size:9},
+              callback:function(value){
+                return "$"+Number(value).toLocaleString("en-US");
+              }
+            }
+          }
+        }
+      }
+    });
+
+  }catch(error){
+    console.error("Market chart error:",error);
+  }
+}
+
+function startLiveTrades(){
+  if(marketTimer) clearInterval(marketTimer);
+  if(chartTimer) clearInterval(chartTimer);
+
+  updateMarketRates();
+  updateMarketChart();
+
+  marketTimer = setInterval(updateMarketRates,10000);
+  chartTimer = setInterval(updateMarketChart,60000);
+}
   function addTrade(){
     var pair=LIVE_PAIRS[Math.floor(Math.random()*LIVE_PAIRS.length)];
     var isBuy=Math.random()>0.42;
