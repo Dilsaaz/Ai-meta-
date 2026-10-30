@@ -698,14 +698,45 @@ var MARKET_COINS = [
   {symbol:"XRPUSDT", name:"XRP", short:"XRP", icon:"✕"}
 ];
 
+
+var marketChart = null;
+var marketTimer = null;
+var chartTimer = null;
+
+var MARKET_COINS = [
+  {id:"bitcoin",name:"Bitcoin",short:"BTC",icon:"₿"},
+  {id:"ethereum",name:"Ethereum",short:"ETH",icon:"Ξ"},
+  {id:"binancecoin",name:"BNB",short:"BNB",icon:"◆"},
+  {id:"solana",name:"Solana",short:"SOL",icon:"◎"},
+  {id:"ripple",name:"XRP",short:"XRP",icon:"✕"}
+];
+
 function formatMarketPrice(value){
   var n = Number(value);
   if(!Number.isFinite(n)) return "--";
-
   return "$" + n.toLocaleString("en-US",{
     minimumFractionDigits:2,
-    maximumFractionDigits: n < 1 ? 5 : 2
+    maximumFractionDigits:n < 1 ? 5 : 2
   });
+}
+
+async function marketFetch(url){
+  var controller = new AbortController();
+  var timeout = setTimeout(function(){
+    controller.abort();
+  },12000);
+
+  try{
+    var response = await fetch(url,{
+      method:"GET",
+      signal:controller.signal,
+      cache:"no-store"
+    });
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    return await response.json();
+  }finally{
+    clearTimeout(timeout);
+  }
 }
 
 async function updateMarketRates(){
@@ -713,135 +744,81 @@ async function updateMarketRates(){
   if(!box) return;
 
   try{
-    var symbols = MARKET_COINS.map(function(c){
-      return '"' + c.symbol + '"';
-    }).join(",");
+    var ids = MARKET_COINS.map(function(c){return c.id}).join(",");
 
-    var url =
-      "https://api.binance.com/api/v3/ticker/24hr?symbols=" +
-      encodeURIComponent("[" + symbols + "]");
-
-    var response = await fetch(url);
-
-    if(!response.ok) throw new Error("Market unavailable");
-
-    var data = await response.json();
+    var data = await marketFetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids="+ids+
+      "&vs_currencies=usd&include_24hr_change=true"
+    );
 
     box.innerHTML = "";
 
     MARKET_COINS.forEach(function(coin){
-      var item = data.find(function(x){
-        return x.symbol === coin.symbol;
-      });
-
+      var item = data[coin.id];
       if(!item) return;
 
-      var price = Number(item.lastPrice);
-      var change = Number(item.priceChangePercent);
+      var price = item.usd;
+      var change = Number(item.usd_24h_change || 0);
       var positive = change >= 0;
 
       var row = document.createElement("div");
-
       row.style.cssText =
-        "display:flex;align-items:center;justify-content:space-between;" +
-        "padding:11px 10px;border-radius:13px;" +
-        "background:rgba(167,139,250,.055);" +
-        "border:1px solid rgba(167,139,250,.10)";
+        "display:flex;justify-content:space-between;align-items:center;padding:11px 10px;border-radius:13px;background:rgba(167,139,250,.055);border:1px solid rgba(167,139,250,.10)";
 
       var left = document.createElement("div");
-      left.style.cssText = "display:flex;align-items:center;gap:10px";
-
-      var icon = document.createElement("div");
-      icon.textContent = coin.icon;
-      icon.style.cssText =
-        "width:34px;height:34px;border-radius:50%;" +
-        "display:flex;align-items:center;justify-content:center;" +
-        "background:rgba(167,139,250,.16);color:#c4b5fd;font-weight:bold";
-
-      var name = document.createElement("div");
-      name.innerHTML =
-        '<div style="font-size:13px;color:#fff;font-weight:700">' +
-        coin.short + '</div>' +
-        '<div style="font-size:10px;color:#8f829f">' +
-        coin.name + '</div>';
-
-      left.appendChild(icon);
-      left.appendChild(name);
+      left.innerHTML =
+        '<span style="color:#c4b5fd;font-weight:bold;margin-right:10px">'+coin.icon+'</span>'+
+        '<span style="color:white;font-weight:700">'+coin.short+'</span>'+
+        '<div style="font-size:10px;color:#8f829f;margin-left:30px">'+coin.name+'</div>';
 
       var right = document.createElement("div");
       right.style.textAlign = "right";
-
-      var priceText = document.createElement("div");
-      priceText.textContent = formatMarketPrice(price);
-      priceText.style.cssText =
-        "font-size:13px;color:#fff;font-weight:700";
-
-      var changeText = document.createElement("div");
-      changeText.textContent =
-        (positive ? "+" : "") + change.toFixed(2) + "%";
-      changeText.style.cssText =
-        "font-size:11px;margin-top:3px;font-weight:600;color:" +
-        (positive ? "#4ade80" : "#f87171");
-
-      right.appendChild(priceText);
-      right.appendChild(changeText);
+      right.innerHTML =
+        '<div style="font-size:13px;color:white;font-weight:700">'+formatMarketPrice(price)+'</div>'+
+        '<div style="font-size:11px;margin-top:3px;color:'+
+        (positive ? '#4ade80' : '#f87171')+'">'+
+        (positive?"+":"")+change.toFixed(2)+'%</div>';
 
       row.appendChild(left);
       row.appendChild(right);
-
       box.appendChild(row);
     });
 
-    var btc = data.find(function(x){
-      return x.symbol === "BTCUSDT";
-    });
+    if(!data.bitcoin) throw new Error("Bitcoin data missing");
 
-    if(btc){
-      el("btc-main-price").textContent =
-        formatMarketPrice(btc.lastPrice);
+    el("btc-main-price").textContent =
+      formatMarketPrice(data.bitcoin.usd);
 
-      var change = Number(btc.priceChangePercent);
+    var btcChange = Number(data.bitcoin.usd_24h_change || 0);
+    el("btc-main-change").textContent =
+      (btcChange >= 0 ? "+" : "")+btcChange.toFixed(2)+"% today";
 
-      el("btc-main-change").textContent =
-        (change >= 0 ? "+" : "") +
-        change.toFixed(2) + "% today";
-
-      el("btc-main-change").style.color =
-        change >= 0 ? "#4ade80" : "#f87171";
-    }
+    el("btc-main-change").style.color =
+      btcChange >= 0 ? "#4ade80" : "#f87171";
 
   }catch(error){
     console.error("Market rates error:",error);
     box.innerHTML =
-      '<div class="text-xs text-red-400 py-3">' +
-      'Market data temporarily unavailable. Please retry.' +
-      '</div>';
+      '<div style="color:#f87171;text-align:center;padding:15px;font-size:12px">Market unavailable. Please retry.</div>';
   }
 }
 
 async function updateMarketChart(){
   try{
-    var response = await fetch(
-      "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=7"
+    var data = await marketFetch(
+      "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7"
     );
 
-    if(!response.ok) throw new Error("Chart unavailable");
+    var prices = data.prices || [];
+    if(!prices.length) throw new Error("No chart data");
 
-    var data = await response.json();
-
-    var labels = data.map(function(x){
+    var labels = prices.map(function(x){
       return new Date(x[0]).toLocaleDateString("en-IN",{
-        day:"2-digit",
-        month:"short"
+        day:"2-digit",month:"short"
       });
     });
 
-    var prices = data.map(function(x){
-      return Number(x[4]);
-    });
-
-    var latest = prices[prices.length-1];
-    var first = prices[0];
+    var values = prices.map(function(x){return Number(x[1])});
 
     var canvas = el("market-chart");
     if(!canvas || typeof Chart === "undefined") return;
@@ -850,7 +827,6 @@ async function updateMarketChart(){
 
     var ctx = canvas.getContext("2d");
     var gradient = ctx.createLinearGradient(0,0,0,160);
-
     gradient.addColorStop(0,"rgba(167,139,250,.35)");
     gradient.addColorStop(1,"rgba(167,139,250,0)");
 
@@ -859,53 +835,40 @@ async function updateMarketChart(){
       data:{
         labels:labels,
         datasets:[{
-          data:prices,
+          data:values,
           borderColor:"#a78bfa",
           backgroundColor:gradient,
           fill:true,
           tension:.4,
           borderWidth:2,
-          pointRadius:2,
-          pointBackgroundColor:"#d8b4fe",
-          pointBorderWidth:0
+          pointRadius:0
         }]
       },
       options:{
         responsive:true,
         maintainAspectRatio:false,
-        plugins:{
-          legend:{display:false},
-          tooltip:{
-            callbacks:{
-              label:function(context){
-                return formatMarketPrice(context.raw);
-              }
-            }
-          }
-        },
+        plugins:{legend:{display:false}},
         scales:{
-          x:{
-            grid:{display:false},
-            ticks:{color:"#81758f",font:{size:9}}
-          },
-          y:{
-            position:"right",
-            grid:{color:"rgba(167,139,250,.08)"},
-            ticks:{
-              color:"#81758f",
-              font:{size:9},
-              callback:function(value){
-                return "$"+Number(value).toLocaleString("en-US");
-              }
-            }
-          }
+          x:{grid:{display:false},ticks:{color:"#81758f",maxTicksLimit:7}},
+          y:{position:"right",grid:{color:"rgba(167,139,250,.08)"},
+            ticks:{color:"#81758f",callback:function(v){return "$"+Number(v).toLocaleString("en-US")}}}
         }
       }
     });
-
   }catch(error){
     console.error("Market chart error:",error);
   }
+}
+
+function startLiveTrades(){
+  if(marketTimer) clearInterval(marketTimer);
+  if(chartTimer) clearInterval(chartTimer);
+
+  updateMarketRates();
+  updateMarketChart();
+
+  marketTimer = setInterval(updateMarketRates,30000);
+  chartTimer = setInterval(updateMarketChart,300000);
 }
 
 function startLiveTrades(){
