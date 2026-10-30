@@ -151,10 +151,14 @@ input:focus{border-color:#3b82f6;outline:none}
     <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6">
 <button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
     <button class="btn" onclick="withdraw()">Request withdraw</button>
-    <div class="mt-5 text-sm" id="hist"></div>
+    
   </div>
   <div id="ref" class="card p-5 hidden"></div>
   <div id="teamview" class="card p-5 hidden"></div>
+  <div id="history" class="card p-5 hidden">
+  <div class="serif text-2xl mb-3">History</div>
+  <div id="hist-list" class="text-sm space-y-2"></div>
+</div>
   <div id="settings" class="card p-5 hidden">
     <div class="serif text-2xl mb-3">Settings</div>
     <input id="set-email" class="mb-3" placeholder="Email"/>
@@ -175,6 +179,7 @@ input:focus{border-color:#3b82f6;outline:none}
     <button class="navitem" onclick="tab('withdraw',this)"><span class="ic">↑</span> Withdraw</button>
     <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
     <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
+    <button class="navitem" onclick="tab('history',this)"><span class="ic">◷</span> History</button>
     <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
     <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
     <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
@@ -545,7 +550,7 @@ function logout(){
 }
 
 function tab(id,btn){
-  ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
+  ["home","deposit","withdraw","ref","teamview","history","settings","admin"]
   el(id).classList.remove("hidden");
 
   var tradeCard = document.getElementById("trade-card");
@@ -608,8 +613,17 @@ if(allTeam.length === 0){
   });
 }
 el("teamview").innerHTML = teamHtml;
-  var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
-  el("hist").innerHTML=hist.join("<br>")||"No history";
+  var histBox = el("hist-list");
+if(histBox){
+  var rows = [];
+  (u.deps||[]).forEach(function(d){
+    rows.push('<div class="py-2 px-3 mb-2 rounded-xl" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.12)"><div class="font-semibold">Deposit $'+money(d.amt)+'</div><div class="text-xs text-[#b7ad98] mt-1">'+ (d.st||"") + (d.hash ? " · "+d.hash.slice(0,12)+"..." : "") +'</div></div>');
+  });
+  (u.wds||[]).forEach(function(w){
+    rows.push('<div class="py-2 px-3 mb-2 rounded-xl" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.12)"><div class="font-semibold">Withdraw $'+money(w.amt)+'</div><div class="text-xs text-[#b7ad98] mt-1">'+(w.st||w.status||"")+(w.addr ? " · "+w.addr.slice(0,10)+"..." : "")+'</div></div>');
+  });
+  histBox.innerHTML = rows.length ? rows.join("") : '<div class="text-sm text-[#b7ad98]">No history yet</div>';
+}
   
   
 
