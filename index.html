@@ -1057,28 +1057,7 @@ function verifyWdOtp(){
 }
 
 
-function approveWd(user, id){
-  var p=load(user);
-  if(!p)return pop("Error","User not found");
 
-  var w=(p.wds||[]).find(function(x){
-    return String(x.id)===String(id);
-  });
-
-  if(!w || (w.st!=="PENDING" && w.status!=="PENDING")){
-    return pop("Error","Withdrawal not found or already processed");
-  }
-
-  w.st="PAID";
-  w.status="PAID";
-
-  save(p);
-
-  if(u && u.user===user)u=p;
-
-  paint();
-  pop("Paid","Mark as paid only after sending the withdrawal.");
-}
 
 
 function rejectWd(user, id){
