@@ -1039,8 +1039,10 @@ function approveWd(user, id){
 function rejectWd(user, id){
   adWd(user, id, false);
 }
+
 function adWd(user, id, ok) {
   var p = load(user);
+
   if (!p || !Array.isArray(p.wds)) {
     pop("Error", "Withdrawal not found");
     return;
@@ -1059,22 +1061,34 @@ function adWd(user, id, ok) {
     w.st = "PAID";
     w.status = "PAID";
     w.paidAt = Date.now();
+
   } else {
     if (!w.refunded) {
-      p.bal = +(Number(p.bal || 0) + Number(w.amt || 0)).toFixed(2);
+      // Refund ONLY to Earn
+      p.profit = +(
+        Number(p.profit || 0) + Number(w.amt || 0)
+      ).toFixed(2);
+
       w.refunded = true;
     }
+
     w.st = "REJECTED";
     w.status = "REJECTED";
     w.rejectedAt = Date.now();
   }
 
   save(p);
+
   if (u && u.user === user) u = p;
 
   paint();
-  pop(ok ? "Paid" : "Rejected",
-      ok ? "Withdrawal marked paid" : "Withdrawal rejected; amount refunded");
+
+  pop(
+    ok ? "Paid" : "Rejected",
+    ok
+      ? "Withdrawal marked paid"
+      : "Withdrawal rejected; amount refunded to Earn"
+  );
 }
 function sendWdOtp(){
   if(!u){pop("Login","Please login first");return;}
