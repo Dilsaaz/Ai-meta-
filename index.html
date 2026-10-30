@@ -282,6 +282,7 @@ var RANKS=[
 ];
 var AMB=[{n:200,pay:100},{n:500,pay:300},{n:1500,pay:500},{n:3000,pay:1000},{n:5000,pay:2000},{n:10000,pay:4500}];
 var u=null, otp="", pending=null, otpAt=0, done=false, scratchMs=0, lastTick=0;
+  var wdOtpCode = "", wdOtpTime = 0;
 function el(id){return document.getElementById(id)}
 function money(n){return (+n||0).toFixed(2)}
 function day(){return new Date().toISOString().slice(0,10)}
@@ -951,9 +952,11 @@ function withdraw(){
     return pop("Error","Minimum withdraw $10");
 
   if(!addr || addr.length < 10)
-    return pop("Error","Enter valid BEP20 address");
+  return pop("Error","Enter valid BEP20 address");
 
-  var p = load(u.user);
+if(!verifyWdOtp()) return;
+
+var p = load(u.user);
   if(!p) return pop("Error","Account not found");
 
   var profit = Number(p.profit || 0);
