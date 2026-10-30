@@ -860,26 +860,19 @@ async function updateMarketChart(){
   }
 }
 
+
 function startLiveTrades(){
   if(marketTimer) clearInterval(marketTimer);
   if(chartTimer) clearInterval(chartTimer);
+
+  el("market-rates").innerHTML =
+    '<div style="color:#c4b5fd;text-align:center;padding:15px">Market function started...</div>';
 
   updateMarketRates();
   updateMarketChart();
 
   marketTimer = setInterval(updateMarketRates,30000);
   chartTimer = setInterval(updateMarketChart,300000);
-}
-
-function startLiveTrades(){
-  if(marketTimer) clearInterval(marketTimer);
-  if(chartTimer) clearInterval(chartTimer);
-
-  updateMarketRates();
-  updateMarketChart();
-
-  marketTimer = setInterval(updateMarketRates,10000);
-  chartTimer = setInterval(updateMarketChart,60000);
 }
   
 function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
