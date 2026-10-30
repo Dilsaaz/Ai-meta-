@@ -313,7 +313,9 @@ async function loadCloud(name){
         wds: res.data.wds || [],
         amb: res.data.amb || [],
         nextTrade: Number(res.data.next_trade || 0),
-        scratchDay: res.data.scratch_day || ""
+        scratchDay: res.data.scratch_day || "",
+lastSalary: Number(res.data.last_salary || 0),
+ambCard: Number(res.data.amb_card || 0)
       };
       localStorage.setItem("mint_"+name, JSON.stringify(p));
       return p;
@@ -347,7 +349,9 @@ function save(p){
     wds: p.wds || [],
     amb: p.amb || [],
     next_trade: p.nextTrade || 0,
-    scratch_day: p.scratchDay || ""
+scratch_day: p.scratchDay || "",
+last_salary: p.lastSalary || 0,
+amb_card: p.ambCard || 0
   }).then(function(){}).catch(function(){});
 }
 function all(){
@@ -382,7 +386,9 @@ async function allCloud(){
           wds: r.wds || [],
           amb: r.amb || [],
           nextTrade: Number(r.next_trade || 0),
-          scratchDay: r.scratch_day || ""
+scratchDay: r.scratch_day || "",
+lastSalary: Number(r.last_salary || 0),
+ambCard: Number(r.amb_card || 0)
         };
         localStorage.setItem("mint_"+p.user, JSON.stringify(p));
         return p;
