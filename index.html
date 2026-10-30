@@ -635,14 +635,25 @@ function openMenu(){el("menu").classList.add("open");el("drawer").classList.add(
 function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
 function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
 function salary(p){
-  var r=rankOf(p); if(!r)return;
-  var now=Date.now();
-  if(p.lastSalary&&now-p.lastSalary<15*86400000)return;
-  var pay=RANKS[r-1].pay;
-  p.bal=+((+p.bal||0)+pay).toFixed(2);
-  p.profit=+((+p.profit||0)+pay).toFixed(2);
-  p.lastSalary=now; p.rank=r; save(p);
-  if(u&&u.user===p.user)pop("Rank achieved",RANKS[r-1].name+" · $"+pay+" added");
+  var r = rankOf(p);
+  if(!r) return;
+
+  var now = Date.now();
+
+  if(p.lastSalary && now - p.lastSalary < 15*86400000) return;
+
+  var pay = RANKS[r-1].pay;
+
+  // Rank reward only in Earn
+  p.profit = +((Number(p.profit)||0) + pay).toFixed(2);
+
+  p.lastSalary = now;
+  p.rank = r;
+
+  save(p);
+
+  if(u && u.user === p.user)
+    pop("Rank achieved", RANKS[r-1].name+" · $"+pay+" added to Earn");
 }
 function ambCards(p){
   var n=downAll(p.ref).filter(active).length;
@@ -1239,12 +1250,43 @@ function setupScratch(){
   c.ontouchmove=function(e){e.preventDefault();go(e)};
 }
 function claim(){
-  if(!active(u)&&!u.ambCard){pop("Deposit first","Earn opens after a successful deposit");setupScratch();return}
-  if(u.ambCard){var a=u.ambCard;u.bal=+((+u.bal||0)+a).toFixed(2);u.profit=+((+u.profit||0)+a).toFixed(2);u.ambCard=0;save(u);coin();pop("Ambassador","$"+money(a)+" added");paint();return}
-  if(u.scratchDay===day()){pop("Done","Today's earn already used");return}
-  var add=+(u.base*0.025).toFixed(2);
-  u.bal=+(u.bal+add).toFixed(2); u.profit=+(u.profit+add).toFixed(2); u.scratchDay=day(); save(u); coin();
-  pop("Earned","$"+money(add)+" · 2.5% of $"+money(u.base)); paint();
+  if(!active(u) && !u.ambCard){
+    pop("Deposit first","Earn opens after a successful deposit");
+    setupScratch();
+    return;
+  }
+
+  if(u.ambCard){
+    var a = Number(u.ambCard)||0;
+
+    // Ambassador reward only in Earn
+    u.profit = +((Number(u.profit)||0)+a).toFixed(2);
+
+    u.ambCard = 0;
+    save(u);
+    coin();
+    pop("Ambassador","$"+money(a)+" added to Earn");
+    paint();
+    return;
+  }
+
+  if(u.scratchDay === day()){
+    pop("Done","Today's earn already used");
+    return;
+  }
+
+  var add = +((Number(u.base)||0)*0.025).toFixed(2);
+
+  // Scratch reward only in Earn
+  u.profit = +((Number(u.profit)||0)+add).toFixed(2);
+
+  u.scratchDay = day();
+
+  save(u);
+  coin();
+
+  pop("Earned","$"+money(add)+" added to Earn");
+  paint();
 }
 (function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
   window.addEventListener("load", function(){
