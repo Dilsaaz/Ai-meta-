@@ -112,7 +112,25 @@ input:focus{border-color:#3b82f6;outline:none}
       <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
       <button class="ghost w-full" onclick="copyLink()">Copy link</button>
     </div>
-    
+    <div class="card p-5 mb-4">
+  <div class="serif text-2xl gold mb-2">Reinvest</div>
+  <div class="text-sm text-[#b7ad98] mb-3">
+    Transfer your available Earn into your investment.
+  </div>
+
+  <input
+    id="reinvest-amt"
+    type="number"
+    min="0.01"
+    step="0.01"
+    placeholder="Enter reinvest amount"
+    class="mb-3"
+  />
+
+  <button class="btn w-full" onclick="reinvest()">
+    Reinvest Now
+  </button>
+</div>
   <div id="trade-card" class="card p-5 hidden">
   <div class="serif text-2xl mb-1">Trade</div>
   <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
@@ -164,25 +182,7 @@ input:focus{border-color:#3b82f6;outline:none}
     <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
     <button class="btn w-full" onclick="saveSettings()">Save</button>
   </div>
-  <div class="card p-5 mb-4">
-  <div class="serif text-2xl gold mb-2">Reinvest</div>
-  <div class="text-sm text-[#b7ad98] mb-3">
-    Transfer your available Earn into your investment.
-  </div>
-
-  <input
-    id="reinvest-amt"
-    type="number"
-    min="0.01"
-    step="0.01"
-    placeholder="Enter reinvest amount"
-    class="mb-3"
-  />
-
-  <button class="btn w-full" onclick="reinvest()">
-    Reinvest Now
-  </button>
-</div>
+  
   <div id="admin" class="card p-5 hidden"></div>
 </div>
 
