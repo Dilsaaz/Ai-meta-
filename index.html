@@ -1011,8 +1011,12 @@ function tab(id,btn){
   closeMenu();
   document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
   if(btn)btn.classList.add("on");
-  if(id==="home"){setupScratch();startLiveTrades();}
-  paint();
+  if(id==="home"){
+  if(typeof setupScratch === "function"){
+    setupScratch();
+  }
+  startLiveTrades();
+}
 }
 
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
