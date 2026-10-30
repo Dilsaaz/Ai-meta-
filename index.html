@@ -1123,10 +1123,9 @@ function reinvest(){
       }
 
       latest.profit = Number((latestEarn - n).toFixed(2));
-      latest.base = Number(
-        (Number(latest.base || 0) + n).toFixed(2)
-      );
-
+      latest.bal = Number(
+  (Number(latest.bal || 0) + n).toFixed(2)
+);
       save(latest);
 
       u = load(latest.user) || latest;
