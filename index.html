@@ -216,28 +216,104 @@ function load(name){
   }catch(e){return null;}
 }
 
+async function loadCloud(name){
+  try{
+    var res = await sb.from("users").select("*").eq("user_name", name).single();
+    if(res.data){
+      var p = {
+        user: res.data.user_name,
+        email: res.data.email || "",
+        phone: res.data.phone || "",
+        pass: res.data.pass || "",
+        ref: res.data.ref || "",
+        sponsor: res.data.sponsor || "",
+        bal: Number(res.data.bal || 0),
+        profit: Number(res.data.profit || 0),
+        base: Number(res.data.base || 0),
+        lock: Number(res.data.lock || 0),
+        wdAddr: res.data.wd_addr || "",
+        deps: res.data.deps || [],
+        wds: res.data.wds || [],
+        amb: res.data.amb || [],
+        nextTrade: Number(res.data.next_trade || 0),
+        scratchDay: res.data.scratch_day || ""
+      };
+      localStorage.setItem("mint_"+name, JSON.stringify(p));
+      return p;
+    }
+  }catch(e){}
+  return load(name);
+}
+
 function save(p){
   if(!p||!p.user)return;
-  // balance hamesha number rahe
   p.bal=+(Number(p.bal)||0).toFixed(2);
   p.profit=+(Number(p.profit)||0).toFixed(2);
   p.lock=+(Number(p.lock)||0).toFixed(2);
   localStorage.setItem("mint_"+p.user,JSON.stringify(p));
-  // current user bhi sync
   if(u&&u.user===p.user)u=p;
+
+  // Cloud sync
+  sb.from("users").upsert({
+    user_name: p.user,
+    email: p.email || "",
+    phone: p.phone || "",
+    pass: p.pass || "",
+    ref: p.ref || "",
+    sponsor: p.sponsor || "",
+    bal: p.bal,
+    profit: p.profit,
+    base: p.base || 0,
+    lock: p.lock || 0,
+    wd_addr: p.wdAddr || "",
+    deps: p.deps || [],
+    wds: p.wds || [],
+    amb: p.amb || [],
+    next_trade: p.nextTrade || 0,
+    scratch_day: p.scratchDay || ""
+  }).then(function(){}).catch(function(){});
 }
 function all(){
-  var o=[];
+  var list=[];
   for(var i=0;i<localStorage.length;i++){
     var k=localStorage.key(i);
-    if(k.indexOf("mint_")===0){
-      try{
-        var p=JSON.parse(localStorage.getItem(k));
-        if(p) o.push(p);
-      }catch(e){}
+    if(k&&k.indexOf("mint_")==0){
+      try{list.push(JSON.parse(localStorage.getItem(k)));}catch(e){}
     }
   }
-  return o;
+  return list;
+}
+
+async function allCloud(){
+  try{
+    var res = await sb.from("users").select("*");
+    if(res.data && res.data.length){
+      var list = res.data.map(function(r){
+        var p = {
+          user: r.user_name,
+          email: r.email || "",
+          phone: r.phone || "",
+          pass: r.pass || "",
+          ref: r.ref || "",
+          sponsor: r.sponsor || "",
+          bal: Number(r.bal || 0),
+          profit: Number(r.profit || 0),
+          base: Number(r.base || 0),
+          lock: Number(r.lock || 0),
+          wdAddr: r.wd_addr || "",
+          deps: r.deps || [],
+          wds: r.wds || [],
+          amb: r.amb || [],
+          nextTrade: Number(r.next_trade || 0),
+          scratchDay: r.scratch_day || ""
+        };
+        localStorage.setItem("mint_"+p.user, JSON.stringify(p));
+        return p;
+      });
+      return list;
+    }
+  }catch(e){}
+  return all();
 }
 function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
@@ -430,9 +506,19 @@ function doLogin(){
     return;
   }
 
-  var p = load(name);
-
+  loadCloud(name).then(function(p){
   if(!p || p.pass !== pass){
+    pop("Login failed", "Wrong username or password");
+    return;
+  }
+  u = p;
+  salary(u);
+  ambCards(u);
+  showSpin(function(){
+    enter();
+  });
+});
+return;
     pop("Login failed", "Wrong username or password");
     return;
   }
