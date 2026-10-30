@@ -511,7 +511,30 @@ function paint(){
   if(el("set-addr"))el("set-addr").value=u.wdAddr||"";
   var mine=all().filter(function(x){return x.sponsor===u.ref});
   el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn <b class="gold">15%</b> of each direct deposit.</div>';
-  el("teamview").innerHTML='<div class="serif text-2xl mb-3">Team</div><div class="grid grid-cols-2 gap-3"><div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div><div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div></div>';
+  var teamHtml = '<div class="serif text-2xl mb-3">Team</div>';
+teamHtml += '<div class="grid grid-cols-2 gap-3 mb-4">';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div>';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div>';
+teamHtml += '</div>';
+
+if(allTeam.length === 0){
+  teamHtml += '<div class="text-sm text-[#b7ad98]">No team members yet</div>';
+} else {
+  teamHtml += '<div class="text-sm font-semibold mb-2 text-[#c4b5fd]">All Members</div>';
+  allTeam.forEach(function(m){
+    var isAct = active(m);
+    var statusColor = isAct ? "#4ade80" : "#f87171";
+    var statusText = isAct ? "Active" : "Inactive";
+    teamHtml += '<div class="py-3 px-3 mb-2 rounded-xl" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.12)">';
+    teamHtml += '<div class="flex justify-between items-center">';
+    teamHtml += '<div><div class="font-semibold text-white">'+m.user+'</div>';
+    teamHtml += '<div class="text-xs mt-1" style="color:'+statusColor+'">'+statusText+'</div></div>';
+    teamHtml += '<div class="text-right"><div class="gold font-semibold">$'+money(m.bal)+'</div>';
+    teamHtml += '<div class="text-xs text-[#b7ad98]">Wallet</div></div>';
+    teamHtml += '</div></div>';
+  });
+}
+el("teamview").innerHTML = teamHtml;
   var hist=[].concat((u.deps||[]).map(function(d){return "Deposit $"+money(d.amt)+" · "+d.st}), (u.wds||[]).map(function(w){return "Withdraw $"+money(w.amt)+" · "+w.st}));
   el("hist").innerHTML=hist.join("<br>")||"No history";
   
