@@ -334,16 +334,20 @@ ambCard: Number(res.data.amb_card || 0)
   return load(name);
 }
 
+
 function save(p){
-  if(!p||!p.user)return;
-  p.bal=+(Number(p.bal)||0).toFixed(2);
-  p.profit=+(Number(p.profit)||0).toFixed(2);
-  p.lock=+(Number(p.lock)||0).toFixed(2);
-  localStorage.setItem("mint_"+p.user,JSON.stringify(p));
-  if(u&&u.user===p.user)u=p;
+  if(!p || !p.user) return Promise.resolve(false);
+
+  p.bal = +(Number(p.bal) || 0).toFixed(2);
+  p.profit = +(Number(p.profit) || 0).toFixed(2);
+  p.lock = +(Number(p.lock) || 0).toFixed(2);
+
+  localStorage.setItem("mint_" + p.user, JSON.stringify(p));
+
+  if(u && u.user === p.user) u = p;
 
   // Cloud sync
-  sb.from("users").upsert({
+  return sb.from("users").upsert({
     user_name: p.user,
     email: p.email || "",
     phone: p.phone || "",
@@ -359,11 +363,22 @@ function save(p){
     wds: p.wds || [],
     amb: p.amb || [],
     next_trade: p.nextTrade || 0,
-scratch_day: p.scratchDay || "",
-last_salary: p.lastSalary || 0,
-amb_card: p.ambCard || 0
-  }).then(function(){}).catch(function(){});
+    scratch_day: p.scratchDay || "",
+    last_salary: p.lastSalary || 0,
+    amb_card: p.ambCard || 0
+  }).then(function(res){
+    if(res.error){
+      console.error("Supabase save failed:", res.error);
+      return false;
+    }
+
+    return true;
+  }).catch(function(err){
+    console.error("Cloud sync error:", err);
+    return false;
+  });
 }
+
 function all(){
   var list=[];
   for(var i=0;i<localStorage.length;i++){
