@@ -484,54 +484,30 @@ function verifyOtp(){
   save(p); u=p; showSpin(function(){enter()});
 }
 function doLogin(){
-  var name = el("li-user").value.trim();
-  var pass = el("li-pass").value;
+  var name = (el("li-user").value || "").trim();
+  var pass = el("li-pass").value || "";
 
   if(name === ADMIN.user && pass === ADMIN.pass){
-    u = {
-      user: "admin",
-      bal: 0,
-      profit: 0,
-      base: 0,
-      ref: "ADMIN",
-      deps: [],
-      wds: [],
-      amb: []
-    };
-
-    showSpin(function(){
-      enter();
-      tab("admin");
-    });
+    u = {user:"admin", bal:0, profit:0, base:0, ref:"ADMIN", deps:[], wds:[], amb:[]};
+    localStorage.setItem("mint_session", "admin");
+    showSpin(function(){ enter(); });
     return;
   }
 
+  showSpin(function(){});
   loadCloud(name).then(function(p){
-  if(!p || p.pass !== pass){
-    pop("Login failed", "Wrong username or password");
-    return;
-  }
-  u = p;
-  salary(u);
-  ambCards(u);
-  showSpin(function(){
-    enter();
-  });
-});
-return;
-    pop("Login failed", "Wrong username or password");
-    return;
-  }
-
-  u = p;
-  salary(u);
-  ambCards(u);
-
-  showSpin(function(){
-    enter();
+    el("spinwrap").classList.add("hidden");
+    if(!p || p.pass !== pass){
+      pop("Login failed", "Wrong username or password");
+      return;
+    }
+    u = p;
+    localStorage.setItem("mint_session", u.user);
+    salary(u);
+    ambCards(u);
+    showSpin(function(){ enter(); });
   });
 }
-
 function enter(){
   if(!u) return;
 
@@ -558,7 +534,15 @@ function enter(){
   setupScratch();
 }
 
-function logout(){closeMenu();u=null;el("app").classList.add("hidden");el("auth").classList.remove("hidden");show("box-login");pop("Signed out","See you again")}
+function logout(){
+  closeMenu();
+  u = null;
+  localStorage.removeItem("mint_session");
+  el("app").classList.add("hidden");
+  el("auth").classList.remove("hidden");
+  show("box-login");
+  pop("Signed out", "See you again");
+}
 
 function tab(id,btn){
   ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
@@ -990,6 +974,26 @@ function claim(){
   pop("Earned","$"+money(add)+" · 2.5% of $"+money(u.base)); paint();
 }
 (function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
+  window.addEventListener("load", function(){
+  allCloud().then(function(){
+    var s = localStorage.getItem("mint_session");
+    if(s === "admin"){
+      u = {user:"admin", bal:0, profit:0, base:0, ref:"ADMIN", deps:[], wds:[], amb:[]};
+      enter();
+      return;
+    }
+    if(s){
+      loadCloud(s).then(function(p){
+        if(p){
+          u = p;
+          enter();
+        } else {
+          show("box-login");
+        }
+      });
+    }
+  });
+});
 </script>
 </body>
 </html>
