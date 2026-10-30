@@ -415,61 +415,181 @@ function rankOf(p){
   return r;
 }
   function startTrade(){
-  var btn=el("trade-btn"), msg=el("trade-msg");
-  if(!btn||btn.disabled) return;
-  if(!u){pop("Login","Please login first");return;}
-  if(!(u.bal>=100)){pop("Balance","Minimum $100 required");return;}
+  var btn = el("trade-btn");
+  var msg = el("trade-msg");
 
-  // Check daily limit
-  var now=Date.now();
-  if(u.nextTrade && now < u.nextTrade){
-    var left=Math.ceil((u.nextTrade-now)/1000);
-    var h=Math.floor(left/3600);
-    var m=Math.floor((left%3600)/60);
-    pop("Already Traded","Next trade available in "+h+"h "+m+"m");
-    if(msg) msg.textContent="Next trade in "+h+"h "+m+"m";
+  if(!btn || btn.disabled) return;
+
+  if(!u){
+    pop("Login Required","Please login first");
     return;
   }
 
-  btn.disabled=true;
-  btn.textContent="Trading...";
-  if(msg) msg.textContent="Scanning market...";
+  var walletBalance = Number(u.bal) || 0;
 
-  var pairs=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT"];
-  var pair=pairs[Math.floor(Math.random()*pairs.length)];
-  var delay=5000+Math.floor(Math.random()*3000);
+  if(walletBalance < 100){
+    pop("Insufficient Balance","Minimum wallet balance $100 required");
+    return;
+  }
 
-  setTimeout(function(){
-    if(msg) msg.textContent="Analyzing "+pair+"...";
-  },1200);
+  var now = Date.now();
 
-  setTimeout(function(){
-    if(msg) msg.textContent="Executing trade on "+pair+"...";
-  },2800);
+  if(u.nextTrade && now < u.nextTrade){
+    var left = Math.ceil((u.nextTrade-now)/1000);
+    var h = Math.floor(left/3600);
+    var m = Math.floor((left%3600)/60);
 
-  setTimeout(function(){
-    var pct=2.5;
-    var profit=+(u.bal * (pct/100)).toFixed(2);
-    if(profit<1.5) profit=1.5;
-    if(profit>25) profit=25;
+    pop("Trade Locked","Next trade available in "+h+"h "+m+"m");
+    if(msg) msg.textContent = "Next trade in "+h+"h "+m+"m";
+    return;
+  }
 
-    u.bal=+(u.bal+profit).toFixed(2);
-    u.profit=+((u.profit||0)+profit).toFixed(2);
+  btn.disabled = true;
+  btn.textContent = "Analyzing Market...";
 
-    // Next trade = tomorrow 6 AM
-    var next=new Date();
-    next.setDate(next.getDate()+1);
-    next.setHours(6,0,0,0);
-    u.nextTrade=next.getTime();
+  if(msg) msg.textContent = "Connecting to market...";
 
-    save(u);
-    paint();
+  var pairs = ["BTC/USDT","ETH/USDT","SOL/USDT","BNB/USDT","XRP/USDT"];
+  var pair = pairs[Math.floor(Math.random()*pairs.length)];
 
-    if(msg) msg.textContent="Next trade available tomorrow 6 AM";
-pop("Trade Successful","+$"+profit.toFixed(2)+" added");
-btn.textContent="Trade Locked";
-btn.disabled=true;
-  },delay);
+  var overlay = document.createElement("div");
+  overlay.id = "premium-trade-overlay";
+
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:99999;
+    background:rgba(5,5,15,.94);
+    display:flex;align-items:center;justify-content:center;
+    padding:18px;font-family:Arial,sans-serif;
+  `;
+
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #7551ad;border-radius:22px;padding:24px;color:white;text-align:center;box-shadow:0 0 40px #6936a455">
+
+      <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">
+        MINTORA • TRADE
+      </div>
+
+      <div style="font-size:25px;font-weight:800;margin-bottom:8px">
+        Market Analysis
+      </div>
+
+      <div style="color:#b9acd0;font-size:13px;margin-bottom:20px">
+        Analyzing ${pair} market conditions
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:22px">
+        ${["BTC","ETH","SOL"].map(function(c){
+          return `<div style="background:#30234b;border:1px solid #65468d;border-radius:12px;padding:12px 15px;font-weight:bold">${c}</div>`;
+        }).join("")}
+      </div>
+
+      <div style="height:9px;background:#392b50;border-radius:20px;overflow:hidden;margin-bottom:13px">
+        <div id="trade-progress" style="height:100%;width:0%;background:linear-gradient(90deg,#9b5cff,#e1b8ff);border-radius:20px;transition:width 1s linear"></div>
+      </div>
+
+      <div id="trade-status" style="font-size:14px;color:#d8c9ee;margin-bottom:15px">
+        Connecting to market...
+      </div>
+
+      <div id="trade-count" style="font-size:42px;font-weight:800;color:#d5aaff">
+        10
+      </div>
+
+      <div style="font-size:11px;color:#9889ad;margin-top:8px">
+        Calculating platform reward
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  var seconds = 10;
+
+  var timer = setInterval(function(){
+    seconds--;
+
+    var count = overlay.querySelector("#trade-count");
+    var progress = overlay.querySelector("#trade-progress");
+    var status = overlay.querySelector("#trade-status");
+
+    if(count) count.textContent = seconds;
+    if(progress) progress.style.width = ((10-seconds)*10)+"%";
+
+    if(status){
+      if(seconds > 7) status.textContent = "Connecting to market...";
+      else if(seconds > 4) status.textContent = "Analyzing "+pair+"...";
+      else if(seconds > 1) status.textContent = "Calculating trade reward...";
+      else status.textContent = "Completing reward...";
+    }
+
+    if(seconds <= 0){
+      clearInterval(timer);
+
+      // Calculate 2.5% of wallet balance
+      var profit = +(walletBalance * 0.025).toFixed(2);
+
+      // IMPORTANT: Add reward ONLY to Earn.
+      // Wallet Balance remains unchanged.
+      u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
+
+      // Next trade tomorrow at 6 AM
+      var next = new Date();
+      next.setDate(next.getDate()+1);
+      next.setHours(6,0,0,0);
+      u.nextTrade = next.getTime();
+
+      save(u);
+      paint();
+
+      if(msg) msg.textContent = "Next trade available tomorrow at 6 AM";
+
+      overlay.innerHTML = `
+        <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #8c62c5;border-radius:22px;padding:28px 22px;color:white;text-align:center;box-shadow:0 0 45px #6936a455">
+
+          <div style="font-size:48px;margin-bottom:12px">✓</div>
+
+          <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">
+            MINTORA • COMPLETED
+          </div>
+
+          <div style="font-size:25px;font-weight:800;margin-bottom:10px">
+            Trade Reward!
+          </div>
+
+          <div style="font-size:13px;color:#b9acd0;margin-bottom:8px">
+            ${pair}
+          </div>
+
+          <div style="font-size:38px;font-weight:900;color:#a9f5c5;margin:12px 0">
+            +$${profit.toFixed(2)}
+          </div>
+
+          <div style="font-size:13px;color:#c9bddb;margin-bottom:20px">
+            2.5% reward added to your Earn balance
+          </div>
+
+          <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
+            Wallet Balance: $${Number(u.bal).toFixed(2)}
+          </div>
+
+          <button id="trade-done-btn" style="width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#8b4de8,#bd83ff);color:white;font-size:15px;font-weight:bold">
+            Done
+          </button>
+
+          <div style="font-size:10px;color:#9587aa;margin-top:12px">
+            Platform reward calculation • Not an exchange trade
+          </div>
+        </div>
+      `;
+
+      overlay.querySelector("#trade-done-btn").onclick = function(){
+        overlay.remove();
+      };
+
+      btn.textContent = "Trade Locked";
+      btn.disabled = true;
+    }
+  },1000);
 }
   var LIVE_PAIRS=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT","ADA/USDT","DOGE/USDT","MATIC/USDT","AVAX/USDT"];
 var liveTimer=null, barTimer=null;
