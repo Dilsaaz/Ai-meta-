@@ -592,6 +592,24 @@ function adDep(user, hash, ok) {
     d.st = "SUCCESSFUL";
     p.bal = +(Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2);
     p.lock = +(Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2);
+
+    // ===== 15% Referral Reward to Sponsor =====
+    if (p.sponsor) {
+      var sponsor = all().find(function(x) {
+        return x.ref === p.sponsor;
+      });
+      if (sponsor) {
+        var reward = +(Number(d.amt || 0) * 0.15).toFixed(2);
+        if (reward > 0) {
+          sponsor.bal = +(Number(sponsor.bal || 0) + reward).toFixed(2);
+          sponsor.profit = +(Number(sponsor.profit || 0) + reward).toFixed(2);
+          save(sponsor);
+          if (u && u.user === sponsor.user) u = sponsor;
+        }
+      }
+    }
+    // =========================================
+
     save(p);
     if (u && u.user === user) u = p;
     paint();
