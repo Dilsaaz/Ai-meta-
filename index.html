@@ -906,8 +906,10 @@ function adDep(user, hash, ok) {
       if (sponsorUser) {
         var reward = +(Number(d.amt || 0) * 0.15).toFixed(2);
         if (reward > 0) {
-          sponsorUser.bal = +(Number(sponsorUser.bal || 0) + reward).toFixed(2);
-          sponsorUser.profit = +(Number(sponsorUser.profit || 0) + reward).toFixed(2);
+          // Referral reward ONLY in Earn
+sponsorUser.profit = +(
+  (Number(sponsorUser.profit || 0) + reward).toFixed(2)
+);
           save(sponsorUser);
           if (u && u.user === sponsorUser.user) u = sponsorUser;
           rewardMsg = " | Sponsor got $" + reward + " (15%)";
