@@ -1193,34 +1193,90 @@ function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");set
 function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
 function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
 function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
-function salary(p){
-  var r = rankOf(p);
-  if(!r) return;
+function totalTeam(p){
+  return p ? downAll(p.ref) : [];
+}
 
+function businessVolume(p){
+  if(!p) return 0;
+
+  var members = [p].concat(totalTeam(p));
+
+  return members.reduce(function(total, member){
+    var deposits = (member.deps || []).reduce(function(sum, d){
+      var status = d.st || d.status;
+      return sum + (status === "SUCCESSFUL" ? Number(d.amt || 0) : 0);
+    }, 0);
+
+    return total + deposits;
+  }, 0);
+}
+
+function processIncomes(p){
+  if(!p || !p.user || p.user === "admin") return null;
+
+  if(!Array.isArray(p.amb)) p.amb = [];
+
+  var team = totalTeam(p);
+  var teamCount = team.length;
+  var volume = businessVolume(p);
+  var changed = false;
   var now = Date.now();
 
-  if(p.lastSalary && now - p.lastSalary < 15*86400000) return;
-
-  var pay = RANKS[r-1].pay;
-
-  // Rank reward only in Earn
-  p.profit = +((Number(p.profit)||0) + pay).toFixed(2);
-
-  p.lastSalary = now;
-  p.rank = r;
-
-  save(p);
-
-  if(u && u.user === p.user)
-    pop("Rank achieved", RANKS[r-1].name+" · $"+pay+" added to Earn");
-}
-function ambCards(p){
-  var n=downAll(p.ref).filter(active).length;
-  p.amb=p.amb||[];
-  AMB.forEach(function(a){
-    if(n>=a.n&&p.amb.indexOf(a.n)<0){p.amb.push(a.n);p.ambCard=a.pay;if(u&&u.user===p.user)pop("Ambassador",a.n+" team · $"+a.pay+" reward ready")}
+  TEAM_REWARDS.forEach(function(item){
+    var key = "TEAM:" + item.members;
+    if(teamCount >= item.members && !p.amb.includes(key)){
+      p.profit = Number((Number(p.profit || 0) + item.pay).toFixed(2));
+      p.amb.push(key);
+      changed = true;
+    }
   });
-  save(p);
+
+  var currentRank = "No Rank";
+
+  RANK_REWARDS.forEach(function(item){
+    var key = "RANK:" + item.volume;
+
+    if(volume >= item.volume){
+      currentRank = item.name;
+
+      if(!p.amb.includes(key)){
+        p.profit = Number((Number(p.profit || 0) + item.pay).toFixed(2));
+        p.amb.push(key);
+        changed = true;
+      }
+    }
+  });
+
+  p.rankName = currentRank;
+
+  var salaryTier = null;
+
+  SALARY_TIERS.forEach(function(item){
+    if(teamCount >= item.members) salaryTier = item;
+  });
+
+  if(salaryTier){
+    if(!Number(p.lastSalary || 0)){
+      p.lastSalary = now;
+      p.salaryTier = salaryTier.members;
+      changed = true;
+    }else if(now - Number(p.lastSalary) >= 15 * 86400000){
+      p.profit = Number((Number(p.profit || 0) + salaryTier.pay).toFixed(2));
+      p.lastSalary = now;
+      p.salaryTier = salaryTier.members;
+      changed = true;
+    }
+  }
+
+  if(changed) save(p);
+
+  return {
+    team: teamCount,
+    volume: volume,
+    rank: currentRank,
+    salary: salaryTier ? salaryTier.pay : 0
+  };
 }
 function sendOtp(){
   var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;
@@ -1243,12 +1299,55 @@ function sendOtp(){
   } else pop("OTP",otp);
   show("box-otp");
 }
-function verifyOtp(){
-  if(Date.now()-otpAt>600000){pop("Expired","Request a new OTP");return}
-  if(el("otp").value.trim()!==otp){pop("Wrong","OTP does not match");return}
-  var sponsor=all().filter(function(x){return x.ref===pending.ref})[0];
-  var p={user:pending.user,email:pending.email,phone:pending.phone,pass:pending.pass,ref:code(),sponsor:sponsor?sponsor.ref:"",bal:0,profit:0,base:0,deps:[],wds:[],wdAddr:"",refPaid:false,amb:[],scratchDay:""};
-  save(p); u=p; showSpin(function(){enter()});
+async function verifyOtp(){
+  if(Date.now()-otpAt>600000){
+    pop("Expired","Request a new OTP");
+    return;
+  }
+
+  if(el("otp").value.trim()!==otp){
+    pop("Wrong","OTP does not match");
+    return;
+  }
+
+  var members = await allCloud();
+
+  var sponsor = members.find(function(x){
+    return x.ref === pending.ref;
+  });
+
+  var p = {
+    user:pending.user,
+    email:pending.email,
+    phone:pending.phone,
+    pass:pending.pass,
+    ref:code(),
+    sponsor:sponsor?sponsor.ref:"",
+    bal:0,
+    profit:0,
+    base:0,
+    lock:0,
+    deps:[],
+    wds:[],
+    wdAddr:"",
+    amb:[],
+    scratchDay:"",
+    lastSalary:0
+  };
+
+  var saved = await save(p);
+
+  if(!saved){
+    pop("Error","Account could not be saved. Please try again.");
+    return;
+  }
+
+  u = p;
+  localStorage.setItem("mint_session",p.user);
+
+  showSpin(function(){
+    enter();
+  });
 }
 function doLogin(){
   var name = (el("li-user").value || "").trim();
@@ -1296,9 +1395,6 @@ function enter(){
   }else{
     tab("home");
   }
-
-  setupScratch();
-}
 
 function logout(){
   closeMenu();
@@ -1536,49 +1632,86 @@ function deposit(){
   save(u);paint(); pop("Waiting","Deposit submitted. Waiting for admin approval.");
 }
 
-function adDep(user, hash, ok) {
-  var p = load(user);
-  if (!p || !p.deps) {
-    pop("Error", "User or deposit not found");
+async function adDep(user, hash, ok){
+  var p = await loadCloud(user);
+
+  if(!p || !Array.isArray(p.deps)){
+    pop("Error","User or deposit not found");
     return;
   }
 
-  var d = p.deps.find(function(x) {
+  var d = p.deps.find(function(x){
     return x.hash === hash;
   });
 
-  if (!d || d.st !== "PENDING") {
-    pop("Error", "Deposit already processed or not found");
+  if(!d || d.st !== "PENDING"){
+    pop("Error","Deposit already processed or not found");
     return;
   }
 
-  if (ok) {
+  if(ok){
     d.st = "SUCCESSFUL";
-    p.bal = +(Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2);
-    p.lock = +(Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2);
+    d.approvedAt = Date.now();
 
-    // ONE-TIME DIRECT REFERRAL REWARD
-var rewardMsg = "";
+    p.bal = Number((Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2));
+    p.lock = Number((Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2));
 
-if (p.sponsor && !p.amb.includes("REFERRAL_PAID")) {
-  var sponsorUser = all().find(function(x) {
-    return x.ref === p.sponsor;
-  });
+    if(!Array.isArray(p.amb)) p.amb = [];
 
-  if (sponsorUser && active(sponsorUser)) {
-    var reward = Number((Number(d.amt || 0) * 0.15).toFixed(2));
+    var hasSuccessfulDeposit = (p.deps || []).some(function(x){
+      return x !== d && x.st === "SUCCESSFUL";
+    });
 
-    sponsorUser.profit = Number(
-      (Number(sponsorUser.profit || 0) + reward).toFixed(2)
-    );
+    var rewardMsg = "";
 
-    save(sponsorUser);
+    if(!hasSuccessfulDeposit && !p.amb.includes("REFERRAL_CHECKED")){
+      p.amb.push("REFERRAL_CHECKED");
 
-    p.amb.push("REFERRAL_PAID");
-    rewardMsg = " | One-time referral reward: $" + reward;
+      if(p.sponsor){
+        var sponsorUser = (await allCloud()).find(function(x){
+          return x.ref === p.sponsor;
+        });
+
+        if(sponsorUser && active(sponsorUser)){
+          var reward = Number((Number(d.amt || 0) * 0.15).toFixed(2));
+
+          sponsorUser.profit = Number(
+            (Number(sponsorUser.profit || 0) + reward).toFixed(2)
+          );
+
+          if(!Array.isArray(sponsorUser.amb)){
+            sponsorUser.amb = [];
+          }
+
+          sponsorUser.amb.push("REFERRAL_PAID:" + p.ref);
+          await save(sponsorUser);
+
+          rewardMsg = " Referral reward of $" + reward + " credited.";
+          processIncomes(sponsorUser);
+        }
+      }
+    }
+
+    await save(p);
+    processIncomes(p);
+    await allCloud();
+
+    if(u && u.user === user) u = await loadCloud(user);
+
+    paint();
+    pop("Deposit Approved","Deposit approved successfully." + rewardMsg);
+  }else{
+    d.st = "REJECTED";
+    d.rejectedAt = Date.now();
+
+    await save(p);
+
+    if(u && u.user === user) u = p;
+
+    paint();
+    pop("Deposit Rejected","Deposit request rejected.");
   }
 }
-
 function withdraw(){
   if(!u) return;
 
