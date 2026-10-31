@@ -139,38 +139,229 @@ input:focus{border-color:#3b82f6;outline:none}
     gap:10px;
   }
 }
+  /* MINTORA PREMIUM AUTH DESIGN */
+
+#auth{
+  max-width:480px;
+  padding:55px 22px 40px;
+  min-height:90vh;
+}
+
+.auth-logo{
+  font-size:66px;
+  letter-spacing:-2px;
+  text-shadow:0 0 35px rgba(167,139,250,.25);
+}
+
+.auth-tagline{
+  letter-spacing:4px;
+  font-size:11px;
+  color:#b7ad98;
+}
+
+.auth-card{
+  background:linear-gradient(145deg,
+    rgba(31,19,47,.96),
+    rgba(14,8,25,.98));
+  border:1px solid rgba(167,139,250,.25);
+  border-radius:26px;
+  padding:30px 25px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45),
+    0 0 35px rgba(124,58,237,.08);
+  backdrop-filter:blur(18px);
+}
+
+.auth-title{
+  color:#d4c1ff;
+  font-family:"Cormorant Garamond",serif;
+  font-size:34px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.auth-subtitle{
+  color:#9588a8;
+  font-size:12px;
+  margin-bottom:25px;
+}
+
+.auth-label{
+  color:#c4b5fd;
+  font-size:10px;
+  letter-spacing:2px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.auth-card input{
+  height:53px;
+  border-radius:14px;
+  background:rgba(8,5,16,.75);
+  border:1px solid rgba(167,139,250,.2);
+  font-size:15px;
+  padding:0 15px;
+  transition:.25s;
+}
+
+.auth-card input:focus{
+  border-color:#a78bfa;
+  box-shadow:0 0 0 3px rgba(167,139,250,.10);
+}
+
+.auth-primary{
+  height:53px;
+  border-radius:15px;
+  background:linear-gradient(110deg,#a78bfa,#7c3aed);
+  color:white;
+  font-weight:800;
+  font-size:16px;
+  box-shadow:0 9px 28px rgba(124,58,237,.3);
+}
+
+.auth-secondary{
+  height:50px;
+  border-radius:14px;
+  border:1px solid rgba(167,139,250,.3);
+  background:rgba(167,139,250,.045);
+  color:#d4c1ff;
+  font-weight:600;
+}
+
+.auth-footer{
+  color:#847891;
+  font-size:11px;
+  text-align:center;
+  margin-top:25px;
+}
 </style>
 </head>
 <body>
-<div id="auth" class="max-w-md mx-auto px-5 py-16">
+<div id="auth" class="mx-auto">
+
   <div class="text-center mb-10">
-    <div class="serif text-6xl gold">Mintora</div>
-    <div class="text-xs tracking-widest text-[#b7ad98] mt-2">EARN · GROW · ELEVATE</div>
+    <div class="serif auth-logo gold">Mintora</div>
+    <div class="auth-tagline mt-2">
+      EARN · GROW · ELEVATE
+    </div>
+    <div class="text-[10px] text-[#8f829f] mt-5 tracking-[3px]">
+      PREMIUM MEMBER EXPERIENCE
+    </div>
   </div>
-  <div id="box-login" class="card p-6">
-    <div class="serif text-2xl gold mb-5">Sign in</div>
-    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">USERNAME</div>
-    <input id="li-user" class="mb-4" placeholder="Enter your username"/>
-    <div class="text-xs tracking-wider text-[#b7ad98] mb-1">PASSWORD</div>
-    <div class="rel mb-5"><input id="li-pass" type="password" placeholder="Enter your password"/><span class="eye" onclick="toggleEye('li-pass',this)">👁</span></div>
-    <button class="btn w-full" onclick="doLogin()">Continue →</button>
-    <button class="ghost w-full mt-3" onclick="show('box-signup')">Create account</button>
+
+  <!-- LOGIN -->
+  <div id="box-login" class="auth-card">
+
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-subtitle">
+      Sign in to continue your Mintora journey.
+    </div>
+
+    <div class="auth-label">USERNAME</div>
+    <input id="li-user" class="mb-5"
+      placeholder="Enter your username"
+      autocomplete="username"/>
+
+    <div class="auth-label">PASSWORD</div>
+    <div class="rel mb-6">
+      <input id="li-pass" type="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"/>
+      <span class="eye"
+        onclick="toggleEye('li-pass',this)">👁</span>
+    </div>
+
+    <button class="auth-primary w-full"
+      onclick="doLogin()">
+      Continue →
+    </button>
+
+    <button class="auth-secondary w-full mt-4"
+      onclick="show('box-signup')">
+      Create account
+    </button>
+
+    <div class="auth-footer">
+      <span style="color:#a78bfa">✦</span>
+      Secure Mintora Member Access
+    </div>
   </div>
-  <div id="box-signup" class="card p-6 hidden">
-    <div class="serif text-2xl gold mb-4">Create account</div>
-    <input id="su-user" class="mb-3" placeholder="Username"/>
-    <input id="su-email" class="mb-3" placeholder="Email"/>
-    <input id="su-phone" class="mb-3" placeholder="Phone number"/>
-    <div class="rel mb-3"><input id="su-pass" type="password" placeholder="Password"/><span class="eye" onclick="toggleEye('su-pass',this)">👁</span></div>
-    <input id="su-ref" class="mb-4" placeholder="Referral code"/>
-    <button class="btn w-full" onclick="sendOtp()">Send OTP</button>
-    <button class="ghost w-full mt-3" onclick="show('box-login')">Login</button>
+
+  <!-- SIGNUP -->
+  <div id="box-signup" class="auth-card hidden">
+
+    <div class="auth-title">Create Account</div>
+    <div class="auth-subtitle">
+      Join Mintora and create your member profile.
+    </div>
+
+    <div class="auth-label">USERNAME</div>
+    <input id="su-user" class="mb-4"
+      placeholder="Choose a username"
+      autocomplete="username"/>
+
+    <div class="auth-label">EMAIL ADDRESS</div>
+    <input id="su-email" class="mb-4"
+      placeholder="Enter your email"
+      autocomplete="email"/>
+
+    <div class="auth-label">PHONE NUMBER</div>
+    <input id="su-phone" class="mb-4"
+      placeholder="Enter phone number"
+      autocomplete="tel"/>
+
+    <div class="auth-label">PASSWORD</div>
+    <div class="rel mb-4">
+      <input id="su-pass" type="password"
+        placeholder="Create a password"
+        autocomplete="new-password"/>
+      <span class="eye"
+        onclick="toggleEye('su-pass',this)">👁</span>
+    </div>
+
+    <div class="auth-label">REFERRAL CODE</div>
+    <input id="su-ref" class="mb-6"
+      placeholder="Enter referral code (optional)"/>
+
+    <button class="auth-primary w-full"
+      onclick="sendOtp()">
+      Send Verification OTP →
+    </button>
+
+    <button class="auth-secondary w-full mt-4"
+      onclick="show('box-login')">
+      Back to Login
+    </button>
+
+    <div class="auth-footer">
+      Your account details will be used to create your member profile.
+    </div>
   </div>
-  <div id="box-otp" class="card p-6 hidden">
-    <div class="serif text-2xl gold mb-4">Enter OTP</div>
-    <input id="otp" class="mb-4" placeholder="6 digit OTP"/>
-    <button class="btn w-full" onclick="verifyOtp()">Verify & Create</button>
+
+  <!-- OTP -->
+  <div id="box-otp" class="auth-card hidden">
+
+    <div class="auth-title">Verify Email</div>
+    <div class="auth-subtitle">
+      Enter the six-digit verification code sent to your email.
+    </div>
+
+    <div class="auth-label">VERIFICATION CODE</div>
+    <input id="otp" class="mb-6"
+      placeholder="Enter 6 digit OTP"
+      inputmode="numeric"
+      maxlength="6"/>
+
+    <button class="auth-primary w-full"
+      onclick="verifyOtp()">
+      Verify & Create Account
+    </button>
+
+    <div class="auth-footer">
+      Mintora · Member Verification
+    </div>
   </div>
+
 </div>
 
 <div id="app" class="hidden max-w-5xl mx-auto px-5 py-6">
