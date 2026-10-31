@@ -378,6 +378,7 @@ input:focus{border-color:#3b82f6;outline:none}
       <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
       <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
       <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+      <div id="rank-display" class="text-xs text-[#c4b5fd] mb-4">Rank: No Rank</div>
     </div>
     <div class="card p-4 mb-4">
       <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
@@ -1454,6 +1455,14 @@ function paint(){
   el("trade-msg").textContent = "Ready to trade";
 }
   el("team").textContent=act.length+" / "+ina.length;
+  var rankLabel = RANK_REWARDS.reduce(function(found,item){
+  return businessVolume(u) >= item.volume ? item.name : found;
+},"No Rank");
+
+var rankBox = el("rank-display");
+if(rankBox){
+  rankBox.textContent = "Rank: " + rankLabel;
+}
   el("home-ref").textContent=u.ref||"";
   el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
   if(el("set-email"))el("set-email").value=u.email||"";
