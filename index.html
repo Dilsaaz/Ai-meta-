@@ -469,30 +469,29 @@ input:focus{border-color:#3b82f6;outline:none}
 
 
     </div>
-  <!-- DEPOSIT PAGE -->
+<!-- DEPOSIT PAGE -->
 <div id="deposit" class="hidden">
-  <!-- Yahan apna existing Deposit card aur fields rakho -->
+  <div class="card p-5">
+    <div class="serif text-2xl mb-2">Deposit</div>
+    <!-- Deposit form yahan aayega -->
+  </div>
 </div>
 
 <!-- WITHDRAW PAGE -->
-<div id="withdraw" class="hidden">
-  <!-- Yahan apna existing Withdraw card aur fields rakho -->
+<div id="withdraw" class="card p-5 hidden">
+  <div class="serif text-2xl mb-2">Withdraw</div>
+  <div class="text-sm text-[#b7ad98] mb-3">
+    Minimum $10. Paid after admin approval.
+  </div>
+  <input id="wd-amt" type="number" min="10" placeholder="Amount" class="mb-3"/>
+  <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
+  <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6"/>
+  <button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
+  <button class="btn w-full mt-3" onclick="withdraw()">Request withdraw</button>
 </div>
 
 <!-- TRANSACTION HISTORY PAGE -->
-<div id="hist" class="hidden">
-  <!-- History ka content paint() function se aayega -->
-</div>
-  <div id="withdraw" class="card p-5 hidden">
-    <div class="serif text-2xl mb-2">Withdraw</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $10. Paid after admin approval.</div>
-    <input id="wd-amt" type="number" min="10" placeholder="Amount" class="mb-3"/>
-    <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
-    <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6">
-<button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
-    <button class="btn" onclick="withdraw()">Request withdraw</button>
-<div id="hist" class="mt-6"></div>
-  </div>
+<div id="hist" class="card p-5 hidden"></div>
   
 
 
@@ -515,8 +514,16 @@ input:focus{border-color:#3b82f6;outline:none}
       <button class="dx" onclick="closeMenu()">×</button>
     </div>
     <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
-<button class="navitem" onclick="tab('wallet',this)">
-  <span class="ic">◈</span> Wallet
+<button class="navitem" onclick="tab('deposit',this)">
+  <span class="ic">↓</span> Deposit
+</button>
+
+<button class="navitem" onclick="tab('withdraw',this)">
+  <span class="ic">↑</span> Withdraw
+</button>
+
+<button class="navitem" onclick="tab('hist',this)">
+  <span class="ic">◷</span> Transaction History
 </button>
     <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
     <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
@@ -1197,25 +1204,32 @@ function logout(){
 }
 
 function tab(id,btn){
-["home","deposit","withdraw","hist","ref","teamview","settings","admin"]
-  el(x).classList.add("hidden");
-});
+  ["home","deposit","withdraw","hist","ref","teamview","settings","admin"]
+    .forEach(function(x){
+      el(x).classList.add("hidden");
+    });
+
   el(id).classList.remove("hidden");
 
-  var tradeCard = document.getElementById("trade-card");
+  var tradeCard = el("trade-card");
   if(tradeCard){
     tradeCard.classList.toggle("hidden", id !== "home");
   }
 
   closeMenu();
-  document.querySelectorAll(".navitem").forEach(function(b){b.classList.remove("on")});
-  if(btn)btn.classList.add("on");
-  if(id==="home"){
-  if(typeof setupScratch === "function"){
-    setupScratch();
+
+  document.querySelectorAll(".navitem").forEach(function(b){
+    b.classList.remove("on");
+  });
+
+  if(btn) btn.classList.add("on");
+
+  if(id === "home"){
+    if(typeof setupScratch === "function"){
+      setupScratch();
+    }
+    startLiveTrades();
   }
-  startLiveTrades();
-}
 }
 
 function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
@@ -1376,12 +1390,14 @@ showHistory("ALL");
       : "Date unavailable";
 
     var isDeposit = x.type === "Deposit";
-    var color = x.status === "APPROVED" || x.status === "PAID"
-      ? "#4ade80"
-      : x.status === "REJECTED"
+    var color =
+  x.status === "SUCCESSFUL" ||
+  x.status === "APPROVED" ||
+  x.status === "PAID"
+    ? "#4ade80"
+    : x.status === "REJECTED"
       ? "#f87171"
       : "#fbbf24";
-
     return '<div class="flex items-center justify-between gap-3 p-3 mb-2 rounded-xl" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)">' +
       '<div class="flex items-center gap-3 min-w-0">' +
         '<div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.07);color:'+(isDeposit?'#4ade80':'#fbbf24')+'">' +
