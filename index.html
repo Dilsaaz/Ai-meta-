@@ -469,15 +469,48 @@ input:focus{border-color:#3b82f6;outline:none}
 
 
     </div>
-  <div id="deposit" class="card p-5 hidden">
-    <div class="serif text-2xl mb-3">Deposit</div>
-    <div class="text-sm text-[#b7ad98] mb-3">Minimum $100. USDT on BEP20 only.</div>
-    <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">0xB977ddffd8C0752BfFeeb9d53dbde8951748247A</div>
+  <!-- WALLET PAGE -->
+<div id="wallet" class="hidden">
+
+  <!-- DEPOSIT -->
+  <div id="deposit" class="card p-5 mb-4">
+    <div class="serif text-2xl gold mb-2">Deposit</div>
+    <div class="text-sm text-[#b7ad98] mb-3">
+      Minimum $100. USDT on BEP20 only.
+    </div>
+
+    <div class="card p-3 mb-3 break-all text-sm" id="dep-addr">
+      0xB977ddffd8C0752BfFeeb9d53dbde8951748247A
+    </div>
+
     <button class="ghost mb-4" onclick="copyAddr()">Copy address</button>
+
     <input id="dep-amt" type="number" min="100" placeholder="Amount" class="mb-3"/>
     <input id="dep-hash" placeholder="Transaction hash" class="mb-4"/>
-    <button class="btn" onclick="deposit()">Submit deposit</button>
+
+    <button class="btn w-full" onclick="deposit()">Submit Deposit</button>
   </div>
+
+  <!-- WITHDRAW -->
+  <div id="withdraw" class="card p-5 mb-4">
+    <div class="serif text-2xl gold mb-2">Withdraw</div>
+    <div class="text-sm text-[#b7ad98] mb-3">
+      Minimum $10. Paid after admin approval.
+    </div>
+
+    <input id="wd-amt" type="number" min="10" placeholder="Amount" class="mb-3"/>
+    <input id="wd-addr" placeholder="Your BEP20 address" class="mb-3"/>
+    <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6"/>
+
+    <button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
+    <button class="btn w-full mt-3" onclick="withdraw()">Request Withdraw</button>
+  </div>
+
+  <!-- TRANSACTION HISTORY -->
+  <div id="hist" class="card p-5">
+  </div>
+
+</div>
   <div id="withdraw" class="card p-5 hidden">
     <div class="serif text-2xl mb-2">Withdraw</div>
     <div class="text-sm text-[#b7ad98] mb-3">Minimum $10. Paid after admin approval.</div>
@@ -510,8 +543,9 @@ input:focus{border-color:#3b82f6;outline:none}
       <button class="dx" onclick="closeMenu()">×</button>
     </div>
     <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
-    <button class="navitem" onclick="tab('deposit',this)"><span class="ic">↓</span> Deposit</button>
-    <button class="navitem" onclick="tab('withdraw',this)"><span class="ic">↑</span> Withdraw</button>
+<button class="navitem" onclick="tab('wallet',this)">
+  <span class="ic">◈</span> Wallet
+</button>
     <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
     <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
     <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
@@ -1191,7 +1225,9 @@ function logout(){
 }
 
 function tab(id,btn){
-  ["home","deposit","withdraw","ref","teamview","settings","admin"].forEach(function(x){el(x).classList.add("hidden")});
+["home","wallet","ref","teamview","settings","admin"].forEach(function(x){
+  el(x).classList.add("hidden");
+});
   el(id).classList.remove("hidden");
 
   var tradeCard = document.getElementById("trade-card");
