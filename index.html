@@ -471,10 +471,97 @@ input:focus{border-color:#3b82f6;outline:none}
     </div>
 <!-- DEPOSIT PAGE -->
 <div id="deposit" class="hidden">
-  <div class="card p-5">
-    <div class="serif text-2xl mb-2">Deposit</div>
-    <!-- Deposit form yahan aayega -->
+
+  <div class="card p-5 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="serif text-2xl">Deposit USDT</div>
+        <div class="text-xs text-[#b7ad98] mt-1">
+          Add funds to your Mintora wallet
+        </div>
+      </div>
+      <div class="text-2xl">💎</div>
+    </div>
+
+    <div class="rounded-xl p-4 mb-4"
+         style="background:#17251f;border:1px solid #315b43">
+
+      <div class="text-xs text-[#b7ad98] mb-2">
+        SELECTED PAYMENT NETWORK
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🟡</span>
+        <div>
+          <div class="font-bold text-white">USDT (BEP20)</div>
+          <div class="text-xs text-[#a8c6b1]">
+            BNB Smart Chain
+          </div>
+        </div>
+        <div class="ml-auto text-xs text-green-400">
+          ACTIVE
+        </div>
+      </div>
+    </div>
+
+    <div class="text-sm font-semibold mb-2">
+      Deposit Wallet Address
+    </div>
+
+    <div class="rounded-xl p-3 mb-3"
+         style="background:#111713;border:1px solid #3b493e">
+
+      <div id="dep-addr"
+           class="text-xs break-all leading-6 text-[#d9d2c2]">
+        0x6d1D70332A468572f493820D7ffbA70a00545E4C
+      </div>
+
+      <button class="btn w-full mt-3"
+              onclick="copyAddr()">
+        Copy Wallet Address
+      </button>
+    </div>
+
+    <div class="rounded-lg p-3 text-xs leading-5"
+         style="background:#33251a;color:#f5c98a">
+      ⚠️ Important: Send only USDT through the BEP20 network.
+      Do not send USDT through TRC20, ERC20 or any other network.
+      Funds sent through the wrong network may be lost.
+    </div>
   </div>
+
+  <div class="card p-5">
+    <div class="serif text-xl mb-1">Submit Deposit</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Enter your deposit amount and transaction hash after payment.
+    </div>
+
+    <label class="text-sm block mb-2">Amount (USDT)</label>
+    <input
+      id="dep-amt"
+      type="number"
+      min="100"
+      placeholder="Minimum 100 USDT"
+      class="mb-4"
+    />
+
+    <label class="text-sm block mb-2">Transaction Hash (TxID)</label>
+    <input
+      id="dep-hash"
+      type="text"
+      placeholder="Paste your BEP20 transaction hash"
+      class="mb-4"
+    />
+
+    <button class="btn w-full" onclick="deposit()">
+      Submit Deposit Request
+    </button>
+
+    <div class="text-xs text-center text-[#b7ad98] mt-3">
+      Your deposit will remain pending until admin verification.
+    </div>
+  </div>
+
 </div>
 
 <!-- WITHDRAW PAGE -->
