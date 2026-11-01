@@ -293,12 +293,27 @@ input:focus{border-color:#3b82f6;outline:none}
   </div>
 <!-- FORGOT PASSWORD -->
 <div id="box-forgot" class="auth-card hidden">
-
-  <div class="auth-title">Password Assistance</div>
-
+  <div class="auth-title">Reset Password</div>
   <div class="auth-subtitle">
-    For security, password changes are available from your account Settings.
+    Enter your registered email to receive a six-digit OTP.
   </div>
+
+  <div class="auth-label">REGISTERED EMAIL</div>
+  <input
+    id="fp-email"
+    type="email"
+    placeholder="Enter your email"
+    autocomplete="email"
+  />
+
+  <button class="btn w-full mt-4" onclick="sendResetOtp()">
+    Send OTP →
+  </button>
+
+  <button class="ghost w-full mt-2" onclick="show('box-login')">
+    Back to Login
+  </button>
+</div>
 
   <div class="rounded-xl p-4 my-5"
        style="background:#21172e;border:1px solid #55436d">
