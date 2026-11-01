@@ -647,12 +647,33 @@ input:focus{border-color:#3b82f6;outline:none}
 
   <div id="ref" class="card p-5 hidden"></div>
   <div id="teamview" class="card p-5 hidden"></div>
-  <div id="settings" class="card p-5 hidden">
-    <div class="serif text-2xl mb-3">Settings</div>
-    <input id="set-email" class="mb-3" placeholder="Email"/>
-    <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
-    <button class="btn w-full" onclick="saveSettings()">Save</button>
+<div id="settings" class="card p-5 hidden">
+  <div class="serif text-2xl mb-3">Settings</div>
+
+  <div class="text-sm text-[#b7ad98] mb-2">ACCOUNT DETAILS</div>
+  <input id="set-email" class="mb-3" placeholder="Email"/>
+  <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
+  <button class="btn w-full mb-6" onclick="saveSettings()">Save Details</button>
+
+  <div class="border-t border-[#55436d] pt-5">
+    <div class="serif text-xl mb-2">Change Password</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Set a new password for your Mintora account.
+    </div>
+
+    <input id="set-new-pass" type="password"
+      class="mb-3" placeholder="New password"
+      autocomplete="new-password"/>
+
+    <input id="set-confirm-pass" type="password"
+      class="mb-4" placeholder="Confirm new password"
+      autocomplete="new-password"/>
+
+    <button class="btn w-full" onclick="changePassword()">
+      Update Password
+    </button>
   </div>
+</div>
   
   <div id="admin" class="card p-5 hidden"></div>
 </div>
@@ -1889,6 +1910,44 @@ function saveSettings(){
   u.wdAddr=el("set-addr").value.trim();
   save(u);
   pop("Saved","Email and withdraw address updated");
+}
+  async function changePassword(){
+  var newPass = el("set-new-pass").value;
+  var confirmPass = el("set-confirm-pass").value;
+
+  if(newPass.length < 8){
+    pop("Weak Password","Password must be at least 8 characters.");
+    return;
+  }
+
+  if(newPass !== confirmPass){
+    pop("Password Mismatch","Both passwords must match.");
+    return;
+  }
+
+  try {
+    var { data: userData, error: userError } = await sb.auth.getUser();
+
+    if(userError || !userData.user){
+      pop("Session Expired","Please log in again.");
+      return;
+    }
+
+    var { error } = await sb.auth.updateUser({
+      password: newPass
+    });
+
+    if(error) throw error;
+
+    el("set-new-pass").value = "";
+    el("set-confirm-pass").value = "";
+
+    pop("Password Updated","Your new password is now active.");
+
+  } catch(error) {
+    console.error("CHANGE PASSWORD ERROR:", error);
+    pop("Update Failed",error.message || "Please try again.");
+  }
 }
 function deposit(){
   var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
