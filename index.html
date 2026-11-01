@@ -1442,49 +1442,38 @@ async function sendResetOtp(){
     return;
   }
 
-  var members = await allCloud();
-  var found = members.find(function(x){
-    return String(x.email || "").trim().toLowerCase() === email;
-  });
+  try {
+    var members = await allCloud();
 
-  if(!found){
-    pop("Not Found","No account found with this email.");
-    return;
-  }
-
-  resetEmail = email;
-  resetUserName = found.user;
-  resetOtp = String(Math.floor(100000 + Math.random() * 900000));
-  resetOtpAt = Date.now();
-
-  if(window.emailjs && EJ_PUB.indexOf("YOUR_") !== 0){
-    emailjs.init(EJ_PUB);
-    emailjs.send(EJ_SVC, EJ_TPL, {
-      email: email,
-      to_email: email,
-      user_name: found.user,
-      name: found.user,
-      otp_code: resetOtp,
-      otp: resetOtp,
-      message: "Your Mintora password reset OTP is: " + resetOtp
-    })
-    .then(function(){
-      el("fp-otp").value = "";
-      el("fp-pass").value = "";
-      el("fp-confirm").value = "";
-      show("box-reset-otp");
-      pop("OTP Sent","Check your email for the password reset code.");
-    })
-    .catch(function(){
-      pop("OTP Error","Could not send email. Try again.");
+    var found = members.find(function(x){
+      return String(x.email || "").trim().toLowerCase() === email;
     });
-  } else {
-    // fallback for testing
+
+    if(!found){
+      pop("Not Found","No account found with this email.");
+      return;
+    }
+
+    var { error } = await sb.auth.resetPasswordForEmail(email);
+
+    if(error){
+      console.error("RESET OTP ERROR:", error);
+      pop("OTP Error", error.message);
+      return;
+    }
+
+    resetEmail = email;
+
     el("fp-otp").value = "";
     el("fp-pass").value = "";
     el("fp-confirm").value = "";
+
     show("box-reset-otp");
-    pop("OTP (test)", resetOtp);
+    pop("OTP Sent","Check your email for the Supabase password reset code.");
+
+  } catch(error) {
+    console.error("RESET ERROR:", error);
+    pop("Error","Password reset request failed.");
   }
 }
 
@@ -1493,25 +1482,19 @@ async function verifyResetOtp(){
   var pass = el("fp-pass").value || "";
   var confirmPass = el("fp-confirm").value || "";
 
-  if(!resetEmail || !resetUserName){
+  if(!resetEmail){
     pop("Error","Please request a new OTP.");
     show("box-forgot");
     return;
   }
 
-  if(Date.now() - resetOtpAt > 10 * 60 * 1000){
-    pop("Expired","OTP expired. Request a new one.");
-    show("box-forgot");
+  if(!/^\d{6}$/.test(token)){
+    pop("Invalid OTP","Enter the six-digit OTP.");
     return;
   }
 
-  if(token !== resetOtp){
-    pop("Invalid OTP","OTP does not match.");
-    return;
-  }
-
-  if(pass.length < 4){
-    pop("Weak Password","Password must be at least 4 characters.");
+  if(pass.length < 8){
+    pop("Weak Password","Password must be at least 8 characters.");
     return;
   }
 
@@ -1520,27 +1503,45 @@ async function verifyResetOtp(){
     return;
   }
 
-  var p = await loadCloud(resetUserName);
-  if(!p){
-    pop("Error","Account not found.");
-    return;
+  try {
+    var { data, error } = await sb.auth.verifyOtp({
+      email: resetEmail,
+      token: token,
+      type: "recovery"
+    });
+
+    if(error || !data.user){
+      console.error("OTP VERIFY ERROR:", error);
+      pop("Verification Failed","Invalid or expired OTP. Request a new one.");
+      return;
+    }
+
+    var { error: updateError } = await sb.auth.updateUser({
+      password: pass
+    });
+
+    if(updateError){
+      console.error("PASSWORD UPDATE ERROR:", updateError);
+      pop("Update Failed",updateError.message);
+      return;
+    }
+
+    await sb.auth.signOut();
+
+    resetEmail = "";
+
+    el("fp-otp").value = "";
+    el("fp-pass").value = "";
+    el("fp-confirm").value = "";
+    el("fp-email").value = "";
+
+    show("box-login");
+    pop("Password Updated","Your new password is ready. Please log in.");
+
+  } catch(error) {
+    console.error("PASSWORD RESET ERROR:", error);
+    pop("Error","Password reset failed. Please try again.");
   }
-
-  p.pass = pass;
-  await save(p);
-
-  resetEmail = "";
-  resetOtp = "";
-  resetOtpAt = 0;
-  resetUserName = "";
-
-  el("fp-otp").value = "";
-  el("fp-pass").value = "";
-  el("fp-confirm").value = "";
-  el("fp-email").value = "";
-
-  show("box-login");
-  pop("Password Updated","Your password has been reset. Please log in.");
 }
 async function doLogin(){
   var name = (el("li-user").value || "").trim();
