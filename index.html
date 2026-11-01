@@ -1674,34 +1674,42 @@ async function adDep(user, hash, ok){
 
     var rewardMsg = "";
 
-    if(!hasSuccessfulDeposit && !p.amb.includes("REFERRAL_CHECKED")){
-      p.amb.push("REFERRAL_CHECKED");
+    // ONE-TIME DIRECT REFERRAL: pay only the single account whose
+// referral code is stored in p.sponsor. Never walk up the upline tree.
+if(!hasSuccessfulDeposit && !p.amb.includes("REFERRAL_CHECKED")){
+  p.amb.push("REFERRAL_CHECKED");
 
-      if(p.sponsor){
-        var sponsorUser = (await allCloud()).find(function(x){
-          return x.ref === p.sponsor;
-        });
+  if(p.sponsor){
+    var sponsorCode = String(p.sponsor).trim();
 
-        if(sponsorUser && active(sponsorUser)){
-          var reward = Number((Number(d.amt || 0) * 0.15).toFixed(2));
+    var sponsorUser = (await allCloud()).find(function(x){
+      return String(x.ref || "").trim() === sponsorCode;
+    });
 
-          sponsorUser.profit = Number(
-            (Number(sponsorUser.profit || 0) + reward).toFixed(2)
-          );
+    if(sponsorUser){
+      if(!Array.isArray(sponsorUser.amb)){
+        sponsorUser.amb = [];
+      }
 
-          if(!Array.isArray(sponsorUser.amb)){
-            sponsorUser.amb = [];
-          }
+      var directPaidKey = "REFERRAL_PAID:" + p.ref;
 
-          sponsorUser.amb.push("REFERRAL_PAID:" + p.ref);
-          await save(sponsorUser);
+      if(active(sponsorUser) && !sponsorUser.amb.includes(directPaidKey)){
+        var reward = Number((Number(d.amt || 0) * 0.15).toFixed(2));
 
-          rewardMsg = " Referral reward of $" + reward + " credited.";
-          processIncomes(sponsorUser);
-        }
+        sponsorUser.profit = Number(
+          (Number(sponsorUser.profit || 0) + reward).toFixed(2)
+        );
+
+        sponsorUser.amb.push(directPaidKey);
+        await save(sponsorUser);
+
+        rewardMsg = " One-time 15% direct referral reward of $" + reward + " credited to the direct sponsor only.";
+
+        processIncomes(sponsorUser);
       }
     }
-
+  }
+}
     await save(p);
     processIncomes(p);
     await allCloud();
