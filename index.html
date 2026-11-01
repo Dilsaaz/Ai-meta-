@@ -294,25 +294,33 @@ input:focus{border-color:#3b82f6;outline:none}
 <!-- FORGOT PASSWORD -->
 <div id="box-forgot" class="auth-card hidden">
 
-  <div class="auth-title">Reset Password</div>
+  <div class="auth-title">Password Assistance</div>
+
   <div class="auth-subtitle">
-    Enter the email address linked to your Mintora account.
+    For security, password changes are available from your account Settings.
   </div>
 
-<div class="auth-label">REGISTERED EMAIL</div>
-<input id="fp-email" type="email" class="mb-5"
-  placeholder="Enter your registered email"
-  autocomplete="email"/>
+  <div class="rounded-xl p-4 my-5"
+       style="background:#21172e;border:1px solid #55436d">
+    <div class="text-sm text-white mb-2">
+      Already logged in?
+    </div>
+    <div class="text-xs text-[#b7ad98]">
+      Open Settings and use the Change Password option to set your new password.
+    </div>
+    <div class="text-sm text-white mt-4 mb-2">
+      Can't log in?
+    </div>
+    <div class="text-xs text-[#b7ad98]">
+      Please contact Mintora support for password assistance.
+    </div>
+  </div>
 
   <button class="auth-primary w-full"
-    onclick="alert('Button Working'); sendResetOtp()"
-    Send Reset OTP →
+    onclick="show('box-login')">
+    OK — Back to Login
   </button>
 
-  <button class="auth-secondary w-full mt-4"
-    onclick="show('box-login')">
-    Back to Login
-  </button>
 </div>
 
 <!-- RESET OTP -->
