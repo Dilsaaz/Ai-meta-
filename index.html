@@ -291,7 +291,64 @@ input:focus{border-color:#3b82f6;outline:none}
       Secure Mintora Member Access
     </div>
   </div>
+<!-- FORGOT PASSWORD -->
+<div id="box-forgot" class="auth-card hidden">
 
+  <div class="auth-title">Reset Password</div>
+  <div class="auth-subtitle">
+    Enter your registered username to reset your password.
+  </div>
+
+  <div class="auth-label">USERNAME</div>
+  <input id="fp-user" class="mb-5"
+    placeholder="Enter your registered username"
+    autocomplete="username"/>
+
+  <button class="auth-primary w-full"
+    onclick="sendResetOtp()">
+    Send Reset OTP →
+  </button>
+
+  <button class="auth-secondary w-full mt-4"
+    onclick="show('box-login')">
+    Back to Login
+  </button>
+</div>
+
+<!-- RESET OTP -->
+<div id="box-reset-otp" class="auth-card hidden">
+
+  <div class="auth-title">Verify OTP</div>
+  <div class="auth-subtitle">
+    Enter the six-digit code sent to your registered email.
+  </div>
+
+  <div class="auth-label">EMAIL OTP</div>
+  <input id="fp-otp" class="mb-5"
+    placeholder="Enter 6 digit OTP"
+    inputmode="numeric"
+    maxlength="6"/>
+
+  <div class="auth-label">NEW PASSWORD</div>
+  <input id="fp-pass" type="password" class="mb-4"
+    placeholder="Enter new password"
+    autocomplete="new-password"/>
+
+  <div class="auth-label">CONFIRM PASSWORD</div>
+  <input id="fp-confirm" type="password" class="mb-5"
+    placeholder="Confirm new password"
+    autocomplete="new-password"/>
+
+  <button class="auth-primary w-full"
+    onclick="verifyResetOtp()">
+    Verify & Reset Password →
+  </button>
+
+  <button class="auth-secondary w-full mt-4"
+    onclick="show('box-login')">
+    Back to Login
+  </button>
+</div>
   <!-- SIGNUP -->
   <div id="box-signup" class="auth-card hidden">
 
