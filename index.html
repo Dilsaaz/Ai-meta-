@@ -1378,7 +1378,8 @@ async function doLogin(){
     return;
   }
 
-  showSpin(function(){});
+  var spinStart = Date.now();
+if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
 
   try {
     const { data, error } = await sb.functions.invoke(
@@ -1418,10 +1419,15 @@ async function doLogin(){
     localStorage.setItem("mint_session", u.user);
 
     processIncomes(u);
-    showSpin(function(){ enter(); });
+
+var remaining = Math.max(0, 900 - (Date.now() - spinStart));
+
+setTimeout(function(){
+  if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+  enter();
+}, remaining);
 
   } catch(error) {
-    el("spinwrap").classList.add("hidden");
     console.error("LOGIN ERROR:", error);
     pop("Login failed","Login service unavailable. Please try again.");
   }
