@@ -1460,6 +1460,71 @@ async function sendResetOtp(){
     pop("Error","Password reset request failed.");
   }
 }
+  async function verifyResetOtp(){
+  var token = (el("fp-otp").value || "").trim();
+  var pass = el("fp-pass").value || "";
+  var confirmPass = el("fp-confirm").value || "";
+
+  if(!resetEmail){
+    pop("Error","Please request a new OTP.");
+    show("box-forgot");
+    return;
+  }
+
+  if(!/^\d{6}$/.test(token)){
+    pop("Invalid OTP","Enter the six-digit OTP.");
+    return;
+  }
+
+  if(pass.length < 8){
+    pop("Weak Password","Password must be at least 8 characters.");
+    return;
+  }
+
+  if(pass !== confirmPass){
+    pop("Password Mismatch","Both passwords must match.");
+    return;
+  }
+
+  try {
+    var { data, error } = await sb.auth.verifyOtp({
+      email: resetEmail,
+      token: token,
+      type: "recovery"
+    });
+
+    if(error || !data.user){
+      console.error("OTP VERIFY ERROR:", error);
+      pop("Verification Failed","Invalid or expired OTP. Request a new one.");
+      return;
+    }
+
+    var { error: updateError } = await sb.auth.updateUser({
+      password: pass
+    });
+
+    if(updateError){
+      console.error("PASSWORD UPDATE ERROR:", updateError);
+      pop("Update Failed","Could not update password. Please try again.");
+      return;
+    }
+
+    await sb.auth.signOut();
+
+    resetEmail = "";
+    el("fp-otp").value = "";
+    el("fp-pass").value = "";
+    el("fp-confirm").value = "";
+    el("fp-email").value = "";
+
+    show("box-login");
+    pop("Password Updated","Your password has been reset. Please log in with your new password.");
+
+  } catch(error) {
+    console.error("PASSWORD RESET ERROR:", error);
+    pop("Error","Password reset failed. Please try again.");
+  }
+}
 async function doLogin(){
   var name = (el("li-user").value || "").trim();
   var pass = el("li-pass").value || "";
