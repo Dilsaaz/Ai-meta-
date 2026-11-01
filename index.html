@@ -1612,9 +1612,9 @@ if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
 
     if(error || !data || !data.ok || !data.session || !data.user){
       pop(
-        "Login failed",
-        (data && data.error) || (error && error.message) || "Wrong username or password"
-      );
+  "Login Failed",
+  "The username or password you entered is incorrect. Please check and try again."
+);
       return;
     }
 
