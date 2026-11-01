@@ -1427,7 +1427,39 @@ async function verifyOtp(){
     enter();
   });
 }
+var resetEmail = "";
 
+async function sendResetOtp(){
+  var email = (el("fp-email").value || "").trim().toLowerCase();
+
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    pop("Invalid Email","Please enter a valid registered email.");
+    return;
+  }
+
+  resetEmail = email;
+
+  try {
+    var { error } = await sb.auth.resetPasswordForEmail(email);
+
+    if(error){
+      console.error("RESET OTP ERROR:", error);
+      pop("OTP Error","Could not send OTP. Please try again.");
+      return;
+    }
+
+    el("fp-otp").value = "";
+    el("fp-pass").value = "";
+    el("fp-confirm").value = "";
+
+    show("box-reset-otp");
+    pop("OTP Sent","Check your registered email for the password reset code.");
+
+  } catch(error) {
+    console.error("RESET ERROR:", error);
+    pop("Error","Password reset request failed.");
+  }
+}
 async function doLogin(){
   var name = (el("li-user").value || "").trim();
   var pass = el("li-pass").value || "";
