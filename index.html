@@ -1858,8 +1858,127 @@ showHistory("ALL");
       '<button class="ghost mt-2" onclick="rejectWd(\'' + x.user + '\',\'' + x.w.id + '\')">Reject</button>' +
       '</div>';
   }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>');
+el("admin").innerHTML +=
+  '<div class="border-t border-white/10 mt-6 pt-5">' +
+  '<div class="serif text-2xl mb-3">Support Center</div>' +
+  '<div id="support-admin-list" class="text-sm text-[#b7ad98]">Loading messages...</div>' +
+  '</div>';
+
+loadSupportMessages();
+  }
 }
+  
+async function loadSupportMessages(){
+  var box = el("support-admin-list");
+  if(!box || !u || u.user !== "admin") return;
+
+  box.textContent = "Loading messages...";
+
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin", {
+      body:{action:"list"}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Unable to load");
+    }
+
+    box.innerHTML = "";
+
+    if(!data.messages.length){
+      box.textContent = "No support messages yet.";
+      return;
+    }
+
+    data.messages.forEach(function(m){
+      var card = document.createElement("div");
+      card.style.cssText =
+        "padding:14px;margin-bottom:12px;border-radius:14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.15)";
+
+      var title = document.createElement("div");
+      title.style.cssText = "color:white;font-weight:700";
+      title.textContent = m.username + " • " + m.category;
+
+      var status = document.createElement("div");
+      status.style.cssText = "font-size:11px;color:#c4b5fd;margin:6px 0";
+      status.textContent = "Status: " + m.status;
+
+      var message = document.createElement("div");
+      message.style.cssText = "color:#ddd;margin:10px 0;white-space:pre-wrap";
+      message.textContent = m.message;
+
+      var reply = document.createElement("textarea");
+      reply.placeholder = "Write your reply...";
+      reply.value = m.admin_reply || "";
+      reply.style.cssText =
+        "width:100%;padding:10px;border-radius:10px;background:#21182e;color:white;margin:10px 0";
+
+      var button = document.createElement("button");
+      button.className = "btn w-full";
+      button.textContent = "Send Reply";
+      button.onclick = function(){
+        replySupportMessage(m.id, reply.value);
+      };
+
+      var close = document.createElement("button");
+      close.className = "ghost mt-2";
+      close.textContent = "Close Ticket";
+      close.onclick = function(){
+        updateSupportStatus(m.id,"CLOSED");
+      };
+
+      card.append(title,status,message,reply,button,close);
+      box.appendChild(card);
+    });
+
+  }catch(error){
+    console.error("SUPPORT LOAD ERROR:",error);
+    box.textContent = "Could not load support messages. Please retry.";
+  }
 }
+
+async function replySupportMessage(id,reply){
+  reply = String(reply || "").trim();
+
+  if(!reply) return pop("Reply Required","Write a reply first.");
+
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin",{
+      body:{action:"reply",id:id,reply:reply}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Reply failed");
+    }
+
+    pop("Reply Sent","Support message updated.");
+    loadSupportMessages();
+
+  }catch(error){
+    console.error(error);
+    pop("Error",error.message || "Could not send reply.");
+  }
+}
+
+async function updateSupportStatus(id,status){
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin",{
+      body:{action:"status",id:id,status:status}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Update failed");
+    }
+
+    pop("Updated","Ticket status changed.");
+    loadSupportMessages();
+
+  }catch(error){
+    console.error(error);
+    pop("Error",error.message || "Could not update status.");
+  }
+}
+
   function showHistory(filter){
   var box = el("history-list");
   if(!box) return;
