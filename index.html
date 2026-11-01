@@ -635,7 +635,10 @@ input:focus{border-color:#3b82f6;outline:none}
 var SB_KEY = "sb_publishable_EGq5svUoU8ayO7HCc34A3g_WpCLm5EP";
 var sb = supabase.createClient(SB_URL, SB_KEY);
 var EJ_PUB="sTOZV9D7AJ58oDKZx", EJ_SVC="service_rcfgil8", EJ_TPL="template_1e1da9p";
-var ADMIN={user:"admin",pass:"Mint@2026"};
+var ADMIN = {
+  user: "admin",
+  email: "mintoratrade@gmail.com"
+};
 var SALARY_TIERS = [
   { members: 10, pay: 30 },
   { members: 30, pay: 70 },
@@ -1360,8 +1363,28 @@ async function doLogin(){
     return;
   }
 
-  // Existing admin login
-  if(name === ADMIN.user && pass === ADMIN.pass){
+// Secure Supabase admin login
+if(name.toLowerCase() === ADMIN.user){
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: ADMIN.email,
+      password: pass
+    });
+
+    if(error || !data.user){
+      pop("Admin login failed", "Invalid admin password");
+      return;
+    }
+
+    if(
+      data.user.id !== "e231f861-2700-4b15-bd99-5ef3d36675b6" ||
+      data.user.app_metadata?.role !== "admin"
+    ){
+      await sb.auth.signOut();
+      pop("Access denied", "Admin permission not verified");
+      return;
+    }
+
     u = {
       user:"admin",
       bal:0,
@@ -1376,8 +1399,13 @@ async function doLogin(){
     localStorage.setItem("mint_session", "admin");
     showSpin(function(){ enter(); });
     return;
-  }
 
+  } catch(error) {
+    console.error("ADMIN LOGIN ERROR:", error);
+    pop("Login failed", "Admin authentication unavailable");
+    return;
+  }
+}
   var spinStart = Date.now();
 if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
 
