@@ -640,6 +640,48 @@ input:focus{border-color:#3b82f6;outline:none}
   <button class="btn w-full mt-3" onclick="withdraw()">Request withdraw</button>
 </div>
 
+<!-- SUPPORT PAGE -->
+<div id="support" class="hidden">
+
+  <div class="card p-5 mb-4">
+    <div class="serif text-2xl mb-2">Support Center</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Need help? Send a message to our support team.
+    </div>
+
+    <label class="text-sm block mb-2">Select Category</label>
+    <select id="support-category" class="mb-3">
+      <option value="Deposit">Deposit Issue</option>
+      <option value="Withdraw">Withdraw Issue</option>
+      <option value="Account">Account Issue</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label class="text-sm block mb-2">Your Message</label>
+    <textarea id="support-message"
+      rows="5"
+      maxlength="2000"
+      placeholder="Describe your issue..."
+      class="mb-3"></textarea>
+
+    <button class="btn w-full" onclick="submitSupport()">
+      Submit Support Request
+    </button>
+  </div>
+
+  <div class="card p-5">
+    <div class="serif text-xl mb-3">My Support Tickets</div>
+    <div id="support-my-list"
+      class="text-sm text-[#b7ad98]">
+      Loading tickets...
+    </div>
+    <button class="ghost w-full mt-3" onclick="loadMySupport()">
+      Refresh Tickets
+    </button>
+  </div>
+
+</div>
+
 <!-- TRANSACTION HISTORY PAGE -->
 <div id="hist" class="card p-5 hidden"></div>
   
@@ -699,6 +741,9 @@ input:focus{border-color:#3b82f6;outline:none}
     <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
     <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
     <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
+    <button class="navitem" onclick="tab('support',this);loadMySupport()">
+  <span class="ic">✉</span> Support Center
+</button>
     <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
     <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
     <button class="out" onclick="logout()">← Logout</button>
@@ -2454,6 +2499,118 @@ function coin(){
     }
   });
 });
+  
+async function submitSupport() {
+  const category = document.getElementById("support-category").value;
+  const message = document.getElementById("support-message").value.trim();
+
+  if (message.length < 5) {
+    alert("Please enter at least 5 characters.");
+    return;
+  }
+
+  const btn = document.querySelector(
+    "#support button[onclick='submitSupport()']"
+  );
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+  }
+
+  try {
+    const { data, error } = await sb.functions.invoke("support-admin", {
+      body: {
+        action: "submit",
+        category,
+        message
+      }
+    });
+
+    if (error) throw error;
+    if (!data || !data.ok) {
+      throw new Error(data?.error || "Could not submit ticket");
+    }
+
+    document.getElementById("support-message").value = "";
+    alert("Support request submitted successfully!");
+    await loadMySupport();
+
+  } catch (err) {
+    alert("Support Error: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Submit Support Request";
+    }
+  }
+}
+
+async function loadMySupport() {
+  const box = document.getElementById("support-my-list");
+  if (!box) return;
+
+  box.textContent = "Loading tickets...";
+
+  try {
+    const { data, error } = await sb.functions.invoke("support-admin", {
+      body: { action: "my_messages" }
+    });
+
+    if (error) throw error;
+    if (!data || !data.ok) {
+      throw new Error(data?.error || "Could not load tickets");
+    }
+
+    const messages = data.messages || [];
+
+    if (!messages.length) {
+      box.textContent = "No support tickets yet.";
+      return;
+    }
+
+    box.innerHTML = "";
+
+    messages.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "rounded-xl p-3 mb-3";
+      card.style.background = "#111713";
+      card.style.border = "1px solid #3b493e";
+
+      const title = document.createElement("div");
+      title.className = "font-semibold text-white mb-2";
+      title.textContent = item.category + " • " + item.status;
+
+      const msg = document.createElement("div");
+      msg.className = "text-sm text-[#d9d2c2] whitespace-pre-wrap";
+      msg.textContent = item.message;
+
+      card.append(title, msg);
+
+      if (item.admin_reply) {
+        const reply = document.createElement("div");
+        reply.className = "mt-3 pt-3 text-sm whitespace-pre-wrap";
+        reply.style.borderTop = "1px solid #3b493e";
+        reply.style.color = "#a8c6b1";
+        reply.textContent = "Admin Reply: " + item.admin_reply;
+        card.appendChild(reply);
+      }
+
+      const date = document.createElement("div");
+      date.className = "text-xs text-[#b7ad98] mt-3";
+      date.textContent = item.created_at
+        ? new Date(item.created_at).toLocaleString()
+        : "";
+      card.appendChild(date);
+
+      box.appendChild(card);
+    });
+
+  } catch (err) {
+    box.textContent = "Error loading tickets: " + err.message;
+  }
+}
+
 </script>
 </body>
 </html>
