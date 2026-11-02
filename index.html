@@ -1569,14 +1569,11 @@ if(name.toLowerCase() === ADMIN.user){
       return;
     }
 
-    if(
-      data.user.id !== "33e8c739-45d7-4333-990b-ce26d5e1dcae"
-      data.user.app_metadata?.role !== "admin"
-    ){
-      await sb.auth.signOut();
-      pop("Access denied", "Admin permission not verified");
-      return;
-    }
+    if(data.user.id !== "33e8c739-45d7-4333-990b-ce26d5e1dcae"){
+  await sb.auth.signOut();
+  pop("Access denied", "Admin permission not verified");
+  return;
+}
 
     u = {
       user:"admin",
