@@ -1543,29 +1543,32 @@ async function verifyResetOtp(){
   }
 
   try{
-    // 1) Cloud se latest user lo
-    var p = await loadCloud(resetUserName);
-    if(!p){
-      pop("Error","Account not found.");
+    // Direct cloud update — save() skip
+    var { data, error } = await sb
+      .from("users")
+      .update({ pass: pass })
+      .eq("user", resetUserName)
+      .select("user, pass");
+
+    if(error){
+      console.error("RESET DB ERROR:", error);
+      pop("Error","Server update failed: " + (error.message || "unknown"));
       return;
     }
 
-    // 2) Password update
-    p.pass = pass;
-
-    // 3) Cloud + local dono save
-    var ok = await save(p);
-    if(!ok){
-      pop("Error","Could not update password on server.");
+    if(!data || !data.length){
+      pop("Error","User not found in database.");
       return;
     }
 
-    // 4) Confirm: cloud pe naya password gaya ya nahi
-    var check = await loadCloud(resetUserName);
-    if(!check || String(check.pass) !== String(pass)){
-      pop("Error","Password not saved on server. Please try again.");
-      return;
-    }
+    // Local copy bhi update
+    try{
+      var local = load(resetUserName);
+      if(local){
+        local.pass = pass;
+        localStorage.setItem("nivo_" + resetUserName, JSON.stringify(local));
+      }
+    }catch(e){}
 
     resetEmail = "";
     resetOtp = "";
@@ -1578,7 +1581,7 @@ async function verifyResetOtp(){
     el("fp-email").value = "";
 
     show("box-login");
-    pop("Password Updated","Password changed successfully. Login with new password.");
+    pop("Password Updated","Password changed. Please login with new password.");
   }catch(e){
     console.error("PASSWORD RESET ERROR:", e);
     pop("Error","Password reset failed.");
