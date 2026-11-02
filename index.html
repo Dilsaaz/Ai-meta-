@@ -1449,8 +1449,6 @@ async function verifyOtp(){
   });
 }
 var resetEmail = "";
-
-var resetEmail = "";
 var resetOtp = "";
 var resetOtpAt = 0;
 var resetUserName = "";
@@ -1459,55 +1457,83 @@ async function sendResetOtp(){
   var email = (el("fp-email").value || "").trim().toLowerCase();
 
   if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    pop("Invalid Email","Enter a valid registered email.");
+    pop("Invalid Email","Please enter a valid registered email.");
     return;
   }
 
-  try {
-    var { data, error } = await sb.functions.invoke("password-reset", {
-      body: {
-        action: "send",
-        email: email
-      }
+  try{
+    var members = await allCloud();
+    var found = (members || []).find(function(x){
+      return String(x.email || "").trim().toLowerCase() === email;
     });
 
-    if(error || !data || !data.ok){
-      console.error("OTP SEND ERROR:", error, data);
-      pop("OTP Error", data?.error || error?.message || "Could not send OTP.");
+    if(!found){
+      pop("Not Found","No account found with this email.");
       return;
     }
 
     resetEmail = email;
-    el("fp-otp").value = "";
-    el("fp-pass").value = "";
-    el("fp-confirm").value = "";
+    resetUserName = found.user;
+    resetOtp = String(Math.floor(100000 + Math.random() * 900000));
+    resetOtpAt = Date.now();
 
-    show("box-reset-otp");
-    pop("OTP Sent","Check your email for the six-digit OTP.");
+    if(!window.emailjs){
+      show("box-reset-otp");
+      pop("OTP (test)", resetOtp);
+      return;
+    }
 
-  } catch(error) {
-    console.error(error);
-    pop("Error","Could not send OTP. Please try again.");
+    emailjs.init(EJ_PUB);
+
+    emailjs.send(EJ_SVC, EJ_TPL, {
+      email: email,
+      to_email: email,
+      user_name: found.user,
+      name: found.user,
+      otp_code: resetOtp,
+      otp: resetOtp,
+      message: "Your Mintora password reset OTP is: " + resetOtp
+    }).then(function(){
+      el("fp-otp").value = "";
+      el("fp-pass").value = "";
+      el("fp-confirm").value = "";
+      show("box-reset-otp");
+      pop("OTP Sent","Check your email for the password reset code.");
+    }).catch(function(err){
+      console.error("RESET EMAIL ERROR:", err);
+      pop("OTP Error","Could not send email. Please try again.");
+    });
+
+  }catch(e){
+    console.error("RESET ERROR:", e);
+    pop("Error","Password reset request failed.");
   }
 }
+
 async function verifyResetOtp(){
   var token = (el("fp-otp").value || "").trim();
   var pass = el("fp-pass").value || "";
   var confirmPass = el("fp-confirm").value || "";
 
-  if(!resetEmail){
+  if(!resetEmail || !resetUserName){
     pop("Error","Please request a new OTP.");
     show("box-forgot");
     return;
   }
 
-  if(!/^\d{6}$/.test(token)){
-    pop("Invalid OTP","Enter the six-digit OTP.");
+  if(Date.now() - resetOtpAt > 10 * 60 * 1000){
+    pop("Expired","OTP expired. Request a new one.");
+    show("box-forgot");
     return;
   }
 
-  if(pass.length < 8){
-    pop("Weak Password","Password must be at least 8 characters.");
+  if(token !== resetOtp){
+    pop("Invalid OTP","OTP does not match.");
+    return;
+  }
+
+  if(pass.length < 4){
+    pop("Weak Password","Password must be at least 4 characters.");
     return;
   }
 
@@ -1516,23 +1542,25 @@ async function verifyResetOtp(){
     return;
   }
 
-  try {
-    var { data, error } = await sb.functions.invoke("password-reset", {
-      body: {
-        action: "verify",
-        email: resetEmail,
-        otp: token,
-        password: pass
-      }
-    });
+  try{
+    var p = await loadCloud(resetUserName);
+    if(!p){
+      pop("Error","Account not found.");
+      return;
+    }
 
-    if(error || !data || !data.ok){
-      console.error("RESET VERIFY ERROR:", error, data);
-      pop("Reset Failed", data?.error || error?.message || "Could not reset password.");
+    p.pass = pass;
+    var ok = await save(p);
+
+    if(!ok){
+      pop("Error","Could not update password. Please try again.");
       return;
     }
 
     resetEmail = "";
+    resetOtp = "";
+    resetOtpAt = 0;
+    resetUserName = "";
 
     el("fp-otp").value = "";
     el("fp-pass").value = "";
@@ -1540,10 +1568,9 @@ async function verifyResetOtp(){
     el("fp-email").value = "";
 
     show("box-login");
-    pop("Password Updated","Log in using your new password.");
-
-  } catch(error) {
-    console.error(error);
+    pop("Password Updated","Your password has been reset. Please log in.");
+  }catch(e){
+    console.error("PASSWORD RESET ERROR:", e);
     pop("Error","Password reset failed. Please try again.");
   }
 }
