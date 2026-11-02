@@ -1543,17 +1543,27 @@ async function verifyResetOtp(){
   }
 
   try{
+    // 1) Cloud se latest user lo
     var p = await loadCloud(resetUserName);
     if(!p){
       pop("Error","Account not found.");
       return;
     }
 
+    // 2) Password update
     p.pass = pass;
-    var ok = await save(p);
 
+    // 3) Cloud + local dono save
+    var ok = await save(p);
     if(!ok){
-      pop("Error","Could not update password. Please try again.");
+      pop("Error","Could not update password on server.");
+      return;
+    }
+
+    // 4) Confirm: cloud pe naya password gaya ya nahi
+    var check = await loadCloud(resetUserName);
+    if(!check || String(check.pass) !== String(pass)){
+      pop("Error","Password not saved on server. Please try again.");
       return;
     }
 
@@ -1568,10 +1578,10 @@ async function verifyResetOtp(){
     el("fp-email").value = "";
 
     show("box-login");
-    pop("Password Updated","Your password has been reset. Please log in.");
+    pop("Password Updated","Password changed successfully. Login with new password.");
   }catch(e){
     console.error("PASSWORD RESET ERROR:", e);
-    pop("Error","Password reset failed. Please try again.");
+    pop("Error","Password reset failed.");
   }
 }
 async function doLogin(){
