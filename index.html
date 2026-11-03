@@ -1424,25 +1424,63 @@ function processIncomes(p){
     salary: salaryTier ? salaryTier.pay : 0
   };
 }
-function sendOtp(){
-  var name=el("su-user").value.trim(), email=el("su-email").value.trim(), phone=el("su-phone").value.trim(), pass=el("su-pass").value;
-  if(!name||!email||!phone||pass.length<4){pop("Missing","Fill all fields");return}
-  if(load(name)){pop("Taken","Username already used");return}
-  otp=String(Math.floor(100000+Math.random()*900000)); otpAt=Date.now();
-  pending={user:name,email:email,phone:phone,pass:pass,ref:el("su-ref").value.trim().toUpperCase()};
-  if(window.emailjs&&EJ_PUB.indexOf("YOUR_")!==0){
+async function sendOtp(){
+  var name = el("su-user").value.trim();
+  var email = el("su-email").value.trim();
+  var phone = el("su-phone").value.trim();
+  var pass = el("su-pass").value;
+
+  if(!name || !email || !phone || pass.length < 4){
+    pop("Missing","Fill all fields");
+    return;
+  }
+
+  if(load(name)){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  var members = await allCloud();
+
+  if(members.some(function(x){ return x.user === name; })){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  if(members.some(function(x){
+    return (x.email || "").toLowerCase() === email.toLowerCase();
+  })){
+    pop("Email used","This email is already registered");
+    return;
+  }
+
+  otp = String(Math.floor(100000 + Math.random() * 900000));
+  otpAt = Date.now();
+  pending = {
+    user: name,
+    email: email,
+    phone: phone,
+    pass: pass,
+    ref: el("su-ref").value.trim().toUpperCase()
+  };
+
+  if(window.emailjs && EJ_PUB.indexOf("YOUR_") !== 0){
     emailjs.init(EJ_PUB);
-    emailjs.send(EJ_SVC,EJ_TPL,{
-  email: email,
-  to_email: email,
-  user_name: name,
-  name: name,
-  otp_code: otp,
-  otp: otp,
-  message: "Your Mintora verification OTP is: " + otp
-})
-      .then(function(){pop("OTP sent","Check your email")}).catch(function(){pop("OTP",otp)});
-  } else pop("OTP",otp);
+    emailjs.send(EJ_SVC, EJ_TPL, {
+      email: email,
+      to_email: email,
+      user_name: name,
+      name: name,
+      otp_code: otp,
+      otp: otp,
+      message: "Your Mintora verification OTP is: " + otp
+    })
+    .then(function(){ pop("OTP sent","Check your email"); })
+    .catch(function(){ pop("OTP", otp); });
+  } else {
+    pop("OTP", otp);
+  }
+
   show("box-otp");
 }
 async function verifyOtp(){
@@ -1630,99 +1668,103 @@ async function doLogin(){
     return;
   }
 
-// Secure Supabase admin login
-if(name.toLowerCase() === ADMIN.user){
-  try {
-    const { data, error } = await sb.auth.signInWithPassword({
-      email: ADMIN.email,
-      password: pass
-    });
+  // Admin
+  if(name.toLowerCase() === ADMIN.user){
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: ADMIN.email,
+        password: pass
+      });
 
-    if(error || !data.user){
-      pop("Admin login failed", "Invalid admin password");
-      return;
-    }
-
-    if(data.user.id !== "33e8c739-45d7-4333-990b-ce26d5e1dcae"){
-  await sb.auth.signOut();
-  pop("Access denied", "Admin permission not verified");
-  return;
-}
-
-    u = {
-      user:"admin",
-      bal:0,
-      profit:0,
-      base:0,
-      ref:"ADMIN",
-      deps:[],
-      wds:[],
-      amb:[]
-    };
-
-    localStorage.setItem("mint_session", "admin");
-    showSpin(function(){ enter(); });
-    return;
-
-  } catch(error) {
-    console.error("ADMIN LOGIN ERROR:", error);
-    pop("Login failed", "Admin authentication unavailable");
-    return;
-  }
-}
-  var spinStart = Date.now();
-if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
-
-  try {
-    const { data, error } = await sb.functions.invoke(
-      "username-login",
-      {
-        body: {
-          username: name,
-          password: pass
-        }
+      if(error || !data.user){
+        pop("Admin login failed", "Invalid admin password");
+        return;
       }
-    );
 
-    el("spinwrap").classList.add("hidden");
+      if(data.user.id !== "33e8c739-45d7-4333-990b-ce26d5e1dcae"){
+        await sb.auth.signOut();
+        pop("Access denied", "Admin permission not verified");
+        return;
+      }
 
-    if(error || !data || !data.ok || !data.session || !data.user){
-      pop(
-  "Login Failed",
-  "The username or password you entered is incorrect. Please check and try again."
-);
+      u = {
+        user:"admin",
+        bal:0,
+        profit:0,
+        base:0,
+        ref:"ADMIN",
+        deps:[],
+        wds:[],
+        amb:[]
+      };
+
+      localStorage.setItem("mint_session", "admin");
+      showSpin(function(){ enter(); });
+      return;
+
+    } catch(error) {
+      console.error("ADMIN LOGIN ERROR:", error);
+      pop("Login failed", "Admin authentication unavailable");
       return;
     }
-
-    const { error: sessionError } = await sb.auth.setSession({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token
-    });
-
-    if(sessionError){
-      pop("Login failed","Could not establish secure session");
-      return;
-    }
-
-    u = Object.assign({}, data.user, {
-      user: data.user.user_name
-    });
-
-    localStorage.setItem("mint_session", u.user);
-
-    processIncomes(u);
-
-var remaining = Math.max(0, 900 - (Date.now() - spinStart));
-
-setTimeout(function(){
-  if(el("spinwrap")) el("spinwrap").classList.add("hidden");
-  enter();
-}, remaining);
-
-  } catch(error) {
-    console.error("LOGIN ERROR:", error);
-    pop("Login failed","Login service unavailable. Please try again.");
   }
+
+  var spinStart = Date.now();
+  if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
+
+  // 1) Auth / edge function try
+  try {
+    const { data, error } = await sb.functions.invoke("username-login", {
+      body: { username: name, password: pass }
+    });
+
+    if(!error && data && data.ok && data.session && data.user){
+      const { error: sessionError } = await sb.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
+      });
+
+      if(!sessionError){
+        u = Object.assign({}, data.user, { user: data.user.user_name });
+        localStorage.setItem("mint_session", u.user);
+        processIncomes(u);
+
+        var remaining = Math.max(0, 900 - (Date.now() - spinStart));
+        setTimeout(function(){
+          if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+          enter();
+        }, remaining);
+        return;
+      }
+    }
+  } catch(e) {
+    console.error("username-login error:", e);
+  }
+
+  // 2) Fallback — users.pass (purane accounts)
+  try {
+    var p = await loadCloud(name);
+    if(p && p.user && String(p.pass || "") === String(pass)){
+      u = p;
+      localStorage.setItem("mint_session", u.user);
+      processIncomes(u);
+
+      var remaining2 = Math.max(0, 900 - (Date.now() - spinStart));
+      setTimeout(function(){
+        if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+        enter();
+      }, remaining2);
+      return;
+    }
+  } catch(e2) {
+    console.error("fallback login error:", e2);
+  }
+
+  if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+  pop(
+    "Login Failed",
+    "The username or password you entered is incorrect. Please check and try again."
+  );
 }
 function enter(){
   if(!u) return;
