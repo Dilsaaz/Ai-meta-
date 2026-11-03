@@ -864,8 +864,7 @@ function save(p){
 
   if(u && u.user === p.user) u = p;
 
-  // Cloud sync
-    return sb.from("users").upsert({
+  return sb.from("users").upsert({
     user_name: p.user,
     email: p.email || "",
     phone: p.phone || "",
@@ -888,16 +887,14 @@ function save(p){
   }).then(function(res){
     if(res.error){
       console.error("Supabase save failed:", res.error);
-      pop("Save Error", (res.error.message || JSON.stringify(res.error)));
       return false;
     }
     return true;
   }).catch(function(err){
     console.error("Cloud sync error:", err);
-    pop("Save Error", String(err && err.message || err));
     return false;
   });
-
+}
 function all(){
   var list=[];
   for(var i=0;i<localStorage.length;i++){
