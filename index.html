@@ -865,7 +865,7 @@ function save(p){
   if(u && u.user === p.user) u = p;
 
   // Cloud sync
-  return sb.from("users").upsert({
+    return sb.from("users").upsert({
     user_name: p.user,
     email: p.email || "",
     phone: p.phone || "",
@@ -883,8 +883,9 @@ function save(p){
     next_trade: p.nextTrade || 0,
     scratch_day: p.scratchDay || "",
     last_salary: p.lastSalary || 0,
-    amb_card: p.ambCard || 0
-    auth_user_id: p.auth_user_id || null,
+    amb_card: p.ambCard || 0,
+    auth_user_id: p.auth_user_id || null
+  }).then(function(res){
   }).then(function(res){
     if(res.error){
       console.error("Supabase save failed:", res.error);
