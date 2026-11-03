@@ -883,7 +883,7 @@ function save(p){
     scratch_day: p.scratchDay || "",
     last_salary: p.lastSalary || 0,
     amb_card: p.ambCard || 0,
-    auth_user_id: p.auth_user_id || null
+    ...(p.auth_user_id ? { auth_user_id: p.auth_user_id } : {})
   }).then(function(res){
     if(res.error){
       console.error("Supabase save failed:", res.error);
@@ -929,7 +929,7 @@ async function allCloud(){
           nextTrade: Number(r.next_trade || 0),
 scratchDay: r.scratch_day || "",
 lastSalary: Number(r.last_salary || 0),
-ambCard: Number(r.amb_card || 0)
+ambCard: Number(r.amb_card || 0),auth_user_id: r.auth_user_id || null
         };
         localStorage.setItem("mint_"+p.user, JSON.stringify(p));
         return p;
