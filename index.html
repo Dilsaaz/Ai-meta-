@@ -884,6 +884,7 @@ function save(p){
     scratch_day: p.scratchDay || "",
     last_salary: p.lastSalary || 0,
     amb_card: p.ambCard || 0
+    auth_user_id: p.auth_user_id || null,
   }).then(function(res){
     if(res.error){
       console.error("Supabase save failed:", res.error);
@@ -1454,29 +1455,61 @@ async function verifyOtp(){
     return;
   }
 
+  if(!pending){
+    pop("Error","Signup session expired. Please start again.");
+    show("box-signup");
+    return;
+  }
+
   var members = await allCloud();
 
+  if(members.some(function(x){ return x.user === pending.user; })){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  var email = (pending.email || "").trim().toLowerCase();
+  var pass = pending.pass || "";
+
+  // 1) Auth user create (login ke liye zaroori)
+  var authRes = await sb.auth.signUp({
+    email: email,
+    password: pass
+  });
+
+  if(authRes.error){
+    pop("Signup Failed", authRes.error.message || "Could not create login account");
+    return;
+  }
+
+  var authId = authRes.data && authRes.data.user && authRes.data.user.id;
+  if(!authId){
+    pop("Signup Failed","Auth user not created");
+    return;
+  }
+
   var sponsor = members.find(function(x){
-    return x.ref === pending.ref;
+    return x.ref === (pending.ref || "").toUpperCase();
   });
 
   var p = {
-    user:pending.user,
-    email:pending.email,
-    phone:pending.phone,
-    pass:pending.pass,
-    ref:code(),
-    sponsor:sponsor?sponsor.ref:"",
-    bal:0,
-    profit:0,
-    base:0,
-    lock:0,
-    deps:[],
-    wds:[],
-    wdAddr:"",
-    amb:[],
-    scratchDay:"",
-    lastSalary:0
+    user: pending.user,
+    email: email,
+    phone: pending.phone,
+    pass: pass,
+    ref: code(),
+    sponsor: sponsor ? sponsor.ref : "",
+    bal: 0,
+    profit: 0,
+    base: 0,
+    lock: 0,
+    deps: [],
+    wds: [],
+    wdAddr: "",
+    amb: [],
+    scratchDay: "",
+    lastSalary: 0,
+    auth_user_id: authId
   };
 
   var saved = await save(p);
@@ -1487,14 +1520,12 @@ async function verifyOtp(){
   }
 
   u = p;
-  localStorage.setItem("mint_session",p.user);
+  localStorage.setItem("mint_session", p.user);
 
   showSpin(function(){
     enter();
   });
 }
-var resetEmail = "";
-
 async function sendResetOtp(){
   var email = (el("fp-email").value || "").trim().toLowerCase();
   if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
