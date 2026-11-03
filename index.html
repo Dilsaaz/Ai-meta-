@@ -886,18 +886,17 @@ function save(p){
     amb_card: p.ambCard || 0,
     auth_user_id: p.auth_user_id || null
   }).then(function(res){
-  }).then(function(res){
     if(res.error){
       console.error("Supabase save failed:", res.error);
+      pop("Save Error", (res.error.message || JSON.stringify(res.error)));
       return false;
     }
-
     return true;
   }).catch(function(err){
     console.error("Cloud sync error:", err);
+    pop("Save Error", String(err && err.message || err));
     return false;
   });
-}
 
 function all(){
   var list=[];
