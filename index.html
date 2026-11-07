@@ -1960,31 +1960,44 @@ showHistory("ALL");
       '<button type="button" class="ghost mt-2" onclick="adDep(\'' + x.user + '\',\'' + (x.d.hash||'') + '\',false)">Reject</button>' +
       '</div>';
   }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
+
   '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
   (pendW.map(function(x) {
+    var requestTime = Number(x.w.time || x.w.t || 0);
+    var requestDate = requestTime
+      ? new Date(requestTime).toLocaleDateString("en-IN", {
+          day:"2-digit",
+          month:"short",
+          year:"numeric"
+        })
+      : "Date unavailable";
+
+    var requestClock = requestTime
+      ? new Date(requestTime).toLocaleTimeString("en-IN", {
+          hour:"2-digit",
+          minute:"2-digit",
+          second:"2-digit",
+          hour12:true
+        })
+      : "Time unavailable";
+
+    var amount = Number(x.w.amt || 0);
+    var fee = Number(x.w.fee != null ? x.w.fee : amount * 0.15);
+    var net = Number(x.w.netAmount != null ? x.w.netAmount : amount - fee);
+
     return '<div class="py-3 border-b border-white/10">' +
- '<b>' + x.user + '</b>' +
-'<div>Withdrawal: $' + money(x.w.amt) + '</div>' +
-'<div class="text-xs text-[#fbbf24]">Fee (15%): $' +
-money(x.w.fee != null ? x.w.fee : Number(x.w.amt || 0) * 0.15) +
-'</div>' +
-'<div class="text-sm font-semibold text-green-400">Net Payable: $' +
-money(x.w.netAmount != null ? x.w.netAmount : Number(x.w.amt || 0) * 0.85) +
-'</div>' +
-      '<div class="text-xs break-all text-[#b7ad98]">' + (x.w.addr || '') + '</div>' +
+      '<b>' + x.user + '</b>' +
+      '<div>Withdrawal: $' + money(amount) + '</div>' +
+      '<div class="text-xs text-[#fbbf24]">Fee (15%): $' + money(fee) + '</div>' +
+      '<div class="text-sm font-semibold text-green-400">Net Payable: $' + money(net) + '</div>' +
+      '<div class="text-xs text-[#b7ad98] mt-2">Request Date: ' + requestDate + '</div>' +
+      '<div class="text-xs text-[#b7ad98]">Request Time: ' + requestClock + '</div>' +
+      '<div class="text-xs break-all text-[#b7ad98] mt-2">' + (x.w.addr || '') + '</div>' +
       '<button class="btn mt-2" onclick="approveWd(\'' + x.user + '\',\'' + x.w.id + '\')">Mark Paid</button> ' +
       '<button class="ghost mt-2" onclick="rejectWd(\'' + x.user + '\',\'' + x.w.id + '\')">Reject</button>' +
       '</div>';
-  }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>');
-el("admin").innerHTML +=
-  '<div class="border-t border-white/10 mt-6 pt-5">' +
-  '<div class="serif text-2xl mb-3">Support Center</div>' +
-  '<div id="support-admin-list" class="text-sm text-[#b7ad98]">Loading messages...</div>' +
-  '</div>';
+  }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>') +
 
-loadSupportMessages();
-  }
-}
   
 async function loadSupportMessages(){
   var box = el("support-admin-list");
