@@ -1997,6 +1997,16 @@ showHistory("ALL");
       '<button class="ghost mt-2" onclick="rejectWd(\'' + x.user + '\',\'' + x.w.id + '\')">Reject</button>' +
       '</div>';
   }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>') +
+    
+  '<div class="border-t border-white/10 mt-6 pt-5">' +
+  '<div class="serif text-2xl mb-3">Support Center</div>' +
+  '<div id="support-admin-list" class="text-sm text-[#b7ad98]">Loading messages...</div>' +
+  '</div>';
+  
+  loadSupportMessages();
+  }
+}
+
 
   
 async function loadSupportMessages(){
