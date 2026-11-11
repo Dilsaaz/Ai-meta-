@@ -840,6 +840,8 @@ async function loadCloud(name){
         deps: res.data.deps || [],
         wds: res.data.wds || [],
         amb: res.data.amb || [],
+        profitWeek: res.data.profit_week || r.profit_week || "",
+noProfitCount: Number(res.data.no_profit_count || r.no_profit_count || 0),
         nextTrade: Number(res.data.next_trade || 0),
         scratchDay: res.data.scratch_day || "",
 lastSalary: Number(res.data.last_salary || 0),
@@ -883,6 +885,8 @@ function save(p){
     scratch_day: p.scratchDay || "",
     last_salary: p.lastSalary || 0,
     amb_card: p.ambCard || 0,
+    profit_week: p.profitWeek || "",
+no_profit_count: p.noProfitCount || 0,
     ...(p.auth_user_id ? { auth_user_id: p.auth_user_id } : {})
   }).then(function(res){
     if(res.error){
@@ -926,6 +930,8 @@ async function allCloud(){
           deps: r.deps || [],
           wds: r.wds || [],
           amb: r.amb || [],
+          profitWeek: res.data.profit_week || r.profit_week || "",
+noProfitCount: Number(res.data.no_profit_count || r.no_profit_count || 0),
           nextTrade: Number(r.next_trade || 0),
 scratchDay: r.scratch_day || "",
 lastSalary: Number(r.last_salary || 0),
@@ -960,6 +966,26 @@ function rankOf(p){
   if(n>=170)r=4;
   if(n>=320)r=5;
   return r;
+}
+  function weekKey(){
+  var d=new Date();
+  var onejan=new Date(d.getFullYear(),0,1);
+  var w=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7);
+  return d.getFullYear()+"-W"+w;
+}
+function shouldGiveTradeProfit(uu){
+  if(!uu) return true;
+  var wk=weekKey();
+  if(uu.profitWeek!==wk){
+    uu.profitWeek=wk;
+    uu.noProfitCount=0;
+  }
+  if((uu.noProfitCount||0)>=3) return true;
+  if(Math.random()<0.43){
+    uu.noProfitCount=(uu.noProfitCount||0)+1;
+    return false;
+  }
+  return true;
 }
   function startTrade(){
   var btn = el("trade-btn");
@@ -1069,65 +1095,60 @@ function rankOf(p){
       else status.textContent = "Completing reward...";
     }
 
-    if(seconds <= 0){
+        if(seconds <= 0){
       clearInterval(timer);
 
-      // Calculate 2.5% of wallet balance
-      var profit = +(walletBalance * 0.025).toFixed(2);
-
-      // IMPORTANT: Add reward ONLY to Earn.
-      // Wallet Balance remains unchanged.
-      u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
-
-      // Next trade tomorrow at 6 AM
       var next = new Date();
       next.setDate(next.getDate()+1);
       next.setHours(6,0,0,0);
       u.nextTrade = next.getTime();
+
+      var give = shouldGiveTradeProfit(u);
+      var profit = 0;
+
+      if(give){
+        profit = +(walletBalance * 0.025).toFixed(2);
+        u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
+      }
 
       save(u);
       paint();
 
       if(msg) msg.textContent = "Next trade available tomorrow at 6 AM";
 
-      overlay.innerHTML = `
-        <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #8c62c5;border-radius:22px;padding:28px 22px;color:white;text-align:center;box-shadow:0 0 45px #6936a455">
-
-          <div style="font-size:48px;margin-bottom:12px">✓</div>
-
-          <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">
-            MINTORA • COMPLETED
+      if(!give){
+        overlay.innerHTML = `
+          <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #8c62c5;border-radius:22px;padding:28px 22px;color:white;text-align:center;box-shadow:0 0 45px #6936a455">
+            <div style="font-size:48px;margin-bottom:12px">—</div>
+            <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">MINTORA • MARKET</div>
+            <div style="font-size:25px;font-weight:800;margin-bottom:10px">Today: No Profit</div>
+            <div style="font-size:13px;color:#b9acd0;margin-bottom:20px">
+              Market conditions were sideways. No reward added today.
+            </div>
+            <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
+              Wallet Balance: $${Number(u.bal).toFixed(2)}
+            </div>
+            <button id="trade-done-btn" style="width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#8b4de8,#bd83ff);color:white;font-size:15px;font-weight:bold">Done</button>
+            <div style="font-size:10px;color:#9587aa;margin-top:12px">Try again after 6 AM tomorrow</div>
           </div>
-
-          <div style="font-size:25px;font-weight:800;margin-bottom:10px">
-            Trade Reward!
+        `;
+      } else {
+        overlay.innerHTML = `
+          <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #8c62c5;border-radius:22px;padding:28px 22px;color:white;text-align:center;box-shadow:0 0 45px #6936a455">
+            <div style="font-size:48px;margin-bottom:12px">✓</div>
+            <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">MINTORA • COMPLETED</div>
+            <div style="font-size:25px;font-weight:800;margin-bottom:10px">Trade Reward!</div>
+            <div style="font-size:13px;color:#b9acd0;margin-bottom:8px">${pair}</div>
+            <div style="font-size:38px;font-weight:900;color:#a9f5c5;margin:12px 0">+$${profit.toFixed(2)}</div>
+            <div style="font-size:13px;color:#c9bddb;margin-bottom:20px">2.5% reward added to your Earn balance</div>
+            <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
+              Wallet Balance: $${Number(u.bal).toFixed(2)}
+            </div>
+            <button id="trade-done-btn" style="width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#8b4de8,#bd83ff);color:white;font-size:15px;font-weight:bold">Done</button>
+            <div style="font-size:10px;color:#9587aa;margin-top:12px">Platform reward calculation • Not an exchange trade</div>
           </div>
-
-          <div style="font-size:13px;color:#b9acd0;margin-bottom:8px">
-            ${pair}
-          </div>
-
-          <div style="font-size:38px;font-weight:900;color:#a9f5c5;margin:12px 0">
-            +$${profit.toFixed(2)}
-          </div>
-
-          <div style="font-size:13px;color:#c9bddb;margin-bottom:20px">
-            2.5% reward added to your Earn balance
-          </div>
-
-          <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
-            Wallet Balance: $${Number(u.bal).toFixed(2)}
-          </div>
-
-          <button id="trade-done-btn" style="width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#8b4de8,#bd83ff);color:white;font-size:15px;font-weight:bold">
-            Done
-          </button>
-
-          <div style="font-size:10px;color:#9587aa;margin-top:12px">
-            Platform reward calculation • Not an exchange trade
-          </div>
-        </div>
-      `;
+        `;
+      }
 
       overlay.querySelector("#trade-done-btn").onclick = function(){
         overlay.remove();
