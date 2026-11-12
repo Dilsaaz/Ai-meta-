@@ -1,1 +1,2764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+<title>Mintora</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap");
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui;background:#0a0612;color:#e9e4f5}
+.serif{font-family:"Cormorant Garamond",serif}
+.gold{color:#c4b5fd}
+.card{background:rgba(20,12,32,.92);border:1px solid rgba(167,139,250,.12);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.btn{background:linear-gradient(180deg,#a78bfa,#7c3aed);color:#fff;border-radius:14px;font-weight:800;box-shadow:0 8px 24px rgba(124,58,237,.4)}
+.ghost{border:1px solid rgba(167,139,250,.22);background:rgba(20,12,32,.6);color:#c4b5fd}
+input,select{background:#110a1a;border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:12px 14px;color:#e9e4f5;width:100%}
+input:focus{border-color:#3b82f6;outline:none}
+.hidden{display:none!important}
+.stat{background:#0b1220;border:1px solid rgba(59,130,246,.15);border-radius:14px;padding:14px}
+#scratch{width:100%;height:220px;border-radius:20px;touch-action:none;cursor:pointer;border:1px solid rgba(212,180,131,.28);display:block}
+.menu{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
+.menu.open{display:block}
+.drawer{position:fixed;top:0;left:0;height:100%;width:280px;background:#0d0814;border-right:1px solid rgba(167,139,250,.1);padding:20px 14px;transform:translateX(-100%);transition:transform .3s;z-index:100}
+.drawer.open{transform:translateX(0)}
+.dtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding:0 4px}
+.dx{background:none;border:0;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px}
+.navitem{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;width:100%;font-weight:600;color:#94a3b8;margin:2px 0;transition:all .2s}
+  .navitem.on{background:linear-gradient(90deg,rgba(167,139,250,.2),rgba(167,139,250,.05));color:#c4b5fd;border-left:3px solid #a78bfa}
+.navitem .ic{width:22px;text-align:center;opacity:.9}
+.uid{margin:auto 0 16px;background:#140e1f;border:1px solid rgba(167,139,250,.12);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.uidb{width:36px;height:36px;border-radius:50%;background:#d4b483;color:#1a1408;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px}
+.out{margin:0;background:#1c1212;color:#f87171;border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:12px;font-weight:700;width:100%}
+  
+.pop{
+  position:fixed;
+  inset:0;
+  background:rgba(8,3,18,.82);
+  backdrop-filter:blur(9px);
+  z-index:60;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.pop .box{
+  background:linear-gradient(145deg,#211333,#12091f);
+  border:1px solid rgba(167,139,250,.35);
+  border-radius:24px;
+  padding:28px 22px;
+  max-width:340px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 20px 70px rgba(124,58,237,.3);
+  animation:pop .3s ease;
+}
+
+.pop .box h3{
+  color:#c4b5fd;
+  font-size:23px;
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+.pop .box p{
+  color:#c4b5fd;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:20px;
+}
+
+.pop .box button{
+  width:100%;
+  padding:12px;
+  border-radius:13px;
+  color:white;
+  font-weight:700;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed);
+  box-shadow:0 7px 22px rgba(124,58,237,.3);
+}
+
+@keyframes pop{
+  from{transform:scale(.92) translateY(12px);opacity:0}
+  to{transform:scale(1) translateY(0);opacity:1}
+}
+
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+.rel{position:relative}
+.prog{height:6px;background:#1a1d26;border-radius:99px;overflow:hidden;margin:10px 0}
+.prog>div{height:100%;width:0;background:linear-gradient(90deg,#d4b483,#e8c98a);transition:width .15s}
+.spinwrap{position:fixed;inset:0;background:#07080c;z-index:70;display:flex;align-items:center;justify-content:center}
+.spin{width:54px;height:54px;border-radius:50%;border:3px solid rgba(212,180,131,.25);border-top-color:#d4b483;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+  .act-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#a78bfa,#6d28d9);opacity:.55;transition:height .6s ease}
+.act-bar.on{opacity:1;background:linear-gradient(180deg,#c4b5fd,#7c3aed)}
+.live-row{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:rgba(167,139,250,.07);border-radius:12px;border:1px solid rgba(167,139,250,.12);animation:fadeIn .35s ease}
+.live-row .pair{color:#c4b5fd;font-weight:600;font-size:13px}
+.live-row .amt{font-weight:700;font-size:13px}
+.live-row .amt.green{color:#4ade80}
+.live-row .amt.red{color:#f87171}
+.live-row .time{color:#666;font-size:11px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes reinvestCircle{
+  from{stroke-dashoffset:314}
+  to{stroke-dashoffset:0}
+}
+  @keyframes reinvestCircle{
+  from{stroke-dashoffset:314}
+  to{stroke-dashoffset:0}
+}
+
+/* Mobile spacing */
+@media (max-width: 640px){
+  #app{
+    padding-left:12px;
+    padding-right:12px;
+    padding-top:16px;
+  }
+
+  #home .card{
+    border-radius:16px;
+  }
+
+  #home .stat{
+    padding:10px;
+  }
+
+  #home .stat .text-xl{
+    font-size:16px;
+  }
+
+  #home{
+    gap:10px;
+  }
+}
+  /* MINTORA PREMIUM AUTH DESIGN */
+
+#auth{
+  max-width:480px;
+  padding:55px 22px 40px;
+  min-height:90vh;
+}
+
+.auth-logo{
+  font-size:66px;
+  letter-spacing:-2px;
+  text-shadow:0 0 35px rgba(167,139,250,.25);
+}
+
+.auth-tagline{
+  letter-spacing:4px;
+  font-size:11px;
+  color:#b7ad98;
+}
+
+.auth-card{
+  background:linear-gradient(145deg,
+    rgba(31,19,47,.96),
+    rgba(14,8,25,.98));
+  border:1px solid rgba(167,139,250,.25);
+  border-radius:26px;
+  padding:30px 25px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45),
+    0 0 35px rgba(124,58,237,.08);
+  backdrop-filter:blur(18px);
+}
+
+.auth-title{
+  color:#d4c1ff;
+  font-family:"Cormorant Garamond",serif;
+  font-size:34px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.auth-subtitle{
+  color:#9588a8;
+  font-size:12px;
+  margin-bottom:25px;
+}
+
+.auth-label{
+  color:#c4b5fd;
+  font-size:10px;
+  letter-spacing:2px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.auth-card input{
+  height:53px;
+  border-radius:14px;
+  background:rgba(8,5,16,.75);
+  border:1px solid rgba(167,139,250,.2);
+  font-size:15px;
+  padding:0 15px;
+  transition:.25s;
+}
+
+.auth-card input:focus{
+  border-color:#a78bfa;
+  box-shadow:0 0 0 3px rgba(167,139,250,.10);
+}
+
+.auth-primary{
+  height:53px;
+  border-radius:15px;
+  background:linear-gradient(110deg,#a78bfa,#7c3aed);
+  color:white;
+  font-weight:800;
+  font-size:16px;
+  box-shadow:0 9px 28px rgba(124,58,237,.3);
+}
+
+.auth-secondary{
+  height:50px;
+  border-radius:14px;
+  border:1px solid rgba(167,139,250,.3);
+  background:rgba(167,139,250,.045);
+  color:#d4c1ff;
+  font-weight:600;
+}
+
+.auth-footer{
+  color:#847891;
+  font-size:11px;
+  text-align:center;
+  margin-top:25px;
+}
+</style>
+</head>
+<body>
+<div id="auth" class="mx-auto">
+
+  <div class="text-center mb-10">
+    <div class="serif auth-logo gold">Mintora</div>
+    <div class="auth-tagline mt-2">
+      EARN · GROW · ELEVATE
+    </div>
+    <div class="text-[10px] text-[#8f829f] mt-5 tracking-[3px]">
+      MEMBER EXPERIENCE
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="box-login" class="auth-card">
+
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-subtitle">
+      Sign in to continue your Mintora journey.
+    </div>
+
+    <div class="auth-label">USERNAME</div>
+    <input id="li-user" class="mb-5"
+      placeholder="Enter your username"
+      autocomplete="username"/>
+
+    <div class="auth-label">PASSWORD</div>
+    <div class="rel mb-6">
+      <input id="li-pass" type="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"/>
+      <span class="eye"
+        onclick="toggleEye('li-pass',this)">👁</span>
+    </div>
+
+    <button class="auth-primary w-full"
+      onclick="doLogin()">
+      Continue →
+    </button>
+    <button class="w-full text-right text-sm mt-3"
+  style="color:#c4b5fd"
+  onclick="show('box-forgot')">
+  Forgot Password?
+</button>
+
+    <button class="auth-secondary w-full mt-4"
+      onclick="show('box-signup')">
+      Create account
+    </button>
+
+    <div class="auth-footer">
+      <span style="color:#a78bfa">✦</span>
+      Secure Mintora Member Access
+    </div>
+  </div>
+<!-- FORGOT PASSWORD -->
+<div id="box-forgot" class="auth-card hidden">
+  <div class="auth-title">Reset Password</div>
+  <div class="auth-subtitle">
+    Enter your registered email to receive a six-digit OTP.
+  </div>
+
+  <div class="auth-label">REGISTERED EMAIL</div>
+  <input
+    id="fp-email"
+    type="email"
+    placeholder="Enter your email"
+    autocomplete="email"
+  />
+
+  <button class="btn w-full mt-4" onclick="sendResetOtp()">
+    Send OTP →
+  </button>
+
+  <button class="ghost w-full mt-2" onclick="show('box-login')">
+    Back to Login
+  </button>
+</div>
+
+<!-- RESET OTP -->
+<div id="box-reset-otp" class="auth-card hidden">
+
+  <div class="auth-title">Verify OTP</div>
+  <div class="auth-subtitle">
+    Enter the six-digit code sent to your registered email.
+  </div>
+
+  <div class="auth-label">EMAIL OTP</div>
+  <input id="fp-otp" class="mb-5"
+    placeholder="Enter 6 digit OTP"
+    inputmode="numeric"
+    maxlength="6"/>
+
+  <div class="auth-label">NEW PASSWORD</div>
+  <input id="fp-pass" type="password" class="mb-4"
+    placeholder="Enter new password"
+    autocomplete="new-password"/>
+
+  <div class="auth-label">CONFIRM PASSWORD</div>
+  <input id="fp-confirm" type="password" class="mb-5"
+    placeholder="Confirm new password"
+    autocomplete="new-password"/>
+
+  <button class="auth-primary w-full"
+    onclick="verifyResetOtp()">
+    Verify & Reset Password →
+  </button>
+
+  <button class="auth-secondary w-full mt-4"
+    onclick="show('box-login')">
+    Back to Login
+  </button>
+</div>
+  <!-- SIGNUP -->
+  <div id="box-signup" class="auth-card hidden">
+
+    <div class="auth-title">Create Account</div>
+    <div class="auth-subtitle">
+      Join Mintora and create your member profile.
+    </div>
+
+    <div class="auth-label">USERNAME</div>
+    <input id="su-user" class="mb-4"
+      placeholder="Choose a username"
+      autocomplete="username"/>
+
+    <div class="auth-label">EMAIL ADDRESS</div>
+    <input id="su-email" class="mb-4"
+      placeholder="Enter your email"
+      autocomplete="email"/>
+
+    <div class="auth-label">PHONE NUMBER</div>
+    <input id="su-phone" class="mb-4"
+      placeholder="Enter phone number"
+      autocomplete="tel"/>
+
+    <div class="auth-label">PASSWORD</div>
+    <div class="rel mb-4">
+      <input id="su-pass" type="password"
+        placeholder="Create a password"
+        autocomplete="new-password"/>
+      <span class="eye"
+        onclick="toggleEye('su-pass',this)">👁</span>
+    </div>
+
+    <div class="auth-label">REFERRAL CODE</div>
+    <input id="su-ref" class="mb-6"
+      placeholder="Enter referral code (optional)"/>
+
+    <button class="auth-primary w-full"
+      onclick="sendOtp()">
+      Send Verification OTP →
+    </button>
+
+    <button class="auth-secondary w-full mt-4"
+      onclick="show('box-login')">
+      Back to Login
+    </button>
+
+    <div class="auth-footer">
+      Your account details will be used to create your member profile.
+    </div>
+  </div>
+
+  <!-- OTP -->
+  <div id="box-otp" class="auth-card hidden">
+
+    <div class="auth-title">Verify Email</div>
+    <div class="auth-subtitle">
+      Enter the six-digit verification code sent to your email.
+    </div>
+
+    <div class="auth-label">VERIFICATION CODE</div>
+    <input id="otp" class="mb-6"
+      placeholder="Enter 6 digit OTP"
+      inputmode="numeric"
+      maxlength="6"/>
+
+    <button class="auth-primary w-full"
+      onclick="verifyOtp()">
+      Verify & Create Account
+    </button>
+
+    <div class="auth-footer">
+      Mintora · Member Verification
+    </div>
+  </div>
+
+</div>
+
+<div id="app" class="hidden max-w-5xl mx-auto px-5 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <div class="serif text-4xl gold">Mintora</div>
+      <div id="hello" class="text-lg mt-1"></div>
+    </div>
+    <button class="ghost px-3" onclick="openMenu()" aria-label="menu"><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div><div style="width:18px;height:2px;background:#d4b483;margin:4px 0"></div></button>
+  </div>
+
+  <div id="home">
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">BALANCE</div><div id="bal" class="text-xl mt-1 gold">$0.00</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">EARN</div><div id="profit" class="text-xl mt-1">$0</div></div>
+      <div class="stat"><div class="text-[11px] text-[#b7ad98] tracking-wider">TEAM</div><div id="team" class="text-xl mt-1">0 / 0</div></div>
+      <div id="rank-display" class="text-xs text-[#c4b5fd] mb-4">Rank: No Rank</div>
+    </div>
+    <div class="card p-4 mb-4">
+      <div class="text-[11px] tracking-widest text-[#b7ad98] mb-1">REFERRAL</div>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div id="home-ref" class="text-lg font-semibold gold break-all"></div>
+        <button class="btn px-4" onclick="copyRef()">Copy</button>
+      </div>
+      <div id="home-link" class="text-xs text-[#b7ad98] break-all mb-2"></div>
+      <button class="ghost w-full" onclick="copyLink()">Copy link</button>
+    </div>
+    <div class="card p-5 mb-4">
+  <div class="serif text-2xl gold mb-2">Reinvest</div>
+  <div class="text-sm text-[#b7ad98] mb-3">
+    Transfer your available Earn into your investment.
+  </div>
+
+  <input
+    id="reinvest-amt"
+    type="number"
+    min="0.01"
+    step="0.01"
+    placeholder="Enter reinvest amount"
+    class="mb-3"
+  />
+
+  <button class="btn w-full" onclick="reinvest()">
+    Reinvest Now
+  </button>
+</div>
+
+  <div id="trade-card" class="card p-5 hidden">
+  <div class="serif text-2xl mb-1">Trade</div>
+  <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
+  <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
+    </div>
+   <!-- PREMIUM MARKET CHART -->
+<div class="card p-4 mb-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="flex justify-between items-center mb-3">
+    <div>
+      <div class="text-sm font-bold text-white">Market Overview</div>
+      <div class="text-[10px] text-[#a78bfa] mt-1">BTC / USDT · 7 Days</div>
+    </div>
+    <div class="text-[10px] text-green-400">● LIVE MARKET</div>
+  </div>
+
+  <div class="flex items-end justify-between mb-2">
+    <div>
+      <div id="btc-main-price" class="text-2xl font-bold text-white">$--</div>
+      <div id="btc-main-change" class="text-xs text-gray-400 mt-1">Loading market...</div>
+    </div>
+    <div class="text-[10px] text-[#a78bfa]">7D PERFORMANCE</div>
+  </div>
+
+  <div style="height:155px;position:relative">
+    <canvas id="market-chart"></canvas>
+  </div>
+
+  <div class="flex justify-between text-[10px] text-gray-500 mt-2">
+    <span>7 days ago</span>
+    <span>Today</span>
+  </div>
+</div>
+
+<!-- LIVE MARKET RATES -->
+<div class="card p-4 mb-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="flex justify-between items-center mb-4">
+    <div class="text-sm font-bold text-white">Live Market Rates</div>
+    <div class="text-[10px] text-green-400">● LIVE</div>
+  </div>
+
+  <div id="market-rates" class="space-y-3">
+    <div class="text-xs text-gray-400 text-center py-4">
+      Connecting to market...
+    </div>
+  </div>
+
+  <div class="text-[10px] text-gray-500 mt-4">
+    Market data source: Binance · Prices in USDT
+  </div>
+</div>
+
+<!-- TRADE ACTIVITY -->
+<div class="card p-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
+  <div class="text-sm font-bold text-white mb-2">Trade Activity</div>
+  <div class="text-xs text-gray-400">
+    Your actual trade records will appear here when connected to a verified trading backend.
+  </div>
+</div>     
+
+
+    </div>
+<!-- DEPOSIT PAGE -->
+<div id="deposit" class="hidden">
+
+  <div class="card p-5 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="serif text-2xl">Deposit USDT</div>
+        <div class="text-xs text-[#b7ad98] mt-1">
+          Add funds to your Mintora wallet
+        </div>
+      </div>
+      <div class="text-2xl">💎</div>
+    </div>
+
+    <div class="rounded-xl p-4 mb-4"
+         style="background:#17251f;border:1px solid #315b43">
+
+      <div class="text-xs text-[#b7ad98] mb-2">
+        SELECTED PAYMENT NETWORK
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🟡</span>
+        <div>
+          <div class="font-bold text-white">USDT (BEP20)</div>
+          <div class="text-xs text-[#a8c6b1]">
+            BNB Smart Chain
+          </div>
+        </div>
+        <div class="ml-auto text-xs text-green-400">
+          ACTIVE
+        </div>
+      </div>
+    </div>
+
+    <div class="text-sm font-semibold mb-2">
+      Deposit Wallet Address
+    </div>
+
+    <div class="rounded-xl p-3 mb-3"
+         style="background:#111713;border:1px solid #3b493e">
+
+      <div id="dep-addr"
+           class="text-xs break-all leading-6 text-[#d9d2c2]">
+        0x6d1D70332A468572f493820D7ffbA70a00545E4C
+      </div>
+
+      <button class="btn w-full mt-3"
+              onclick="copyAddr()">
+        Copy Wallet Address
+      </button>
+    </div>
+
+    <div class="rounded-lg p-3 text-xs leading-5"
+         style="background:#33251a;color:#f5c98a">
+      ⚠️ Important: Send only USDT through the BEP20 network.
+      Do not send USDT through TRC20, ERC20 or any other network.
+      Funds sent through the wrong network may be lost.
+    </div>
+  </div>
+
+  <div class="card p-5">
+    <div class="serif text-xl mb-1">Submit Deposit</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Enter your deposit amount and transaction hash after payment.
+    </div>
+
+    <label class="text-sm block mb-2">Amount (USDT)</label>
+    <input
+      id="dep-amt"
+      type="number"
+      min="100"
+      placeholder="Minimum 100 USDT"
+      class="mb-4"
+    />
+
+    <label class="text-sm block mb-2">Transaction Hash (TxID)</label>
+    <input
+      id="dep-hash"
+      type="text"
+      placeholder="Paste your BEP20 transaction hash"
+      class="mb-4"
+    />
+
+    <button class="btn w-full" onclick="deposit()">
+      Submit Deposit Request
+    </button>
+
+    <div class="text-xs text-center text-[#b7ad98] mt-3">
+      Your deposit will remain pending until admin verification.
+    </div>
+  </div>
+
+</div>
+
+<!-- WITHDRAW PAGE -->
+<div id="withdraw" class="card p-5 hidden">
+  <div class="serif text-2xl mb-2">Withdraw</div>
+  <div class="text-sm text-[#b7ad98] mb-3">
+    Minimum $10. Paid after admin approval.
+  </div>
+  <input id="wd-amt" type="number" min="10" placeholder="Amount" class="mb-3"/>
+  <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
+  <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6"/>
+  <button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
+  <button class="btn w-full mt-3" onclick="withdraw()">Request withdraw</button>
+</div>
+
+<!-- SUPPORT PAGE -->
+<div id="support" class="hidden">
+
+  <div class="card p-5 mb-4">
+    <div class="serif text-2xl mb-2">Support Center</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Need help? Send a message to our support team.
+    </div>
+
+    <label class="text-sm block mb-2">Select Category</label>
+    <select id="support-category" class="mb-3">
+      <option value="Deposit">Deposit Issue</option>
+      <option value="Withdraw">Withdraw Issue</option>
+      <option value="Account">Account Issue</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label class="text-sm block mb-2">Your Message</label>
+    <textarea id="support-message"
+      rows="5"
+      maxlength="2000"
+      placeholder="Describe your issue..."
+      class="mb-3"></textarea>
+
+    <button class="btn w-full" onclick="submitSupport()">
+      Submit Support Request
+    </button>
+  </div>
+
+  <div class="card p-5">
+    <div class="serif text-xl mb-3">My Support Tickets</div>
+    <div id="support-my-list"
+      class="text-sm text-[#b7ad98]">
+      Loading tickets...
+    </div>
+    <button class="ghost w-full mt-3" onclick="loadMySupport()">
+      Refresh Tickets
+    </button>
+  </div>
+
+</div>
+
+<!-- TRANSACTION HISTORY PAGE -->
+<div id="hist" class="card p-5 hidden"></div>
+  
+
+
+  <div id="ref" class="card p-5 hidden"></div>
+  <div id="teamview" class="card p-5 hidden"></div>
+<div id="settings" class="card p-5 hidden">
+  <div class="serif text-2xl mb-3">Settings</div>
+
+  <div class="text-sm text-[#b7ad98] mb-2">ACCOUNT DETAILS</div>
+  <input id="set-email" class="mb-3" placeholder="Email"/>
+  <input id="set-addr" class="mb-4" placeholder="Withdraw address"/>
+  <button class="btn w-full mb-6" onclick="saveSettings()">Save Details</button>
+
+  <div class="border-t border-[#55436d] pt-5">
+    <div class="serif text-xl mb-2">Change Password</div>
+    <div class="text-xs text-[#b7ad98] mb-4">
+      Set a new password for your Mintora account.
+    </div>
+
+    <input id="set-new-pass" type="password"
+      class="mb-3" placeholder="New password"
+      autocomplete="new-password"/>
+
+    <input id="set-confirm-pass" type="password"
+      class="mb-4" placeholder="Confirm new password"
+      autocomplete="new-password"/>
+
+    <button class="btn w-full" onclick="changePassword()">
+      Update Password
+    </button>
+  </div>
+</div>
+  
+  <div id="admin" class="card p-5 hidden"></div>
+</div>
+
+<div id="menu" class="menu" onclick="closeMenu()">
+  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
+    <div class="dtop">
+      <div class="serif text-3xl gold">Mintora</div>
+      <button class="dx" onclick="closeMenu()">×</button>
+    </div>
+    <button class="navitem on" onclick="tab('home',this)"><span class="ic">▦</span> Dashboard</button>
+<button class="navitem" onclick="tab('deposit',this)">
+  <span class="ic">↓</span> Deposit
+</button>
+
+<button class="navitem" onclick="tab('withdraw',this)">
+  <span class="ic">↑</span> Withdraw
+</button>
+
+<button class="navitem" onclick="tab('hist',this)">
+  <span class="ic">◷</span> Transaction History
+</button>
+    <button class="navitem" onclick="tab('ref',this)"><span class="ic">◎</span> Referral</button>
+    <button class="navitem" onclick="tab('teamview',this)"><span class="ic">☰</span> Team</button>
+    <button class="navitem" onclick="tab('settings',this)"><span class="ic">⚙</span> Settings</button>
+    <button class="navitem" onclick="tab('support',this);loadMySupport()">
+  <span class="ic">✉</span> Support Center
+</button>
+    <button class="navitem" id="admin-btn" onclick="tab('admin',this)"><span class="ic">◆</span> Admin</button>
+    <div class="uid"><div class="uidb">ID</div><div><div id="uid" class="gold font-semibold"></div><div class="text-xs text-[#b7ad98]">Member</div></div></div>
+    <button class="out" onclick="logout()">← Logout</button>
+  </div>
+</div>
+<div id="spinwrap" class="spinwrap hidden"><div class="spin"></div></div>
+<div id="pop" class="pop hidden" onclick="if(event.target===this)closePop()">
+  <div class="box" onclick="event.stopPropagation()">
+    <h3 id="pop-title">Title</h3>
+    <p id="pop-msg">Message</p>
+    <button onclick="closePop()">OK</button>
+  </div>
+</div>
+
+<script>
+  var SB_URL = "https://eyabgdpzciaqjrduthok.supabase.co";
+var SB_KEY = "sb_publishable_EGq5svUoU8ayO7HCc34A3g_WpCLm5EP";
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var EJ_PUB="VvaV_1kYF8KiCx-k9", EJ_SVC="service_rcfgil8", EJ_TPL="template_1e1da9p";
+var ADMIN = {
+  user: "admin",
+  email: "mintoratrade@gmail.com"
+};
+var SALARY_TIERS = [
+  { members: 10, pay: 30 },
+  { members: 30, pay: 70 },
+  { members: 80, pay: 150 },
+  { members: 160, pay: 300 },
+  { members: 250, pay: 500 },
+  { members: 500, pay: 1200 },
+  { members: 1100, pay: 2200 },
+  { members: 2500, pay: 4000 }
+];
+
+var TEAM_REWARDS = [
+  { members: 50, pay: 120 },
+  { members: 150, pay: 250 },
+  { members: 250, pay: 500 },
+  { members: 500, pay: 1000 },
+  { members: 1000, pay: 2000 },
+  { members: 2000, pay: 4000 },
+  { members: 4000, pay: 8000 },
+  { members: 10000, pay: 20000 }
+];
+
+var RANK_REWARDS = [
+  { volume: 1000, pay: 50, name: "Analyst" },
+  { volume: 5000, pay: 200, name: "Strategist" },
+  { volume: 15000, pay: 500, name: "Manager" },
+  { volume: 25000, pay: 1500, name: "Director" },
+  { volume: 42000, pay: 4000, name: "Partner" }
+];
+var u=null, otp="", pending=null, otpAt=0, done=false, scratchMs=0, lastTick=0;
+  var wdOtpCode = "", wdOtpTime = 0;
+function el(id){return document.getElementById(id)}
+function money(n){return (+n||0).toFixed(2)}
+function day(){return new Date().toISOString().slice(0,10)}
+function show(id){
+  [
+    "box-login",
+    "box-signup",
+    "box-otp",
+    "box-forgot",
+    "box-reset-otp"
+  ].forEach(function(x){
+    el(x).classList.add("hidden");
+  });
+
+  el(id).classList.remove("hidden");
+}
+function load(name){
+  try{
+    var raw=localStorage.getItem("mint_"+name);
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null;}
+}
+
+async function loadCloud(name){
+  try{
+    var res = await sb.from("users").select("*").eq("user_name", name).single();
+    if(res.data){
+      var p = {
+        user: res.data.user_name,
+        email: res.data.email || "",
+        phone: res.data.phone || "",
+        pass: res.data.pass || "",
+        ref: res.data.ref || "",
+        sponsor: res.data.sponsor || "",
+        bal: Number(res.data.bal || 0),
+        profit: Number(res.data.profit || 0),
+        base: Number(res.data.base || 0),
+        lock: Number(res.data.lock || 0),
+        wdAddr: res.data.wd_addr || "",
+        deps: res.data.deps || [],
+        wds: res.data.wds || [],
+        amb: res.data.amb || [],
+        nextTrade: Number(res.data.next_trade || 0),
+        scratchDay: res.data.scratch_day || "",
+lastSalary: Number(res.data.last_salary || 0),
+ambCard: Number(res.data.amb_card || 0)
+      };
+      localStorage.setItem("mint_"+name, JSON.stringify(p));
+      return p;
+    }
+  }catch(e){}
+  return load(name);
+}
+
+
+function save(p){
+  if(!p || !p.user) return Promise.resolve(false);
+
+  p.bal = +(Number(p.bal) || 0).toFixed(2);
+  p.profit = +(Number(p.profit) || 0).toFixed(2);
+  p.lock = +(Number(p.lock) || 0).toFixed(2);
+
+  localStorage.setItem("mint_" + p.user, JSON.stringify(p));
+
+  if(u && u.user === p.user) u = p;
+
+  return sb.from("users").upsert({
+    user_name: p.user,
+    email: p.email || "",
+    phone: p.phone || "",
+    pass: p.pass || "",
+    ref: p.ref || "",
+    sponsor: p.sponsor || "",
+    bal: p.bal,
+    profit: p.profit,
+    base: p.base || 0,
+    lock: p.lock || 0,
+    wd_addr: p.wdAddr || "",
+    deps: p.deps || [],
+    wds: p.wds || [],
+    amb: p.amb || [],
+    next_trade: p.nextTrade || 0,
+    scratch_day: p.scratchDay || "",
+    last_salary: p.lastSalary || 0,
+    amb_card: p.ambCard || 0,
+    ...(p.auth_user_id ? { auth_user_id: p.auth_user_id } : {})
+  }).then(function(res){
+    if(res.error){
+      console.error("Supabase save failed:", res.error);
+      return false;
+    }
+    return true;
+  }).catch(function(err){
+    console.error("Cloud sync error:", err);
+    return false;
+  });
+}
+function all(){
+  var list=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf("mint_")==0){
+      try{list.push(JSON.parse(localStorage.getItem(k)));}catch(e){}
+    }
+  }
+  return list;
+}
+
+async function allCloud(){
+  try{
+    var res = await sb.from("users").select("*");
+    if(res.data && res.data.length){
+      var list = res.data.map(function(r){
+        var p = {
+          user: r.user_name,
+          email: r.email || "",
+          phone: r.phone || "",
+          pass: r.pass || "",
+          ref: r.ref || "",
+          sponsor: r.sponsor || "",
+          bal: Number(r.bal || 0),
+          profit: Number(r.profit || 0),
+          base: Number(r.base || 0),
+          lock: Number(r.lock || 0),
+          wdAddr: r.wd_addr || "",
+          deps: r.deps || [],
+          wds: r.wds || [],
+          amb: r.amb || [],
+          nextTrade: Number(r.next_trade || 0),
+scratchDay: r.scratch_day || "",
+lastSalary: Number(r.last_salary || 0),
+ambCard: Number(r.amb_card || 0),auth_user_id: r.auth_user_id || null
+        };
+        localStorage.setItem("mint_"+p.user, JSON.stringify(p));
+        return p;
+      });
+      return list;
+    }
+  }catch(e){}
+  return all();
+}
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function kids(ref){return all().filter(function(x){return x.sponsor===ref})}
+function active(p){return (p.deps||[]).some(function(d){return d.st==="SUCCESSFUL"})}
+function downAll(ref){
+  var out=[], q=kids(ref);
+  while(q.length){var p=q.shift();out.push(p);q=q.concat(kids(p.ref))}
+  return out;
+}
+function depth(ref){
+  var ks=kids(ref); if(!ks.length)return 0;
+  return 1+Math.max.apply(null, ks.map(function(k){return depth(k.ref)}));
+}
+function rankOf(p){
+  var team=downAll(p.ref).filter(active);
+  var d=depth(p.ref), n=team.length, r=0;
+  if(d>=10)r=1;
+  if(n>=30)r=2;
+  if(n>=90)r=3;
+  if(n>=170)r=4;
+  if(n>=320)r=5;
+  return r;
+}
+  function startTrade(){
+  var btn = el("trade-btn");
+  var msg = el("trade-msg");
+
+  if(!btn || btn.disabled) return;
+
+  if(!u){
+    pop("Login Required","Please login first");
+    return;
+  }
+
+  var walletBalance = Number(u.bal) || 0;
+
+  if(walletBalance < 100){
+    pop("Insufficient Balance","Minimum wallet balance $100 required");
+    return;
+  }
+
+  var now = Date.now();
+
+  if(u.nextTrade && now < u.nextTrade){
+    var left = Math.ceil((u.nextTrade-now)/1000);
+    var h = Math.floor(left/3600);
+    var m = Math.floor((left%3600)/60);
+
+    pop("Trade Locked","Next trade available in "+h+"h "+m+"m");
+    if(msg) msg.textContent = "Next trade in "+h+"h "+m+"m";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Analyzing Market...";
+
+  if(msg) msg.textContent = "Connecting to market...";
+
+  var pairs = ["BTC/USDT","ETH/USDT","SOL/USDT","BNB/USDT","XRP/USDT"];
+  var pair = pairs[Math.floor(Math.random()*pairs.length)];
+
+  var overlay = document.createElement("div");
+  overlay.id = "premium-trade-overlay";
+
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:99999;
+    background:rgba(5,5,15,.94);
+    display:flex;align-items:center;justify-content:center;
+    padding:18px;font-family:Arial,sans-serif;
+  `;
+
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #7551ad;border-radius:22px;padding:24px;color:white;text-align:center;box-shadow:0 0 40px #6936a455">
+
+      <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">
+        MINTORA • TRADE
+      </div>
+
+      <div style="font-size:25px;font-weight:800;margin-bottom:8px">
+        Market Analysis
+      </div>
+
+      <div style="color:#b9acd0;font-size:13px;margin-bottom:20px">
+        Analyzing ${pair} market conditions
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:22px">
+        ${["BTC","ETH","SOL"].map(function(c){
+          return `<div style="background:#30234b;border:1px solid #65468d;border-radius:12px;padding:12px 15px;font-weight:bold">${c}</div>`;
+        }).join("")}
+      </div>
+
+      <div style="height:9px;background:#392b50;border-radius:20px;overflow:hidden;margin-bottom:13px">
+        <div id="trade-progress" style="height:100%;width:0%;background:linear-gradient(90deg,#9b5cff,#e1b8ff);border-radius:20px;transition:width 1s linear"></div>
+      </div>
+
+      <div id="trade-status" style="font-size:14px;color:#d8c9ee;margin-bottom:15px">
+        Connecting to market...
+      </div>
+
+      <div id="trade-count" style="font-size:42px;font-weight:800;color:#d5aaff">
+        10
+      </div>
+
+      <div style="font-size:11px;color:#9889ad;margin-top:8px">
+        Calculating platform reward
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  var seconds = 10;
+
+  var timer = setInterval(function(){
+    seconds--;
+
+    var count = overlay.querySelector("#trade-count");
+    var progress = overlay.querySelector("#trade-progress");
+    var status = overlay.querySelector("#trade-status");
+
+    if(count) count.textContent = seconds;
+    if(progress) progress.style.width = ((10-seconds)*10)+"%";
+
+    if(status){
+      if(seconds > 7) status.textContent = "Connecting to market...";
+      else if(seconds > 4) status.textContent = "Analyzing "+pair+"...";
+      else if(seconds > 1) status.textContent = "Calculating trade reward...";
+      else status.textContent = "Completing reward...";
+    }
+
+    if(seconds <= 0){
+      clearInterval(timer);
+
+      // Calculate 2.5% of wallet balance
+      var profit = +(walletBalance * 0.025).toFixed(2);
+
+      // IMPORTANT: Add reward ONLY to Earn.
+      // Wallet Balance remains unchanged.
+      u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
+
+      // Next trade tomorrow at 6 AM
+      var next = new Date();
+      next.setDate(next.getDate()+1);
+      next.setHours(6,0,0,0);
+      u.nextTrade = next.getTime();
+
+      save(u);
+      paint();
+
+      if(msg) msg.textContent = "Next trade available tomorrow at 6 AM";
+
+      overlay.innerHTML = `
+        <div style="width:100%;max-width:390px;background:linear-gradient(145deg,#21163d,#100d20);border:1px solid #8c62c5;border-radius:22px;padding:28px 22px;color:white;text-align:center;box-shadow:0 0 45px #6936a455">
+
+          <div style="font-size:48px;margin-bottom:12px">✓</div>
+
+          <div style="font-size:12px;color:#c5a5ff;letter-spacing:3px;margin-bottom:12px">
+            MINTORA • COMPLETED
+          </div>
+
+          <div style="font-size:25px;font-weight:800;margin-bottom:10px">
+            Trade Reward!
+          </div>
+
+          <div style="font-size:13px;color:#b9acd0;margin-bottom:8px">
+            ${pair}
+          </div>
+
+          <div style="font-size:38px;font-weight:900;color:#a9f5c5;margin:12px 0">
+            +$${profit.toFixed(2)}
+          </div>
+
+          <div style="font-size:13px;color:#c9bddb;margin-bottom:20px">
+            2.5% reward added to your Earn balance
+          </div>
+
+          <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
+            Wallet Balance: $${Number(u.bal).toFixed(2)}
+          </div>
+
+          <button id="trade-done-btn" style="width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#8b4de8,#bd83ff);color:white;font-size:15px;font-weight:bold">
+            Done
+          </button>
+
+          <div style="font-size:10px;color:#9587aa;margin-top:12px">
+            Platform reward calculation • Not an exchange trade
+          </div>
+        </div>
+      `;
+
+      overlay.querySelector("#trade-done-btn").onclick = function(){
+        overlay.remove();
+      };
+
+      btn.textContent = "Trade Locked";
+      btn.disabled = true;
+    }
+  },1000);
+}
+  var LIVE_PAIRS=["BTC/USDT","ETH/USDT","BNB/USDT","SOL/USDT","XRP/USDT","ADA/USDT","DOGE/USDT","MATIC/USDT","AVAX/USDT"];
+var liveTimer=null, barTimer=null;
+var marketChart = null;
+var marketTimer = null;
+var chartTimer = null;
+
+var MARKET_COINS = [
+  {symbol:"BTCUSDT", name:"Bitcoin", short:"BTC", icon:"₿"},
+  {symbol:"ETHUSDT", name:"Ethereum", short:"ETH", icon:"Ξ"},
+  {symbol:"BNBUSDT", name:"BNB", short:"BNB", icon:"◆"},
+  {symbol:"SOLUSDT", name:"Solana", short:"SOL", icon:"◎"},
+  {symbol:"XRPUSDT", name:"XRP", short:"XRP", icon:"✕"}
+];
+
+
+var marketChart = null;
+var marketTimer = null;
+var chartTimer = null;
+
+var MARKET_COINS = [
+  {id:"bitcoin",name:"Bitcoin",short:"BTC",icon:"₿"},
+  {id:"ethereum",name:"Ethereum",short:"ETH",icon:"Ξ"},
+  {id:"binancecoin",name:"BNB",short:"BNB",icon:"◆"},
+  {id:"solana",name:"Solana",short:"SOL",icon:"◎"},
+  {id:"ripple",name:"XRP",short:"XRP",icon:"✕"}
+];
+
+function formatMarketPrice(value){
+  var n = Number(value);
+  if(!Number.isFinite(n)) return "--";
+  return "$" + n.toLocaleString("en-US",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:n < 1 ? 5 : 2
+  });
+}
+
+async function marketFetch(url){
+  var controller = new AbortController();
+  var timeout = setTimeout(function(){
+    controller.abort();
+  },12000);
+
+  try{
+    var response = await fetch(url,{
+      method:"GET",
+      signal:controller.signal,
+      cache:"no-store"
+    });
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    return await response.json();
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
+async function updateMarketRates(){
+  var box = el("market-rates");
+  if(!box) return;
+
+  try{
+    var ids = MARKET_COINS.map(function(c){return c.id}).join(",");
+
+    var data = await marketFetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids="+ids+
+      "&vs_currencies=usd&include_24hr_change=true"
+    );
+
+    box.innerHTML = "";
+
+    MARKET_COINS.forEach(function(coin){
+      var item = data[coin.id];
+      if(!item) return;
+
+      var price = item.usd;
+      var change = Number(item.usd_24h_change || 0);
+      var positive = change >= 0;
+
+      var row = document.createElement("div");
+      row.style.cssText =
+        "display:flex;justify-content:space-between;align-items:center;padding:11px 10px;border-radius:13px;background:rgba(167,139,250,.055);border:1px solid rgba(167,139,250,.10)";
+
+      var left = document.createElement("div");
+      left.innerHTML =
+        '<span style="color:#c4b5fd;font-weight:bold;margin-right:10px">'+coin.icon+'</span>'+
+        '<span style="color:white;font-weight:700">'+coin.short+'</span>'+
+        '<div style="font-size:10px;color:#8f829f;margin-left:30px">'+coin.name+'</div>';
+
+      var right = document.createElement("div");
+      right.style.textAlign = "right";
+      right.innerHTML =
+        '<div style="font-size:13px;color:white;font-weight:700">'+formatMarketPrice(price)+'</div>'+
+        '<div style="font-size:11px;margin-top:3px;color:'+
+        (positive ? '#4ade80' : '#f87171')+'">'+
+        (positive?"+":"")+change.toFixed(2)+'%</div>';
+
+      row.appendChild(left);
+      row.appendChild(right);
+      box.appendChild(row);
+    });
+
+    if(!data.bitcoin) throw new Error("Bitcoin data missing");
+
+    el("btc-main-price").textContent =
+      formatMarketPrice(data.bitcoin.usd);
+
+    var btcChange = Number(data.bitcoin.usd_24h_change || 0);
+    el("btc-main-change").textContent =
+      (btcChange >= 0 ? "+" : "")+btcChange.toFixed(2)+"% today";
+
+    el("btc-main-change").style.color =
+      btcChange >= 0 ? "#4ade80" : "#f87171";
+
+  }catch(error){
+    console.error("Market rates error:",error);
+    box.innerHTML =
+      '<div style="color:#f87171;text-align:center;padding:15px;font-size:12px">Market unavailable. Please retry.</div>';
+  }
+}
+
+async function updateMarketChart(){
+  try{
+    var data = await marketFetch(
+      "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7"
+    );
+
+    var prices = data.prices || [];
+    if(!prices.length) throw new Error("No chart data");
+
+    var labels = prices.map(function(x){
+      return new Date(x[0]).toLocaleDateString("en-IN",{
+        day:"2-digit",month:"short"
+      });
+    });
+
+    var values = prices.map(function(x){return Number(x[1])});
+
+    var canvas = el("market-chart");
+    if(!canvas || typeof Chart === "undefined") return;
+
+    if(marketChart) marketChart.destroy();
+
+    var ctx = canvas.getContext("2d");
+    var gradient = ctx.createLinearGradient(0,0,0,160);
+    gradient.addColorStop(0,"rgba(167,139,250,.35)");
+    gradient.addColorStop(1,"rgba(167,139,250,0)");
+
+    marketChart = new Chart(ctx,{
+      type:"line",
+      data:{
+        labels:labels,
+        datasets:[{
+          data:values,
+          borderColor:"#a78bfa",
+          backgroundColor:gradient,
+          fill:true,
+          tension:.4,
+          borderWidth:2,
+          pointRadius:0
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:"#81758f",maxTicksLimit:7}},
+          y:{position:"right",grid:{color:"rgba(167,139,250,.08)"},
+            ticks:{color:"#81758f",callback:function(v){return "$"+Number(v).toLocaleString("en-US")}}}
+        }
+      }
+    });
+  }catch(error){
+    console.error("Market chart error:",error);
+  }
+}
+
+
+function startLiveTrades(){
+  if(marketTimer) clearInterval(marketTimer);
+  if(chartTimer) clearInterval(chartTimer);
+
+  el("market-rates").innerHTML =
+    '<div style="color:#c4b5fd;text-align:center;padding:15px">Market function started...</div>';
+
+  updateMarketRates();
+  updateMarketChart();
+
+  marketTimer = setInterval(updateMarketRates,30000);
+  chartTimer = setInterval(updateMarketChart,300000);
+}
+  
+function pop(title,msg){el("pop-title").textContent=title;el("pop-msg").textContent=msg;el("pop").classList.remove("hidden")}
+function closePop(){el("pop").classList.add("hidden")}
+function showSpin(fn){var s=el("spinwrap");if(s)s.classList.remove("hidden");setTimeout(function(){if(s)s.classList.add("hidden");if(fn)fn()},900)}
+function openMenu(){el("menu").classList.add("open");el("drawer").classList.add("open")}
+function closeMenu(){el("menu").classList.remove("open");el("drawer").classList.remove("open")}
+function toggleEye(id,btn){var i=el(id);i.type=i.type==="password"?"text":"password";btn.textContent=i.type==="password"?"👁":"🙈"}
+function totalTeam(p){
+  return p ? downAll(p.ref) : [];
+}
+
+function businessVolume(p){
+  if(!p) return 0;
+
+  var members = [p].concat(totalTeam(p));
+
+  return members.reduce(function(total, member){
+    var deposits = (member.deps || []).reduce(function(sum, d){
+      var status = d.st || d.status;
+      return sum + (status === "SUCCESSFUL" ? Number(d.amt || 0) : 0);
+    }, 0);
+
+    return total + deposits;
+  }, 0);
+}
+
+function processIncomes(p){
+  if(!p || !p.user || p.user === "admin") return null;
+
+  if(!Array.isArray(p.amb)) p.amb = [];
+
+  var team = totalTeam(p);
+  var teamCount = team.length;
+  var volume = businessVolume(p);
+  var changed = false;
+  var now = Date.now();
+
+  TEAM_REWARDS.forEach(function(item){
+    var key = "TEAM:" + item.members;
+    if(teamCount >= item.members && !p.amb.includes(key)){
+      p.profit = Number((Number(p.profit || 0) + item.pay).toFixed(2));
+      p.amb.push(key);
+      changed = true;
+    }
+  });
+
+  var currentRank = "No Rank";
+
+  RANK_REWARDS.forEach(function(item){
+    var key = "RANK:" + item.volume;
+
+    if(volume >= item.volume){
+      currentRank = item.name;
+
+      if(!p.amb.includes(key)){
+        p.profit = Number((Number(p.profit || 0) + item.pay).toFixed(2));
+        p.amb.push(key);
+        changed = true;
+      }
+    }
+  });
+
+  p.rankName = currentRank;
+
+  var salaryTier = null;
+
+  SALARY_TIERS.forEach(function(item){
+    if(teamCount >= item.members) salaryTier = item;
+  });
+
+  if(salaryTier){
+    if(!Number(p.lastSalary || 0)){
+      p.lastSalary = now;
+      p.salaryTier = salaryTier.members;
+      changed = true;
+    }else if(now - Number(p.lastSalary) >= 15 * 86400000){
+      p.profit = Number((Number(p.profit || 0) + salaryTier.pay).toFixed(2));
+      p.lastSalary = now;
+      p.salaryTier = salaryTier.members;
+      changed = true;
+    }
+  }
+
+  if(changed) save(p);
+
+  return {
+    team: teamCount,
+    volume: volume,
+    rank: currentRank,
+    salary: salaryTier ? salaryTier.pay : 0
+  };
+}
+async function sendOtp(){
+  var name = el("su-user").value.trim();
+  var email = el("su-email").value.trim();
+  var phone = el("su-phone").value.trim();
+  var pass = el("su-pass").value;
+
+  if(!name || !email || !phone || pass.length < 4){
+    pop("Missing","Fill all fields");
+    return;
+  }
+
+  if(load(name)){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  var members = await allCloud();
+
+  if(members.some(function(x){ return x.user === name; })){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  if(members.some(function(x){
+    return (x.email || "").toLowerCase() === email.toLowerCase();
+  })){
+    pop("Email used","This email is already registered");
+    return;
+  }
+
+  otp = String(Math.floor(100000 + Math.random() * 900000));
+  otpAt = Date.now();
+  pending = {
+    user: name,
+    email: email,
+    phone: phone,
+    pass: pass,
+    ref: el("su-ref").value.trim().toUpperCase()
+  };
+
+  if(window.emailjs && EJ_PUB.indexOf("YOUR_") !== 0){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC, EJ_TPL, {
+      email: email,
+      to_email: email,
+      user_name: name,
+      name: name,
+      otp_code: otp,
+      otp: otp,
+      message: "Your Mintora verification OTP is: " + otp
+    })
+    .then(function(){ pop("OTP sent","Check your email"); })
+    .catch(function(){ pop("OTP", otp); });
+  } else {
+    pop("OTP", otp);
+  }
+
+  show("box-otp");
+}
+async function verifyOtp(){
+  if(Date.now()-otpAt>600000){
+    pop("Expired","Request a new OTP");
+    return;
+  }
+
+  if(el("otp").value.trim()!==otp){
+    pop("Wrong","OTP does not match");
+    return;
+  }
+
+  if(!pending){
+    pop("Error","Signup session expired. Please start again.");
+    show("box-signup");
+    return;
+  }
+
+  var members = await allCloud();
+
+  if(members.some(function(x){ return x.user === pending.user; })){
+    pop("Taken","Username already used");
+    return;
+  }
+
+  var email = (pending.email || "").trim().toLowerCase();
+  var pass = pending.pass || "";
+
+  // 1) Auth user create (login ke liye zaroori)
+  var authRes = await sb.auth.signUp({
+    email: email,
+    password: pass
+  });
+
+  if(authRes.error){
+    pop("Signup Failed", authRes.error.message || "Could not create login account");
+    return;
+  }
+
+  var authId = authRes.data && authRes.data.user && authRes.data.user.id;
+  if(!authId){
+    pop("Signup Failed","Auth user not created");
+    return;
+  }
+
+  var sponsor = members.find(function(x){
+    return x.ref === (pending.ref || "").toUpperCase();
+  });
+
+  var p = {
+    user: pending.user,
+    email: email,
+    phone: pending.phone,
+    pass: pass,
+    ref: code(),
+    sponsor: sponsor ? sponsor.ref : "",
+    bal: 0,
+    profit: 0,
+    base: 0,
+    lock: 0,
+    deps: [],
+    wds: [],
+    wdAddr: "",
+    amb: [],
+    scratchDay: "",
+    lastSalary: 0,
+    auth_user_id: authId
+  };
+
+  var saved = await save(p);
+
+  if(!saved){
+    pop("Error","Account could not be saved. Please try again.");
+    return;
+  }
+
+  u = p;
+  localStorage.setItem("mint_session", p.user);
+
+  showSpin(function(){
+    enter();
+  });
+}
+async function sendResetOtp(){
+  var email = (el("fp-email").value || "").trim().toLowerCase();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    pop("Invalid Email","Please enter a valid registered email.");
+    return;
+  }
+
+  try{
+    var { data, error } = await sb.functions.invoke("password-reset", {
+      body: { action: "send", email: email }
+    });
+
+    if(error || !data || !data.ok){
+      pop("OTP Error", (data && data.error) || "Could not start reset.");
+      return;
+    }
+
+    resetEmail = email;
+
+    if(window.emailjs){
+      emailjs.init(EJ_PUB);
+      await emailjs.send(EJ_SVC, EJ_TPL, {
+        email: email,
+        to_email: email,
+        user_name: data.user_name || "",
+        name: data.user_name || "",
+        otp_code: data.otp,
+        otp: data.otp,
+        message: "Your Mintora password reset OTP is: " + data.otp
+      });
+    } else {
+      pop("OTP (test)", data.otp);
+    }
+
+    el("fp-otp").value = "";
+    el("fp-pass").value = "";
+    el("fp-confirm").value = "";
+    show("box-reset-otp");
+    pop("OTP Sent","Check your email for the password reset code.");
+  }catch(e){
+    console.error(e);
+    pop("OTP Error","Could not send OTP.");
+  }
+}
+
+async function verifyResetOtp(){
+  var token = (el("fp-otp").value || "").trim();
+  var pass = el("fp-pass").value || "";
+  var confirmPass = el("fp-confirm").value || "";
+
+  if(!resetEmail){
+    pop("Error","Please request a new OTP.");
+    show("box-forgot");
+    return;
+  }
+
+  if(pass.length < 4){
+    pop("Weak Password","Password must be at least 4 characters.");
+    return;
+  }
+
+  if(pass !== confirmPass){
+    pop("Password Mismatch","Both passwords must match.");
+    return;
+  }
+
+  try{
+    var { data, error } = await sb.functions.invoke("password-reset", {
+      body: {
+        action: "verify",
+        email: resetEmail,
+        otp: token,
+        password: pass
+      }
+    });
+
+    if(error || !data || !data.ok){
+      pop("Error", (data && data.error) || "Password reset failed.");
+      return;
+    }
+
+    resetEmail = "";
+    el("fp-otp").value = "";
+    el("fp-pass").value = "";
+    el("fp-confirm").value = "";
+    el("fp-email").value = "";
+
+    show("box-login");
+    pop("Password Updated","Password changed. Please login with new password.");
+  }catch(e){
+    console.error(e);
+    pop("Error","Password reset failed.");
+  }
+}
+async function doLogin(){
+  var name = (el("li-user").value || "").trim();
+  var pass = el("li-pass").value || "";
+
+  if(!name || !pass){
+    pop("Login failed","Enter username and password");
+    return;
+  }
+
+  // Admin
+  if(name.toLowerCase() === ADMIN.user){
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: ADMIN.email,
+        password: pass
+      });
+
+      if(error || !data.user){
+        pop("Admin login failed", "Invalid admin password");
+        return;
+      }
+
+      if(data.user.id !== "33e8c739-45d7-4333-990b-ce26d5e1dcae"){
+        await sb.auth.signOut();
+        pop("Access denied", "Admin permission not verified");
+        return;
+      }
+
+      u = {
+        user:"admin",
+        bal:0,
+        profit:0,
+        base:0,
+        ref:"ADMIN",
+        deps:[],
+        wds:[],
+        amb:[]
+      };
+
+      localStorage.setItem("mint_session", "admin");
+      showSpin(function(){ enter(); });
+      return;
+
+    } catch(error) {
+      console.error("ADMIN LOGIN ERROR:", error);
+      pop("Login failed", "Admin authentication unavailable");
+      return;
+    }
+  }
+
+  var spinStart = Date.now();
+  if(el("spinwrap")) el("spinwrap").classList.remove("hidden");
+
+  // 1) Auth / edge function try
+  try {
+    const { data, error } = await sb.functions.invoke("username-login", {
+      body: { username: name, password: pass }
+    });
+
+    if(!error && data && data.ok && data.session && data.user){
+      const { error: sessionError } = await sb.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
+      });
+
+      if(!sessionError){
+        u = Object.assign({}, data.user, { user: data.user.user_name });
+        localStorage.setItem("mint_session", u.user);
+        processIncomes(u);
+
+        var remaining = Math.max(0, 900 - (Date.now() - spinStart));
+        setTimeout(function(){
+          if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+          enter();
+        }, remaining);
+        return;
+      }
+    }
+  } catch(e) {
+    console.error("username-login error:", e);
+  }
+
+  // 2) Fallback — users.pass (purane accounts)
+  try {
+    var p = await loadCloud(name);
+    if(p && p.user && String(p.pass || "") === String(pass)){
+      u = p;
+      localStorage.setItem("mint_session", u.user);
+      processIncomes(u);
+
+      var remaining2 = Math.max(0, 900 - (Date.now() - spinStart));
+      setTimeout(function(){
+        if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+        enter();
+      }, remaining2);
+      return;
+    }
+  } catch(e2) {
+    console.error("fallback login error:", e2);
+  }
+
+  if(el("spinwrap")) el("spinwrap").classList.add("hidden");
+  pop(
+    "Login Failed",
+    "The username or password you entered is incorrect. Please check and try again."
+  );
+}
+function enter(){
+  if(!u) return;
+
+  el("auth").classList.add("hidden");
+  el("app").classList.remove("hidden");
+
+  el("hello").textContent = u.user;
+
+  if(el("uid")) el("uid").textContent = u.user;
+
+  if(el("admin-btn")){
+    el("admin-btn").style.display =
+      u.user === "admin" ? "block" : "none";
+  }
+
+  paint();
+
+if(u.user === "admin"){
+    tab("admin");
+  }else{
+    tab("home");
+  }
+}
+
+function logout(){
+  closeMenu();
+  u = null;
+  localStorage.removeItem("mint_session");
+  el("app").classList.add("hidden");
+  el("auth").classList.remove("hidden");
+  show("box-login");
+  pop("Signed out", "See you again");
+}
+
+function tab(id,btn){
+  ["home","deposit","withdraw","hist","ref","teamview","settings","admin"]
+    .forEach(function(x){
+      el(x).classList.add("hidden");
+    });
+
+  el(id).classList.remove("hidden");
+
+  var tradeCard = el("trade-card");
+  if(tradeCard){
+    tradeCard.classList.toggle("hidden", id !== "home");
+  }
+
+  closeMenu();
+
+  document.querySelectorAll(".navitem").forEach(function(b){
+    b.classList.remove("on");
+  });
+
+  if(btn) btn.classList.add("on");
+
+  if(id === "home"){
+    if(typeof setupScratch === "function"){
+      setupScratch();
+    }
+    startLiveTrades();
+  }
+}
+
+function copyAddr(){navigator.clipboard.writeText(el("dep-addr").textContent).then(function(){pop("Copied","Address copied")})}
+function copyRef(){navigator.clipboard.writeText(u.ref).then(function(){pop("Copied","Referral code copied")})}
+function copyLink(){navigator.clipboard.writeText(location.origin+location.pathname+"?ref="+u.ref).then(function(){pop("Copied","Link copied")})}
+function paint(){
+  if(!u)return;
+  var allTeam=u.user==="admin"?[]:downAll(u.ref);
+  var act=allTeam.filter(active), ina=allTeam.filter(function(x){return !active(x)});
+  el("bal").textContent="$"+money(u.bal);
+  el("profit").textContent="$"+money(u.profit);
+  if(el("trade-msg") && u.nextTrade && Date.now() < u.nextTrade){
+  var left = Math.ceil((u.nextTrade - Date.now()) / 1000);
+  var h = Math.floor(left / 3600);
+  var m = Math.floor((left % 3600) / 60);
+  el("trade-msg").textContent = "Next trade in " + h + "h " + m + "m";
+} else if(el("trade-msg")){
+  el("trade-msg").textContent = "Ready to trade";
+}
+  el("team").textContent=act.length+" / "+ina.length;
+  var rankLabel = RANK_REWARDS.reduce(function(found,item){
+  return businessVolume(u) >= item.volume ? item.name : found;
+},"No Rank");
+
+var rankBox = el("rank-display");
+if(rankBox){
+  rankBox.textContent = "Rank: " + rankLabel;
+}
+  el("home-ref").textContent=u.ref||"";
+  el("home-link").textContent=location.origin+location.pathname+"?ref="+(u.ref||"");
+  if(el("set-email"))el("set-email").value=u.email||"";
+  if(el("set-addr"))el("set-addr").value=u.wdAddr||"";
+  var mine=all().filter(function(x){return x.sponsor===u.ref});
+  el("ref").innerHTML='<div class="serif text-2xl mb-2">Referral</div><div class="mb-2 text-lg gold">'+u.ref+'</div><div class="text-sm mb-3 break-all text-[#b7ad98]">'+location.origin+location.pathname+'?ref='+u.ref+'</div><button class="btn mb-2" onclick="copyRef()">Copy code</button> <button class="ghost" onclick="copyLink()">Copy link</button><div class="mt-3">Direct: <b>'+mine.length+'</b></div><div class="text-sm text-[#b7ad98] mt-1">You earn a one-time 15% direct referral reward when the referred member makes their first successful deposit and your account is active.</div>';
+  var teamHtml = '<div class="serif text-2xl mb-3">Team</div>';
+teamHtml += '<div class="grid grid-cols-2 gap-3 mb-4">';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Active</div><div class="text-2xl gold mt-1">'+act.length+'</div></div>';
+teamHtml += '<div class="stat"><div class="text-xs text-[#b7ad98]">Inactive</div><div class="text-2xl mt-1">'+ina.length+'</div></div>';
+teamHtml += '</div>';
+
+if(allTeam.length === 0){
+  teamHtml += '<div class="text-sm text-[#b7ad98]">No team members yet</div>';
+} else {
+  teamHtml += '<div class="text-sm font-semibold mb-2 text-[#c4b5fd]">All Members</div>';
+  allTeam.forEach(function(m){
+    var isAct = active(m);
+    var statusColor = isAct ? "#4ade80" : "#f87171";
+    var statusText = isAct ? "Active" : "Inactive";
+    teamHtml += '<div class="py-3 px-3 mb-2 rounded-xl" style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.12)">';
+    teamHtml += '<div class="flex justify-between items-center">';
+    teamHtml += '<div><div class="font-semibold text-white">'+m.user+'</div>';
+    teamHtml += '<div class="text-xs mt-1" style="color:'+statusColor+'">'+statusText+'</div></div>';
+    teamHtml += '<div class="text-right"><div class="gold font-semibold">$'+money(m.bal)+'</div>';
+    teamHtml += '<div class="text-xs text-[#b7ad98]">Wallet</div></div>';
+    teamHtml += '</div></div>';
+  });
+}
+el("teamview").innerHTML = teamHtml;
+  var transactions = [];
+
+(u.deps || []).forEach(function(d){
+  transactions.push({
+    type: "Deposit",
+    amount: Number(d.amt || 0),
+    status: d.st || d.status || "PENDING",
+    time: Number(d.t || d.time || 0)
+  });
+});
+
+(u.wds || []).forEach(function(w){
+  var amount = Number(w.amt || 0);
+  var fee = Number(
+    w.fee != null ? w.fee : (amount * 0.15)
+  );
+  var netAmount = Number(
+    w.netAmount != null ? w.netAmount : (amount - fee)
+  );
+
+  transactions.push({
+    type: "Withdraw",
+    amount: amount,
+    fee: fee,
+    netAmount: netAmount,
+    status: w.st || w.status || "PENDING",
+    time: Number(w.time || w.t || 0)
+  });
+});
+
+transactions.sort(function(a,b){
+  return b.time - a.time;
+});
+
+var historyHtml =
+  '<div class="serif text-2xl mb-1">Transaction History</div>' +
+  '<div class="text-xs text-[#b7ad98] mb-4">Your deposit and withdrawal activity</div>' +
+  '<div class="flex gap-2 mb-4">' +
+    '<button class="ghost" onclick="showHistory(\'ALL\')">All</button>' +
+    '<button class="ghost" onclick="showHistory(\'Deposit\')">Deposit</button>' +
+    '<button class="ghost" onclick="showHistory(\'Withdraw\')">Withdraw</button>' +
+  '</div>' +
+  '<div id="history-list"></div>';
+
+el("hist").innerHTML = historyHtml;
+
+window.mintTransactions = transactions;
+showHistory("ALL");
+  
+  
+
+  if (u.user === "admin") {
+  var pendD = [];
+  var pendW = [];
+
+  all().forEach(function(p) {
+    (p.deps || []).forEach(function(d) {
+      if (d.st === "PENDING" || d.status === "PENDING") {
+        pendD.push({ user: p.user, d: d });
+      }
+    });
+    (p.wds || []).forEach(function(w) {
+      if (w.st === "PENDING" || w.status === "PENDING") {
+        pendW.push({ user: p.user, w: w });
+      }
+    });
+  });
+
+  el("admin").innerHTML =
+  '<div class="serif text-2xl mb-3">Admin Panel</div>' +
+  '<div class="serif text-xl mb-2">Pending Deposits</div>' +
+  (pendD.map(function(x) {
+    return '<div class="py-3 border-b border-white/10">' +
+      '<b>' + x.user + '</b> $' + money(x.d.amt) +
+      '<div class="text-xs break-all text-[#b7ad98]">' + (x.d.hash || '') + '</div>' +
+      '<button type="button" class="btn mt-2" onclick="adDep(\'' + x.user + '\',\'' + (x.d.hash||'') + '\',true)">Approve</button> ' +
+      '<button type="button" class="ghost mt-2" onclick="adDep(\'' + x.user + '\',\'' + (x.d.hash||'') + '\',false)">Reject</button>' +
+      '</div>';
+  }).join("") || '<div class="text-sm text-gray-400">No pending deposits</div>') +
+
+  '<div class="serif text-xl mt-5 mb-2">Pending Withdrawals</div>' +
+  (pendW.map(function(x) {
+    var requestTime = Number(x.w.time || x.w.t || 0);
+    var requestDate = requestTime
+      ? new Date(requestTime).toLocaleDateString("en-IN", {
+          day:"2-digit",
+          month:"short",
+          year:"numeric"
+        })
+      : "Date unavailable";
+
+    var requestClock = requestTime
+      ? new Date(requestTime).toLocaleTimeString("en-IN", {
+          hour:"2-digit",
+          minute:"2-digit",
+          second:"2-digit",
+          hour12:true
+        })
+      : "Time unavailable";
+
+    var amount = Number(x.w.amt || 0);
+    var fee = Number(x.w.fee != null ? x.w.fee : amount * 0.15);
+    var net = Number(x.w.netAmount != null ? x.w.netAmount : amount - fee);
+
+    return '<div class="py-3 border-b border-white/10">' +
+      '<b>' + x.user + '</b>' +
+      '<div>Withdrawal: $' + money(amount) + '</div>' +
+      '<div class="text-xs text-[#fbbf24]">Fee (15%): $' + money(fee) + '</div>' +
+      '<div class="text-sm font-semibold text-green-400">Net Payable: $' + money(net) + '</div>' +
+      '<div class="text-xs text-[#b7ad98] mt-2">Request Date: ' + requestDate + '</div>' +
+      '<div class="text-xs text-[#b7ad98]">Request Time: ' + requestClock + '</div>' +
+      '<div class="text-xs break-all text-[#b7ad98] mt-2">' + (x.w.addr || '') + '</div>' +
+      '<button class="btn mt-2" onclick="approveWd(\'' + x.user + '\',\'' + x.w.id + '\')">Mark Paid</button> ' +
+      '<button class="ghost mt-2" onclick="rejectWd(\'' + x.user + '\',\'' + x.w.id + '\')">Reject</button>' +
+      '</div>';
+  }).join("") || '<div class="text-sm text-gray-400">No pending withdrawals</div>') +
+    
+  '<div class="border-t border-white/10 mt-6 pt-5">' +
+  '<div class="serif text-2xl mb-3">Support Center</div>' +
+  '<div id="support-admin-list" class="text-sm text-[#b7ad98]">Loading messages...</div>' +
+  '</div>';
+  
+  loadSupportMessages();
+  }
+}
+
+
+  
+async function loadSupportMessages(){
+  var box = el("support-admin-list");
+  if(!box || !u || u.user !== "admin") return;
+
+  box.textContent = "Loading messages...";
+
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin", {
+      body:{action:"list"}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Unable to load");
+    }
+
+    box.innerHTML = "";
+
+    if(!data.messages.length){
+      box.textContent = "No support messages yet.";
+      return;
+    }
+
+    data.messages.forEach(function(m){
+      var card = document.createElement("div");
+      card.style.cssText =
+        "padding:14px;margin-bottom:12px;border-radius:14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.15)";
+
+      var title = document.createElement("div");
+      title.style.cssText = "color:white;font-weight:700";
+      title.textContent = m.username + " • " + m.category;
+
+      var status = document.createElement("div");
+      status.style.cssText = "font-size:11px;color:#c4b5fd;margin:6px 0";
+      status.textContent = "Status: " + m.status;
+
+      var message = document.createElement("div");
+      message.style.cssText = "color:#ddd;margin:10px 0;white-space:pre-wrap";
+      message.textContent = m.message;
+
+      var reply = document.createElement("textarea");
+      reply.placeholder = "Write your reply...";
+      reply.value = m.admin_reply || "";
+      reply.style.cssText =
+        "width:100%;padding:10px;border-radius:10px;background:#21182e;color:white;margin:10px 0";
+
+      var button = document.createElement("button");
+      button.className = "btn w-full";
+      button.textContent = "Send Reply";
+      button.onclick = function(){
+        replySupportMessage(m.id, reply.value);
+      };
+
+      var close = document.createElement("button");
+      close.className = "ghost mt-2";
+      close.textContent = "Close Ticket";
+      close.onclick = function(){
+        updateSupportStatus(m.id,"CLOSED");
+      };
+
+      card.append(title,status,message,reply,button,close);
+      box.appendChild(card);
+    });
+
+  }catch(error){
+    console.error("SUPPORT LOAD ERROR:",error);
+    box.textContent = "Could not load support messages. Please retry.";
+  }
+}
+
+async function replySupportMessage(id,reply){
+  reply = String(reply || "").trim();
+
+  if(!reply) return pop("Reply Required","Write a reply first.");
+
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin",{
+      body:{action:"reply",id:id,reply:reply}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Reply failed");
+    }
+
+    pop("Reply Sent","Support message updated.");
+    loadSupportMessages();
+
+  }catch(error){
+    console.error(error);
+    pop("Error",error.message || "Could not send reply.");
+  }
+}
+
+async function updateSupportStatus(id,status){
+  try{
+    var {data,error} = await sb.functions.invoke("support-admin",{
+      body:{action:"status",id:id,status:status}
+    });
+
+    if(error || !data || !data.ok){
+      throw new Error(data?.error || error?.message || "Update failed");
+    }
+
+    pop("Updated","Ticket status changed.");
+    loadSupportMessages();
+
+  }catch(error){
+    console.error(error);
+    pop("Error",error.message || "Could not update status.");
+  }
+}
+
+  
+function showHistory(filter){
+  var box = el("history-list");
+  if(!box) return;
+
+  var list = window.mintTransactions || [];
+
+  if(filter !== "ALL"){
+    list = list.filter(function(x){
+      return x.type === filter;
+    });
+  }
+
+  if(!list.length){
+    box.innerHTML =
+      '<div class="text-center py-7 rounded-xl text-sm text-[#b7ad98]" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">No transactions yet</div>';
+    return;
+  }
+
+  box.innerHTML = list.map(function(x){
+    var date = x.time
+      ? new Date(x.time).toLocaleString("en-IN", {
+          day:"2-digit",
+          month:"short",
+          year:"numeric",
+          hour:"2-digit",
+          minute:"2-digit"
+        })
+      : "Date unavailable";
+
+    var isDeposit = x.type === "Deposit";
+    var amount = Number(x.amount || 0);
+
+    var fee = Number(
+      x.fee != null ? x.fee : (isDeposit ? 0 : amount * 0.15)
+    );
+
+    var netAmount = Number(
+      x.netAmount != null ? x.netAmount : (amount - fee)
+    );
+
+    var color =
+      x.status === "SUCCESSFUL" ||
+      x.status === "APPROVED" ||
+      x.status === "PAID"
+        ? "#4ade80"
+        : x.status === "REJECTED"
+          ? "#f87171"
+          : "#fbbf24";
+
+    return '<div class="flex items-center justify-between gap-3 p-3 mb-2 rounded-xl" style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)">' +
+      '<div class="flex items-center gap-3 min-w-0">' +
+        '<div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.07);color:'+(isDeposit?'#4ade80':'#fbbf24')+'">' +
+          (isDeposit ? '↓' : '↑') +
+        '</div>' +
+        '<div class="min-w-0">' +
+          '<div class="font-semibold">'+x.type+'</div>' +
+          '<div class="text-xs text-[#b7ad98] mt-1">'+date+'</div>' +
+          '<div class="text-xs mt-1" style="color:'+color+'">'+x.status+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="text-right whitespace-nowrap">' +
+        '<div class="font-semibold">'+(isDeposit?'+':'-')+'$'+money(amount)+'</div>' +
+        (!isDeposit
+          ? '<div class="text-xs text-[#fbbf24] mt-1">Fee (15%): $'+money(fee)+'</div>' +
+            '<div class="text-xs text-[#b7ad98] mt-1">Net: $'+money(netAmount)+'</div>'
+          : '') +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function saveSettings(){
+  u.email=el("set-email").value.trim();
+  u.wdAddr=el("set-addr").value.trim();
+  save(u);
+  pop("Saved","Email and withdraw address updated");
+}
+  async function changePassword(){
+  var newPass = el("set-new-pass").value;
+  var confirmPass = el("set-confirm-pass").value;
+
+  if(newPass.length < 8){
+    pop("Weak Password","Password must be at least 8 characters.");
+    return;
+  }
+
+  if(newPass !== confirmPass){
+    pop("Password Mismatch","Both passwords must match.");
+    return;
+  }
+
+  try {
+    var { data: userData, error: userError } = await sb.auth.getUser();
+
+    if(userError || !userData.user){
+      pop("Session Expired","Please log in again.");
+      return;
+    }
+
+    var { error } = await sb.auth.updateUser({
+      password: newPass
+    });
+
+    if(error) throw error;
+
+    el("set-new-pass").value = "";
+    el("set-confirm-pass").value = "";
+
+    pop("Password Updated","Your new password is now active.");
+
+  } catch(error) {
+    console.error("CHANGE PASSWORD ERROR:", error);
+    pop("Update Failed",error.message || "Please try again.");
+  }
+}
+function deposit(){
+  var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
+  if(amt<100){pop("Minimum","Deposit at least $100");return;}
+  if(hash.length<10){pop("Hash","Enter transaction hash");return}
+  u.deps=u.deps||[];
+  if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
+  u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
+  save(u);paint(); pop("Waiting","Deposit submitted. Waiting for admin approval.");
+}
+
+async function adDep(user, hash, ok){
+  var p = await loadCloud(user);
+
+  if(!p || !Array.isArray(p.deps)){
+    pop("Error","User or deposit not found");
+    return;
+  }
+
+  var d = p.deps.find(function(x){
+    return x.hash === hash;
+  });
+
+  if(!d || d.st !== "PENDING"){
+    pop("Error","Deposit already processed or not found");
+    return;
+  }
+
+  if(ok){
+    d.st = "SUCCESSFUL";
+    d.approvedAt = Date.now();
+
+    p.bal = Number((Number(p.bal || 0) + Number(d.amt || 0)).toFixed(2));
+    p.lock = Number((Number(p.lock || 0) + Number(d.amt || 0)).toFixed(2));
+
+    if(!Array.isArray(p.amb)) p.amb = [];
+
+    var hasSuccessfulDeposit = (p.deps || []).some(function(x){
+      return x !== d && x.st === "SUCCESSFUL";
+    });
+
+    var rewardMsg = "";
+
+    // ONE-TIME DIRECT REFERRAL: pay only the single account whose
+// referral code is stored in p.sponsor. Never walk up the upline tree.
+if(!hasSuccessfulDeposit && !p.amb.includes("REFERRAL_CHECKED")){
+  p.amb.push("REFERRAL_CHECKED");
+
+  if(p.sponsor){
+    var sponsorCode = String(p.sponsor).trim();
+
+    var sponsorUser = (await allCloud()).find(function(x){
+      return String(x.ref || "").trim() === sponsorCode;
+    });
+
+    if(sponsorUser){
+      if(!Array.isArray(sponsorUser.amb)){
+        sponsorUser.amb = [];
+      }
+
+      var directPaidKey = "REFERRAL_PAID:" + p.ref;
+
+      if(active(sponsorUser) && !sponsorUser.amb.includes(directPaidKey)){
+        var reward = Number((Number(d.amt || 0) * 0.15).toFixed(2));
+
+        sponsorUser.profit = Number(
+          (Number(sponsorUser.profit || 0) + reward).toFixed(2)
+        );
+
+        sponsorUser.amb.push(directPaidKey);
+        await save(sponsorUser);
+
+        rewardMsg = " One-time 15% direct referral reward of $" + reward + " credited to the direct sponsor only.";
+
+        processIncomes(sponsorUser);
+      }
+    }
+  }
+}
+    await save(p);
+    processIncomes(p);
+    await allCloud();
+
+    if(u && u.user === user) u = await loadCloud(user);
+
+    paint();
+    pop("Deposit Approved","Deposit approved successfully." + rewardMsg);
+  }else{
+    d.st = "REJECTED";
+    d.rejectedAt = Date.now();
+
+    await save(p);
+
+    if(u && u.user === user) u = p;
+
+    paint();
+    pop("Deposit Rejected","Deposit request rejected.");
+  }
+}
+
+async function withdraw(){
+  if(!u) return;
+
+  var amt = Number(el("wd-amt").value || 0);
+  var addr = (el("wd-addr").value || "").trim();
+
+  if(!Number.isFinite(amt) || amt < 10)
+    return pop("Error","Minimum withdraw $10");
+
+  if(!addr || addr.length < 10)
+    return pop("Error","Enter valid BEP20 address");
+
+  if(!verifyWdOtp()) return;
+
+  var p = load(u.user);
+  if(!p) return pop("Error","Account not found");
+
+  var profit = Number(p.profit || 0);
+
+  if(amt > profit)
+    return pop("Error","Insufficient earnings");
+
+  var hasPending = (p.wds || []).some(function(w){
+    return w.st === "PENDING" || w.status === "PENDING";
+  });
+
+  if(hasPending)
+    return pop("Pending","You already have a pending withdrawal");
+
+  var fee = Number((amt * 0.15).toFixed(2));
+  var netAmount = Number((amt - fee).toFixed(2));
+
+  p.profit = Number((profit - amt).toFixed(2));
+  if(!Array.isArray(p.wds)) p.wds = [];
+
+  var id = "WD" + Date.now();
+
+  p.wds.unshift({
+    id: id,
+    amt: amt,
+    fee: fee,
+    netAmount: netAmount,
+    addr: addr,
+    st: "PENDING",
+    status: "PENDING",
+    time: Date.now(),
+    refunded: false
+  });
+
+  var saved = await save(p);
+
+  if(!saved){
+    return pop("Save Failed","Withdrawal was not confirmed. Please refresh and check your balance before trying again.");
+  }
+
+  wdOtpCode = "";
+  wdOtpTime = 0;
+  el("wd-otp").value = "";
+
+  u = load(p.user) || p;
+  paint();
+  el("wd-amt").value = "";
+
+  pop(
+    "Withdraw Submitted",
+    "$" + amt.toFixed(2) +
+    " reserved. Fee: $" + fee.toFixed(2) +
+    ". Net payable: $" + netAmount.toFixed(2)
+  );
+}
+
+
+
+
+async function adWd(user, id, ok){
+  var p = load(user);
+
+  if(!p || !Array.isArray(p.wds))
+    return pop("Error","Withdrawal not found");
+
+  var w = p.wds.find(function(x){
+    return String(x.id) === String(id);
+  });
+
+  if(!w || (w.st !== "PENDING" && w.status !== "PENDING"))
+    return pop("Error","Already processed or not found");
+
+  var oldBalance = Number(p.bal || 0);
+  var amount = Number(w.amt || 0);
+
+  if(w.fee == null){
+    w.fee = Number((amount * 0.15).toFixed(2));
+  }
+
+  if(w.netAmount == null){
+    w.netAmount = Number((amount - w.fee).toFixed(2));
+  }
+
+  if(ok){
+    w.st = "PAID";
+    w.status = "PAID";
+    w.paidAt = Date.now();
+  }else{
+    if(!w.refunded){
+      p.profit = Number(
+        (Number(p.profit || 0) + amount).toFixed(2)
+      );
+      w.refunded = true;
+    }
+
+    w.st = "REJECTED";
+    w.status = "REJECTED";
+    w.rejectedAt = Date.now();
+  }
+
+  p.bal = oldBalance;
+
+  var saved = await save(p);
+
+  if(!saved){
+    return pop("Save Failed","Cloud update failed. Please refresh and verify before retrying.");
+  }
+
+  if(u && u.user === user) u = load(user) || p;
+
+  paint();
+
+  pop(
+    ok ? "Paid" : "Rejected",
+    ok
+      ? "Mark paid. Payable amount: $" + money(w.netAmount)
+      : "Full withdrawal amount refunded to Earn."
+  );
+}
+
+
+function approveWd(user, id){
+  adWd(user, id, true);
+}
+
+function rejectWd(user, id){
+  adWd(user, id, false);
+}
+function sendWdOtp(){
+  if(!u){pop("Login","Please login first");return;}
+  if(!u.email){pop("Email","Please set email in Settings first");return;}
+  wdOtpCode=String(Math.floor(100000+Math.random()*900000));
+  wdOtpTime=Date.now();
+  if(window.emailjs){
+    emailjs.init(EJ_PUB);
+    emailjs.send(EJ_SVC,EJ_TPL,{to_email:u.email,otp:wdOtpCode,name:u.user})
+    .then(function(){pop("OTP Sent","Check your email");})
+    .catch(function(){pop("Error","Failed to send OTP");});
+  } else pop("OTP",wdOtpCode);
+}
+
+function verifyWdOtp(){
+  var entered=(el("wd-otp")||{}).value||"";
+  if(!wdOtpCode||Date.now()-wdOtpTime>5*60*1000){pop("OTP","OTP expired. Send again");return false;}
+  if(entered!==wdOtpCode){pop("OTP","Invalid OTP");return false;}
+  return true;
+}
+
+
+
+
+
+
+function reinvest(){
+  if(!u) return;
+
+  if(reinvest.busy) return;
+
+  var p = load(u.user);
+  if(!p) return pop("Error","Account not found");
+
+  var available = Number(p.profit || 0);
+  var inputEl = el("reinvest-amt");
+  var n = Number(inputEl.value || 0);
+
+  if(available <= 0)
+    return pop("Nothing","No Earn available to reinvest");
+
+  if(!Number.isFinite(n) || n <= 0)
+    return pop("Error","Enter a valid reinvest amount");
+
+  if(n > available)
+    return pop("Error","Insufficient Earn balance");
+
+  if(n < 0.01)
+    return pop("Error","Minimum reinvest amount is $0.01");
+
+  reinvest.busy = true;
+
+  var popEl = el("pop");
+
+  popEl.innerHTML = `
+    <div class="box" onclick="event.stopPropagation()">
+      <h3 style="color:#c4b5fd;font-size:23px">Reinvesting</h3>
+
+      <div style="color:#c4b5fd;font-size:28px;font-weight:700;margin:15px 0">
+        $${n.toFixed(2)}
+      </div>
+
+      <div style="width:110px;height:110px;margin:20px auto;position:relative">
+        <svg viewBox="0 0 120 120" width="110" height="110">
+          <circle cx="60" cy="60" r="50"
+            stroke="#493365" stroke-width="7" fill="none"/>
+          <circle cx="60" cy="60" r="50"
+            stroke="#c4b5fd" stroke-width="7" fill="none"
+            stroke-linecap="round" stroke-dasharray="314"
+            stroke-dashoffset="314"
+            transform="rotate(-90 60 60)"
+            style="animation:reinvestCircle 5s linear forwards"/>
+        </svg>
+        <div id="reinvest-count"
+          style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e9d5ff;font-size:25px;font-weight:700">
+          5s
+        </div>
+      </div>
+
+      <p style="color:#c4b5fd;font-size:13px">
+        Please wait while your reinvestment is processing...
+      </p>
+    </div>
+  `;
+
+  popEl.classList.remove("hidden");
+
+  var seconds = 5;
+
+  var timer = setInterval(function(){
+    seconds--;
+    var count = el("reinvest-count");
+    if(count) count.textContent = seconds + "s";
+
+    if(seconds <= 0){
+      clearInterval(timer);
+
+      // Reload latest account data before updating
+      var latest = load(u.user);
+
+      if(!latest){
+        reinvest.busy = false;
+        return pop("Error","Account not found");
+      }
+
+      var latestEarn = Number(latest.profit || 0);
+
+      if(n > latestEarn){
+        reinvest.busy = false;
+        return pop("Error","Earn balance changed. Please try again.");
+      }
+
+      latest.profit = Number((latestEarn - n).toFixed(2));
+      latest.bal = Number(
+  (Number(latest.bal || 0) + n).toFixed(2)
+);
+      save(latest);
+
+      u = load(latest.user) || latest;
+      paint();
+
+      inputEl.value = "";
+      reinvest.busy = false;
+
+      popEl.innerHTML = `
+        <div class="box" onclick="event.stopPropagation()">
+          <div style="font-size:42px;margin-bottom:10px">✓</div>
+          <h3 style="color:#c4b5fd;font-size:24px">Reinvest Successful</h3>
+          <div style="color:#e9d5ff;font-size:28px;font-weight:700;margin:15px 0">
+            $${n.toFixed(2)}
+          </div>
+          <p style="color:#c4b5fd;font-size:13px">
+            Amount added to your investment successfully.
+          </p>
+          <button onclick="closePop()"
+            style="width:100%;padding:12px;border-radius:13px;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:white;font-weight:700">
+            Done
+          </button>
+        </div>
+      `;
+    }
+  },1000);
+}
+
+function coin(){
+  try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(720,a.currentTime);o.frequency.exponentialRampToValueAtTime(360,a.currentTime+.2);g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+.28);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.28)}catch(e){}
+}
+
+
+(function(){var q=new URLSearchParams(location.search).get("ref")||"";if(q){show("box-signup");el("su-ref").value=q.toUpperCase()}})();
+  window.addEventListener("load", function(){
+  allCloud().then(function(){
+    var s = localStorage.getItem("mint_session");
+    if(s === "admin"){
+      u = {user:"admin", bal:0, profit:0, base:0, ref:"ADMIN", deps:[], wds:[], amb:[]};
+      enter();
+      return;
+    }
+    if(s){
+      loadCloud(s).then(function(p){
+        if(p){
+          u = p;
+          enter();
+        } else {
+          show("box-login");
+        }
+      });
+    }
+  });
+});
+  
+async function submitSupport() {
+  const category = document.getElementById("support-category").value;
+  const message = document.getElementById("support-message").value.trim();
+
+  if (message.length < 5) {
+    alert("Please enter at least 5 characters.");
+    return;
+  }
+
+  const btn = document.querySelector(
+    "#support button[onclick='submitSupport()']"
+  );
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+  }
+
+  try {
+    const { data, error } = await sb.functions.invoke("support-admin", {
+      body: {
+        action: "submit",
+        category,
+        message
+      }
+    });
+
+    if (error) throw error;
+    if (!data || !data.ok) {
+      throw new Error(data?.error || "Could not submit ticket");
+    }
+
+    document.getElementById("support-message").value = "";
+    alert("Support request submitted successfully!");
+    await loadMySupport();
+
+  } catch (err) {
+    alert("Support Error: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Submit Support Request";
+    }
+  }
+}
+
+async function loadMySupport() {
+  const box = document.getElementById("support-my-list");
+  if (!box) return;
+
+  box.textContent = "Loading tickets...";
+
+  try {
+    const { data, error } = await sb.functions.invoke("support-admin", {
+      body: { action: "my_messages" }
+    });
+
+    if (error) throw error;
+    if (!data || !data.ok) {
+      throw new Error(data?.error || "Could not load tickets");
+    }
+
+    const messages = data.messages || [];
+
+    if (!messages.length) {
+      box.textContent = "No support tickets yet.";
+      return;
+    }
+
+    box.innerHTML = "";
+
+    messages.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "rounded-xl p-3 mb-3";
+      card.style.background = "#111713";
+      card.style.border = "1px solid #3b493e";
+
+      const title = document.createElement("div");
+      title.className = "font-semibold text-white mb-2";
+      title.textContent = item.category + " • " + item.status;
+
+      const msg = document.createElement("div");
+      msg.className = "text-sm text-[#d9d2c2] whitespace-pre-wrap";
+      msg.textContent = item.message;
+
+      card.append(title, msg);
+
+      if (item.admin_reply) {
+        const reply = document.createElement("div");
+        reply.className = "mt-3 pt-3 text-sm whitespace-pre-wrap";
+        reply.style.borderTop = "1px solid #3b493e";
+        reply.style.color = "#a8c6b1";
+        reply.textContent = "Admin Reply: " + item.admin_reply;
+        card.appendChild(reply);
+      }
+
+      const date = document.createElement("div");
+      date.className = "text-xs text-[#b7ad98] mt-3";
+      date.textContent = item.created_at
+        ? new Date(item.created_at).toLocaleString()
+        : "";
+      card.appendChild(date);
+
+      box.appendChild(card);
+    });
+
+  } catch (err) {
+    box.textContent = "Error loading tickets: " + err.message;
+  }
+}
+
+</script>
+</body>
+</html>
