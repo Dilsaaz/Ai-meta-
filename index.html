@@ -1072,13 +1072,20 @@ function rankOf(p){
     if(seconds <= 0){
       clearInterval(timer);
 
-      // Calculate 2.5% of wallet balance
-      var profit = +(walletBalance * 0.025).toFixed(2);
+     // Rank-based daily profit
+var rk = rankOf(u);
+var rate = 0.014; // Rank 0 / 1 → 1.40%
+if(rk === 2) rate = 0.018;      // 1.80%
+else if(rk === 3) rate = 0.02;  // 2.00%
+else if(rk === 4) rate = 0.0215;// 2.15%
+else if(rk >= 5) rate = 0.025;  // 2.50%
 
-      // IMPORTANT: Add reward ONLY to Earn.
-      // Wallet Balance remains unchanged.
-      u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
+var profit = +(walletBalance * rate).toFixed(2);
+var pct = (rate * 100).toFixed(2);
 
+// IMPORTANT: Add reward ONLY to Earn.
+// Wallet Balance remains unchanged.
+u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
       // Next trade tomorrow at 6 AM
       var next = new Date();
       next.setDate(next.getDate()+1);
@@ -1112,7 +1119,7 @@ function rankOf(p){
           </div>
 
           <div style="font-size:13px;color:#c9bddb;margin-bottom:20px">
-            2.5% reward added to your Earn balance
+         ${pct}% reward added to your Earn balance
           </div>
 
           <div style="background:#30234b;border-radius:12px;padding:12px;margin-bottom:20px;font-size:12px;color:#d8c9ee">
