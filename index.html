@@ -2244,60 +2244,79 @@ function saveSettings(){
   }
 }
 
+
+var depositSubmitting = false;
+
 async function deposit(){
-  var amt = Number(el("dep-amt").value);
-  var hash = el("dep-hash").value.trim();
+  if(depositSubmitting) return;
 
-  if(amt < 100){
-    pop("Minimum","Deposit at least $100");
-    return;
-  }
+  depositSubmitting = true;
 
-  if(hash.length < 10){
-    pop("Hash","Enter transaction hash");
-    return;
-  }
+  try {
+    var amt = Number(el("dep-amt").value);
+    var hash = el("dep-hash").value.trim();
 
-  u.deps = u.deps || [];
-
-  if(u.deps.some(function(d){
-    return d.hash === hash;
-  })){
-    pop("Used","Hash already used");
-    return;
-  }
-
-  u.deps.unshift({
-    hash: hash,
-    amt: amt,
-    st: "PENDING",
-    t: Date.now()
-  });
-
-  var saved = await save(u);
-
-  if(!saved){
-    pop("Save Failed","Please try again.");
-    return;
-  }
-
-  paint();
-
-  var result = await sb.functions.invoke("deposit-notify", {
-    body: {
-      hash: hash,
-      amount: amt
+    if(amt < 100){
+      pop("Minimum","Deposit at least $100");
+      return;
     }
-  });
 
-  if(result.error || !result.data || !result.data.ok){
-    console.error("Telegram notification failed:", result.error || result.data);
-    pop("Request Saved","Deposit pending. Telegram notification failed.");
-    return;
+    if(hash.length < 10){
+      pop("Hash","Enter transaction hash");
+      return;
+    }
+
+    u.deps = u.deps || [];
+
+    if(u.deps.some(function(d){
+      return d.hash === hash;
+    })){
+      pop("Used","Hash already used");
+      return;
+    }
+
+    u.deps.unshift({
+      hash: hash,
+      amt: amt,
+      st: "PENDING",
+      t: Date.now()
+    });
+
+    var saved = await save(u);
+
+    if(!saved){
+      u.deps.shift();
+      pop("Save Failed","Please try again.");
+      return;
+    }
+
+    paint();
+
+    try {
+      var result = await sb.functions.invoke("deposit-notify", {
+        body: {
+          hash: hash,
+          amount: amt
+        }
+      });
+
+      if(result.error || !result.data || !result.data.ok){
+        console.error("Notification error:", result.error || result.data);
+      }
+    } catch(notificationError) {
+      console.error("Notification error:", notificationError);
+    }
+
+    pop("Waiting","Deposit submitted. Waiting for admin approval.");
+
+  } catch(error) {
+    console.error("Deposit error:", error);
+    pop("Error","Please try again.");
+  } finally {
+    depositSubmitting = false;
   }
-
-  pop("Waiting","Deposit submitted. Admin has been notified.");
 }
+
 
 
 async function adDep(user, hash, ok){
