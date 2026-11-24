@@ -2243,15 +2243,62 @@ function saveSettings(){
     pop("Update Failed",error.message || "Please try again.");
   }
 }
-function deposit(){
-  var amt=+el("dep-amt").value, hash=el("dep-hash").value.trim();
-  if(amt<100){pop("Minimum","Deposit at least $100");return;}
-  if(hash.length<10){pop("Hash","Enter transaction hash");return}
-  u.deps=u.deps||[];
-  if(u.deps.some(function(d){return d.hash===hash})){pop("Used","Hash already used");return}
-  u.deps.unshift({hash:hash,amt:amt,st:"PENDING",t:Date.now()});
-  save(u);paint(); pop("Waiting","Deposit submitted. Waiting for admin approval.");
+
+async function deposit(){
+  var amt = Number(el("dep-amt").value);
+  var hash = el("dep-hash").value.trim();
+
+  if(amt < 100){
+    pop("Minimum","Deposit at least $100");
+    return;
+  }
+
+  if(hash.length < 10){
+    pop("Hash","Enter transaction hash");
+    return;
+  }
+
+  u.deps = u.deps || [];
+
+  if(u.deps.some(function(d){
+    return d.hash === hash;
+  })){
+    pop("Used","Hash already used");
+    return;
+  }
+
+  u.deps.unshift({
+    hash: hash,
+    amt: amt,
+    st: "PENDING",
+    t: Date.now()
+  });
+
+  var saved = await save(u);
+
+  if(!saved){
+    pop("Save Failed","Please try again.");
+    return;
+  }
+
+  paint();
+
+  var result = await sb.functions.invoke("deposit-notify", {
+    body: {
+      hash: hash,
+      amount: amt
+    }
+  });
+
+  if(result.error || !result.data || !result.data.ok){
+    console.error("Telegram notification failed:", result.error || result.data);
+    pop("Request Saved","Deposit pending. Telegram notification failed.");
+    return;
+  }
+
+  pop("Waiting","Deposit submitted. Admin has been notified.");
 }
+
 
 async function adDep(user, hash, ok){
   var p = await loadCloud(user);
