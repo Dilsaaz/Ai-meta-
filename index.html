@@ -2245,12 +2245,14 @@ function saveSettings(){
 }
 
 
+
 var depositSubmitting = false;
 
 async function deposit(){
   if(depositSubmitting) return;
 
   depositSubmitting = true;
+  var releaseLock = true;
 
   try {
     var amt = Number(el("dep-amt").value);
@@ -2292,30 +2294,37 @@ async function deposit(){
 
     paint();
 
-    try {
-      var result = await sb.functions.invoke("deposit-notify", {
-        body: {
-          hash: hash,
-          amount: amt
-        }
-      });
-
-      if(result.error || !result.data || !result.data.ok){
-        console.error("Notification error:", result.error || result.data);
-      }
-    } catch(notificationError) {
-      console.error("Notification error:", notificationError);
-    }
-
+    // Show popup immediately after saving
     pop("Waiting","Deposit submitted. Waiting for admin approval.");
+
+    // Send Telegram notification in background
+    sb.functions.invoke("deposit-notify", {
+      body: {
+        hash: hash,
+        amount: amt
+      }
+    }).then(function(result){
+      if(result.error || !result.data || !result.data.ok){
+        console.error("Telegram notification error:", result.error || result.data);
+      }
+    }).catch(function(error){
+      console.error("Telegram notification error:", error);
+    }).finally(function(){
+      depositSubmitting = false;
+    });
+
+    releaseLock = false;
 
   } catch(error) {
     console.error("Deposit error:", error);
     pop("Error","Please try again.");
   } finally {
-    depositSubmitting = false;
+    if(releaseLock){
+      depositSubmitting = false;
+    }
   }
 }
+
 
 
 
