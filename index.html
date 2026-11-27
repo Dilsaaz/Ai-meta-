@@ -1102,6 +1102,8 @@ var pct = (rate * 100).toFixed(2);
 
 // IMPORTANT: Add reward ONLY to Earn.
 // Wallet Balance remains unchanged.
+   var oldProfit = Number(u.profit) || 0;
+var oldNextTrade = u.nextTrade || 0;   
 u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
       // Next trade tomorrow at 6 AM
       var next = new Date();
@@ -1109,8 +1111,24 @@ u.profit = +((Number(u.profit)||0)+profit).toFixed(2);
       next.setHours(6,0,0,0);
       u.nextTrade = next.getTime();
 
-      save(u);
-      paint();
+      var saved = await save(u);
+
+if(!saved){
+  u.profit = oldProfit;
+  u.nextTrade = oldNextTrade;
+
+  localStorage.setItem("mint_" + u.user, JSON.stringify(u));
+
+  overlay.remove();
+  btn.disabled = false;
+  btn.textContent = "Trade Now";
+
+  paint();
+  pop("Save Failed", "Please try again.");
+  return;
+}
+
+paint();
 
       if(msg) msg.textContent = "Next trade available tomorrow at 6 AM";
 
