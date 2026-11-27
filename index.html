@@ -713,95 +713,126 @@ body{
 
 
     </div>
-<!-- DEPOSIT PAGE -->
+
+<!-- PREMIUM DEPOSIT PAGE -->
 <div id="deposit" class="hidden">
 
-  <div class="card p-5 mb-4">
-    <div class="flex items-center justify-between mb-4">
+  <!-- DEPOSIT WALLET CARD -->
+  <div class="card p-5 mb-4"
+       style="background:radial-gradient(ellipse at top right,rgba(168,85,247,.18),transparent 55%),linear-gradient(145deg,#1b0b30,#090611);border:1px solid rgba(192,132,252,.38);border-radius:24px;box-shadow:0 12px 35px rgba(124,58,237,.14)">
+
+    <div class="flex items-center justify-between mb-5">
       <div>
-        <div class="serif text-2xl">Deposit USDT</div>
-        <div class="text-xs text-[#b7ad98] mt-1">
+        <div class="serif text-2xl text-white">Deposit USDT</div>
+        <div class="text-xs text-purple-200 mt-2">
           Add funds to your Mintora wallet
         </div>
       </div>
-      <div class="text-2xl">💎</div>
+      <div class="rounded-2xl p-3 text-2xl"
+           style="background:rgba(168,85,247,.14);border:1px solid rgba(192,132,252,.25)">
+        💎
+      </div>
     </div>
 
-    <div class="rounded-xl p-4 mb-4"
-         style="background:#17251f;border:1px solid #315b43">
+    <!-- PAYMENT NETWORK -->
+    <div class="rounded-2xl p-4 mb-5"
+         style="background:linear-gradient(120deg,#14271f,#102019);border:1px solid rgba(74,222,128,.28);box-shadow:inset 0 0 20px rgba(34,197,94,.04)">
 
-      <div class="text-xs text-[#b7ad98] mb-2">
+      <div class="text-[10px] tracking-widest text-green-200 mb-3">
         SELECTED PAYMENT NETWORK
       </div>
 
-      <div class="flex items-center gap-2">
-        <span class="text-xl">🟡</span>
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">🟡</div>
         <div>
           <div class="font-bold text-white">USDT (BEP20)</div>
-          <div class="text-xs text-[#a8c6b1]">
+          <div class="text-xs text-green-100 mt-1">
             BNB Smart Chain
           </div>
         </div>
-        <div class="ml-auto text-xs text-green-400">
-          ACTIVE
+        <div class="ml-auto text-xs font-bold text-green-400">
+          ● ACTIVE
         </div>
       </div>
     </div>
 
-    <div class="text-sm font-semibold mb-2">
-      Deposit Wallet Address
+    <!-- WALLET ADDRESS -->
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-sm font-bold text-white">
+        Deposit Wallet Address
+      </div>
+      <div class="text-[10px] text-purple-300">
+        BEP20
+      </div>
     </div>
 
-    <div class="rounded-xl p-3 mb-3"
-         style="background:#111713;border:1px solid #3b493e">
+    <div class="rounded-2xl p-4 mb-4"
+         style="background:linear-gradient(145deg,#111522,#0b0d16);border:1px solid rgba(192,132,252,.25)">
 
       <div id="dep-addr"
-           class="text-xs break-all leading-6 text-[#d9d2c2]">
+           class="text-xs break-all leading-6 text-purple-100">
         0x6d1D70332A468572f493820D7ffbA70a00545E4C
       </div>
 
-      <button class="btn w-full mt-3"
+      <button class="btn w-full mt-4"
               onclick="copyAddr()">
-        Copy Wallet Address
+        <span>▣</span> Copy Wallet Address
       </button>
     </div>
 
-    <div class="rounded-lg p-3 text-xs leading-5"
-         style="background:#33251a;color:#f5c98a">
-      ⚠️ Important: Send only USDT through the BEP20 network.
-      Do not send USDT through TRC20, ERC20 or any other network.
-      Funds sent through the wrong network may be lost.
+    <!-- WARNING -->
+    <div class="rounded-xl p-4 text-xs leading-6"
+         style="background:rgba(120,75,25,.20);border:1px solid rgba(245,158,11,.22);color:#f6d49a">
+      <div class="font-bold mb-1">⚠️ Important Network Warning</div>
+      Send only USDT through the BEP20 network. Do not send USDT through TRC20, ERC20 or any other network. Funds sent through the wrong network may be lost.
     </div>
   </div>
 
-  <div class="card p-5">
-    <div class="serif text-xl mb-1">Submit Deposit</div>
-    <div class="text-xs text-[#b7ad98] mb-4">
+  <!-- SUBMIT DEPOSIT CARD -->
+  <div class="card p-5"
+       style="background:radial-gradient(ellipse at top left,rgba(124,58,237,.15),transparent 55%),linear-gradient(145deg,#180b2b,#090611);border:1px solid rgba(192,132,252,.35);border-radius:24px;box-shadow:0 12px 35px rgba(124,58,237,.12)">
+
+    <div class="flex items-center justify-between mb-2">
+      <div class="serif text-xl text-white">
+        Submit Deposit
+      </div>
+      <div class="text-xl text-purple-300">↗</div>
+    </div>
+
+    <div class="text-xs text-purple-200 leading-5 mb-5">
       Enter your deposit amount and transaction hash after payment.
     </div>
 
-    <label class="text-sm block mb-2">Amount (USDT)</label>
+    <label class="text-sm block mb-2 font-semibold text-white">
+      Amount (USDT)
+    </label>
+
     <input
       id="dep-amt"
       type="number"
       min="100"
       placeholder="Minimum 100 USDT"
-      class="mb-4"
+      class="mb-5"
     />
 
-    <label class="text-sm block mb-2">Transaction Hash (TxID)</label>
+    <label class="text-sm block mb-2 font-semibold text-white">
+      Transaction Hash (TxID)
+    </label>
+
     <input
       id="dep-hash"
       type="text"
       placeholder="Paste your BEP20 transaction hash"
-      class="mb-4"
+      class="mb-5"
     />
 
-    <button class="btn w-full" onclick="deposit()">
+    <button class="btn w-full"
+            onclick="deposit()">
       Submit Deposit Request
     </button>
 
-    <div class="text-xs text-center text-[#b7ad98] mt-3">
+    <div class="flex items-center justify-center gap-2 text-xs text-purple-200 mt-4">
+      <span>🔒</span>
       Your deposit will remain pending until admin verification.
     </div>
   </div>
