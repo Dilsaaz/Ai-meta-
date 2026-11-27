@@ -613,31 +613,80 @@ body{
   <div id="trade-msg" class="text-sm text-[#b7ad98] mb-3">Ready to trade</div>
   <button class="btn w-full" onclick="startTrade()" id="trade-btn">Trade Now</button>
     </div>
-   <!-- PREMIUM MARKET CHART -->
-<div class="card p-4 mb-4" style="background:linear-gradient(145deg,#180e29,#0e0918);border:1px solid rgba(167,139,250,.22)">
-  <div class="flex justify-between items-center mb-3">
+   
+<!-- PREMIUM MARKET OVERVIEW -->
+<div class="card p-5 mb-4"
+     style="background:radial-gradient(ellipse at top right,rgba(124,58,237,.20),transparent 55%),linear-gradient(145deg,#180b2b,#090611);border:1px solid rgba(167,139,250,.35);border-radius:24px;box-shadow:0 12px 35px rgba(100,40,180,.12)">
+
+  <div class="flex justify-between items-center mb-5">
     <div>
-      <div class="text-sm font-bold text-white">Market Overview</div>
-      <div class="text-[10px] text-[#a78bfa] mt-1">BTC / USDT · 7 Days</div>
+      <div class="text-lg font-bold text-white">Market Overview</div>
+      <div class="text-xs text-purple-300 mt-1">BTC / USDT · 7 Days</div>
     </div>
-    <div class="text-[10px] text-green-400">● LIVE MARKET</div>
+    <div id="market-status"
+         class="text-[10px] font-bold px-3 py-2 rounded-full"
+         style="background:rgba(34,197,94,.10);color:#86efac;border:1px solid rgba(34,197,94,.25)">
+      ● CONNECTING
+    </div>
   </div>
 
-  <div class="flex items-end justify-between mb-2">
+  <div class="flex justify-between items-end mb-4">
     <div>
-      <div id="btc-main-price" class="text-2xl font-bold text-white">$--</div>
-      <div id="btc-main-change" class="text-xs text-gray-400 mt-1">Loading market...</div>
+      <div id="btc-main-price"
+           class="text-3xl font-extrabold text-white">$--</div>
+      <div id="btc-main-change"
+           class="text-sm text-gray-400 mt-2">Loading market data...</div>
     </div>
-    <div class="text-[10px] text-[#a78bfa]">7D PERFORMANCE</div>
+    <div class="text-[10px] text-purple-300 font-semibold">
+      7D PERFORMANCE
+    </div>
   </div>
 
-  <div style="height:155px;position:relative">
+  <div style="height:180px;position:relative;padding:8px 0">
     <canvas id="market-chart"></canvas>
   </div>
 
-  <div class="flex justify-between text-[10px] text-gray-500 mt-2">
+  <div class="flex justify-between text-xs text-gray-500 mt-3">
     <span>7 days ago</span>
     <span>Today</span>
+  </div>
+</div>
+
+<!-- PREMIUM LIVE MARKET RATES -->
+<div class="card p-5 mb-4"
+     style="background:linear-gradient(145deg,#180b2b,#0b0714);border:1px solid rgba(167,139,250,.30);border-radius:24px">
+
+  <div class="flex justify-between items-center mb-5">
+    <div>
+      <div class="text-base font-bold text-white">Live Market Rates</div>
+      <div class="text-xs text-gray-500 mt-1">Cryptocurrency prices</div>
+    </div>
+    <div class="text-[10px] font-bold text-green-400">● LIVE</div>
+  </div>
+
+  <div id="market-rates" class="space-y-3">
+    <div class="text-sm text-gray-400 text-center py-5">
+      Connecting to market...
+    </div>
+  </div>
+
+  <div class="text-[10px] text-gray-500 mt-5 pt-3"
+       style="border-top:1px solid rgba(167,139,250,.15)">
+    Market data source: Binance · Prices in USDT
+  </div>
+</div>
+
+<!-- PREMIUM TRADE ACTIVITY -->
+<div class="card p-5 mb-4"
+     style="background:linear-gradient(145deg,#180b2b,#0b0714);border:1px solid rgba(167,139,250,.30);border-radius:24px">
+
+  <div class="flex items-center justify-between mb-3">
+    <div class="text-base font-bold text-white">Trade Activity</div>
+    <div class="text-xl" style="color:#c084fc">↗</div>
+  </div>
+
+  <div class="text-sm text-gray-400 leading-6">
+    Your actual trade records will appear here when connected to a verified trading backend.
   </div>
 </div>
 
