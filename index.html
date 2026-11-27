@@ -235,6 +235,92 @@ input:focus{border-color:#3b82f6;outline:none}
   text-align:center;
   margin-top:25px;
 }
+  
+/* MINTORA ROYAL PREMIUM BACKGROUND */
+
+body{
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(105,35,190,.20), transparent 42%),
+    radial-gradient(ellipse at 0% 55%, rgba(124,58,237,.12), transparent 40%),
+    radial-gradient(ellipse at 100% 85%, rgba(91,33,182,.14), transparent 40%),
+    #080410;
+}
+
+#auth{
+  position:relative;
+  isolation:isolate;
+  max-width:480px;
+  padding:45px 22px 45px;
+  min-height:100vh;
+}
+
+#auth::before{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  top:190px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(124,58,237,.13);
+  filter:blur(85px);
+  border-radius:50%;
+  z-index:-1;
+  pointer-events:none;
+}
+
+.auth-logo{
+  font-size:72px;
+  letter-spacing:-2px;
+  text-shadow:
+    0 0 15px rgba(167,139,250,.35),
+    0 0 45px rgba(124,58,237,.25);
+}
+
+.auth-card{
+  background:linear-gradient(
+    145deg,
+    rgba(34,18,53,.96),
+    rgba(12,6,23,.98)
+  );
+  border:1px solid rgba(167,139,250,.35);
+  border-radius:28px;
+  padding:30px 25px;
+  box-shadow:
+    0 20px 65px rgba(0,0,0,.55),
+    0 0 35px rgba(124,58,237,.13),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);
+}
+
+.auth-card input{
+  border:1px solid rgba(167,139,250,.32);
+  background:rgba(7,4,15,.88);
+}
+
+.auth-card input:focus{
+  border-color:#c084fc;
+  box-shadow:0 0 18px rgba(168,85,247,.20);
+}
+
+.auth-primary{
+  background:linear-gradient(110deg,#b47aff,#8b35f0,#7025d9);
+  box-shadow:
+    0 8px 28px rgba(124,58,237,.42),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+.auth-secondary{
+  border-color:rgba(167,139,250,.4);
+  background:rgba(124,58,237,.09);
+}
+
+@media(max-width:380px){
+  #auth{padding-left:15px;padding-right:15px}
+  .auth-card{padding:25px 19px}
+  .auth-logo{font-size:62px}
+}
+
 </style>
 </head>
 <body>
