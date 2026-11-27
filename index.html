@@ -839,18 +839,94 @@ body{
 
 </div>
 
-<!-- WITHDRAW PAGE -->
-<div id="withdraw" class="card p-5 hidden">
-  <div class="serif text-2xl mb-2">Withdraw</div>
-  <div class="text-sm text-[#b7ad98] mb-3">
-    Minimum $10. Paid after admin approval.
+
+<!-- PREMIUM WITHDRAW PAGE -->
+<div id="withdraw" class="card p-5 hidden"
+     style="background:radial-gradient(ellipse at top right,rgba(168,85,247,.18),transparent 55%),linear-gradient(145deg,#1b0b30,#090611);border:1px solid rgba(192,132,252,.38);border-radius:24px;box-shadow:0 12px 35px rgba(124,58,237,.14)">
+
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <div class="serif text-2xl text-white">Withdraw</div>
+      <div class="text-xs text-purple-200 mt-2">
+        Withdraw your available balance
+      </div>
+    </div>
+    <div class="rounded-2xl p-3 text-2xl"
+         style="background:rgba(168,85,247,.14);border:1px solid rgba(192,132,252,.25)">
+      💸
+    </div>
   </div>
-  <input id="wd-amt" type="number" min="10" placeholder="Amount" class="mb-3"/>
-  <input id="wd-addr" placeholder="Your BEP20 address" class="mb-4"/>
-  <input id="wd-otp" type="text" placeholder="Enter OTP" maxlength="6"/>
-  <button class="ghost w-full mt-2" onclick="sendWdOtp()">Send OTP</button>
-  <button class="btn w-full mt-3" onclick="withdraw()">Request withdraw</button>
+
+  <!-- WITHDRAW INFO -->
+  <div class="rounded-2xl p-4 my-5"
+       style="background:linear-gradient(120deg,#24113b,#12091f);border:1px solid rgba(192,132,252,.28)">
+    <div class="text-[10px] tracking-widest text-purple-300 mb-2">
+      WITHDRAWAL INFORMATION
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-gray-400">Minimum withdrawal</div>
+        <div class="text-xl font-bold text-white mt-1">$10.00</div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-gray-400">Processing</div>
+        <div class="text-sm font-bold text-purple-300 mt-1">
+          Admin Approval
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMOUNT -->
+  <label class="text-sm block mb-2 font-semibold text-white">
+    Withdrawal Amount (USDT)
+  </label>
+  <input
+    id="wd-amt"
+    type="number"
+    min="10"
+    placeholder="Enter amount (Minimum $10)"
+    class="mb-5"
+  />
+
+  <!-- WALLET -->
+  <label class="text-sm block mb-2 font-semibold text-white">
+    BEP20 Wallet Address
+  </label>
+  <input
+    id="wd-addr"
+    placeholder="Enter your BEP20 address"
+    class="mb-5"
+  />
+
+  <!-- OTP -->
+  <label class="text-sm block mb-2 font-semibold text-white">
+    Verification OTP
+  </label>
+  <input
+    id="wd-otp"
+    type="text"
+    placeholder="Enter 6-digit OTP"
+    maxlength="6"
+  />
+
+  <button class="ghost w-full mt-3"
+          onclick="sendWdOtp()">
+    Send OTP
+  </button>
+
+  <button class="btn w-full mt-4"
+          onclick="withdraw()">
+    Request Withdrawal
+  </button>
+
+  <div class="rounded-xl p-3 mt-5 text-xs leading-5 text-center"
+       style="background:rgba(168,85,247,.09);border:1px solid rgba(192,132,252,.18);color:#d8b4fe">
+    🔒 Your withdrawal request will be processed after admin approval.
+  </div>
+
 </div>
+
 
 <!-- SUPPORT PAGE -->
 <div id="support" class="hidden">
