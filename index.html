@@ -2750,12 +2750,13 @@ async function submitSupport() {
 
   try {
     const { data, error } = await sb.functions.invoke("support-admin", {
-      body: {
-        action: "submit",
-        category,
-        message
-      }
-    });
+  body: {
+    action: "submit",
+    username: (u && u.user) ? u.user : "",
+    category,
+    message
+  }
+});
 
     if (error) throw error;
     if (!data || !data.ok) {
@@ -2784,8 +2785,11 @@ async function loadMySupport() {
 
   try {
     const { data, error } = await sb.functions.invoke("support-admin", {
-      body: { action: "my_messages" }
-    });
+  body: {
+    action: "my_messages",
+    username: (u && u.user) ? u.user : ""
+  }
+});
 
     if (error) throw error;
     if (!data || !data.ok) {
