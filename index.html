@@ -978,13 +978,15 @@ function rankOf(p){
     weekday: "short"
   }).format(new Date());
 
-  if(indiaDay === "Sat"){
+    if(indiaDay === "Sat" || indiaDay === "Wed"){
+    var offDayName = indiaDay === "Wed" ? "Wednesday" : "Saturday";
+
     pop(
       "No Profit Today",
-      "Saturday is a weekly off day. Please come back tomorrow."
+      offDayName + " is a weekly off day. Please come back tomorrow."
     );
 
-    if(msg) msg.textContent = "Saturday - Weekly Off Day";
+    if(msg) msg.textContent = offDayName + " - Weekly Off Day";
     return;
   }
   var walletBalance = Number(u.bal) || 0;
